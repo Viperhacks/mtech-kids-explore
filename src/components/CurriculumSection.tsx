@@ -4,70 +4,87 @@ import { GraduationCap, Book, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
 // Sample curriculum data - would come from an API in a real app
 const curriculumData = {
   'Grade 3': {
+    id: 'grade3',
     subjects: [
-      { id: 1, name: 'Mathematics', videoCount: 8, quizCount: 5 },
-      { id: 2, name: 'English', videoCount: 6, quizCount: 4 },
-      { id: 3, name: 'Science', videoCount: 7, quizCount: 3 },
-      { id: 4, name: 'Shona', videoCount: 5, quizCount: 2 },
+      { id: 'mathematics', name: 'Mathematics', videoCount: 8, quizCount: 5 },
+      { id: 'english', name: 'English', videoCount: 6, quizCount: 4 },
+      { id: 'science', name: 'Science', videoCount: 7, quizCount: 3 },
+      { id: 'shona', name: 'Shona', videoCount: 5, quizCount: 2 },
     ]
   },
   'Grade 4': {
+    id: 'grade4',
     subjects: [
-      { id: 1, name: 'Mathematics', videoCount: 10, quizCount: 6 },
-      { id: 2, name: 'English', videoCount: 8, quizCount: 5 },
-      { id: 3, name: 'Science', videoCount: 9, quizCount: 4 },
-      { id: 4, name: 'Shona', videoCount: 7, quizCount: 3 },
+      { id: 'mathematics', name: 'Mathematics', videoCount: 10, quizCount: 6 },
+      { id: 'english', name: 'English', videoCount: 8, quizCount: 5 },
+      { id: 'science', name: 'Science', videoCount: 9, quizCount: 4 },
+      { id: 'shona', name: 'Shona', videoCount: 7, quizCount: 3 },
     ]
   },
   'Grade 5': {
+    id: 'grade5',
     subjects: [
-      { id: 1, name: 'Mathematics', videoCount: 12, quizCount: 7 },
-      { id: 2, name: 'English', videoCount: 10, quizCount: 6 },
-      { id: 3, name: 'Science', videoCount: 11, quizCount: 5 },
-      { id: 4, name: 'Shona', videoCount: 9, quizCount: 4 },
-      { id: 5, name: 'Agriculture', videoCount: 6, quizCount: 3 },
+      { id: 'mathematics', name: 'Mathematics', videoCount: 12, quizCount: 7 },
+      { id: 'english', name: 'English', videoCount: 10, quizCount: 6 },
+      { id: 'science', name: 'Science', videoCount: 11, quizCount: 5 },
+      { id: 'shona', name: 'Shona', videoCount: 9, quizCount: 4 },
+      { id: 'agriculture', name: 'Agriculture', videoCount: 6, quizCount: 3 },
     ]
   },
   'Grade 6': {
+    id: 'grade6',
     subjects: [
-      { id: 1, name: 'Mathematics', videoCount: 14, quizCount: 8 },
-      { id: 2, name: 'English', videoCount: 12, quizCount: 7 },
-      { id: 3, name: 'Science', videoCount: 13, quizCount: 6 },
-      { id: 4, name: 'Shona', videoCount: 11, quizCount: 5 },
-      { id: 5, name: 'Agriculture', videoCount: 8, quizCount: 4 },
-      { id: 6, name: 'ICT', videoCount: 7, quizCount: 3 },
+      { id: 'mathematics', name: 'Mathematics', videoCount: 14, quizCount: 8 },
+      { id: 'english', name: 'English', videoCount: 12, quizCount: 7 },
+      { id: 'science', name: 'Science', videoCount: 13, quizCount: 6 },
+      { id: 'shona', name: 'Shona', videoCount: 11, quizCount: 5 },
+      { id: 'agriculture', name: 'Agriculture', videoCount: 8, quizCount: 4 },
+      { id: 'ict', name: 'ICT', videoCount: 7, quizCount: 3 },
     ]
   },
   'Grade 7': {
+    id: 'grade7',
     subjects: [
-      { id: 1, name: 'Mathematics', videoCount: 16, quizCount: 9 },
-      { id: 2, name: 'English', videoCount: 14, quizCount: 8 },
-      { id: 3, name: 'Science', videoCount: 15, quizCount: 7 },
-      { id: 4, name: 'Shona', videoCount: 13, quizCount: 6 },
-      { id: 5, name: 'Agriculture', videoCount: 10, quizCount: 5 },
-      { id: 6, name: 'ICT', videoCount: 9, quizCount: 4 },
-      { id: 7, name: 'Heritage', videoCount: 8, quizCount: 3 },
+      { id: 'mathematics', name: 'Mathematics', videoCount: 16, quizCount: 9 },
+      { id: 'english', name: 'English', videoCount: 14, quizCount: 8 },
+      { id: 'science', name: 'Science', videoCount: 15, quizCount: 7 },
+      { id: 'shona', name: 'Shona', videoCount: 13, quizCount: 6 },
+      { id: 'agriculture', name: 'Agriculture', videoCount: 10, quizCount: 5 },
+      { id: 'ict', name: 'ICT', videoCount: 9, quizCount: 4 },
+      { id: 'heritage', name: 'Heritage', videoCount: 8, quizCount: 3 },
     ]
   }
 };
 
 const CurriculumSection: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This will connect to auth state later
+  const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleResourceClick = () => {
-    if (!isLoggedIn) {
+  const handleResourceClick = (gradeId: string, subjectId?: string) => {
+    if (!isAuthenticated) {
       toast({
         title: "Login Required",
         description: "Please sign in to access this resource.",
         duration: 3000,
       });
+      // Set a state to show login modal when redirected to home
+      navigate('/', { state: { showLogin: true } });
+      return;
     }
-    // If logged in, navigate to resource (will implement later)
+    
+    // If authenticated, navigate to the appropriate resource
+    if (subjectId) {
+      navigate(`/grade/${gradeId}/subject/${subjectId}`);
+    } else {
+      navigate(`/grade/${gradeId}`);
+    }
   };
 
   return (
@@ -102,7 +119,7 @@ const CurriculumSection: React.FC = () => {
                     key={subject.id}
                     className="mtech-card p-6 relative"
                   >
-                    {!isLoggedIn && (
+                    {!isAuthenticated && (
                       <div className="absolute top-3 right-3">
                         <Lock className="h-5 w-5 text-mtech-warning" />
                       </div>
@@ -123,14 +140,14 @@ const CurriculumSection: React.FC = () => {
                         variant="outline" 
                         size="sm"
                         className="flex-1 text-sm" 
-                        onClick={handleResourceClick}
+                        onClick={() => handleResourceClick(data.id, subject.id)}
                       >
                         Watch Videos
                       </Button>
                       <Button 
                         size="sm"
                         className="flex-1 bg-mtech-secondary text-white hover:bg-sky-600 text-sm" 
-                        onClick={handleResourceClick}
+                        onClick={() => handleResourceClick(data.id, subject.id)}
                       >
                         Try Quizzes
                       </Button>
@@ -138,6 +155,17 @@ const CurriculumSection: React.FC = () => {
                   </div>
                 ))}
               </div>
+              
+              {isAuthenticated && (
+                <div className="mt-6 flex justify-center">
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleResourceClick(data.id)}
+                  >
+                    Explore All Grade {grade.split(' ')[1]} Resources
+                  </Button>
+                </div>
+              )}
             </TabsContent>
           ))}
         </Tabs>

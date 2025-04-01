@@ -1,20 +1,50 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, User } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Menu, X, User, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import AuthForm from './AuthForm';
+import { useAuth } from '@/context/AuthContext';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This will be replaced with actual auth state
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, user, logout } = useAuth();
+
+  // Check if we need to show login dialog based on navigation state
+  React.useEffect(() => {
+    const state = location.state as { showLogin?: boolean };
+    if (state?.showLogin) {
+      setIsAuthOpen(true);
+      // Clear the state so it doesn't trigger again on navigation
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleLogin = () => {
-    // This would integrate with actual authentication logic later
-    console.log('Login clicked');
+  const handleAuthOpen = () => {
+    setIsAuthOpen(true);
+  };
+
+  const handleAuthClose = () => {
+    setIsAuthOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  const handleProfileClick = () => {
+    navigate('/profile');
+    setIsMenuOpen(false);
   };
 
   return (
@@ -36,14 +66,51 @@ const Navbar: React.FC = () => {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            {isLoggedIn ? (
-              <Button variant="ghost" className="flex items-center space-x-2">
-                <User size={18} />
-                <span>Profile</span>
-              </Button>
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center space-x-2">
+                    {user?.avatar ? (
+                      <img 
+                        src={user.avatar} 
+                        alt={user.name} 
+                        className="w-6 h-6 rounded-full"
+                      />
+                    ) : (
+                      <User size={18} />
+                    )}
+                    <span>{user?.name.split(' ')[0]}</span>
+                    <ChevronDown size={16} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="flex items-center justify-start p-2">
+                    <div className="flex flex-col space-y-1">
+                      <p className="font-medium text-sm">{user?.name}</p>
+                      <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    My Profile
+                  </DropdownMenuItem>
+                  {(user?.role === 'teacher' || user?.role === 'admin') && (
+                    <DropdownMenuItem onClick={() => navigate('/teachers')} className="cursor-pointer">
+                      <span className="mr-2">👨‍🏫</span>
+                      Teacher Dashboard
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Button 
-                onClick={handleLogin}
+                onClick={handleAuthOpen}
                 className="bg-mtech-primary text-white hover:bg-blue-700"
               >
                 Sign In
@@ -94,9 +161,28 @@ const Navbar: React.FC = () => {
               >
                 Contacts
               </Link>
-              {!isLoggedIn && (
+              
+              {isAuthenticated ? (
+                <>
+                  <div 
+                    className="flex items-center px-2 py-2 cursor-pointer"
+                    onClick={handleProfileClick}
+                  >
+                    <User size={16} className="mr-2" />
+                    <span>My Profile</span>
+                  </div>
+                  <Button 
+                    onClick={handleLogout}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    <LogOut size={16} className="mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
                 <Button 
-                  onClick={handleLogin}
+                  onClick={handleAuthOpen}
                   className="bg-mtech-primary text-white hover:bg-blue-700 w-full"
                 >
                   Sign In
@@ -106,6 +192,14 @@ const Navbar: React.FC = () => {
           </div>
         )}
       </div>
+      
+      {/* Auth Dialog */}
+      <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogTitle>Welcome to MTECH Kids Explore</DialogTitle>
+          <AuthForm onClose={handleAuthClose} />
+        </DialogContent>
+      </Dialog>
     </nav>
   );
 };
