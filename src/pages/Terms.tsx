@@ -7,7 +7,7 @@ const Terms = () => {
     <div className="container mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold text-center text-mtech-primary mb-6">Terms of Service</h1>
       <p className="text-gray-600 text-center max-w-2xl mx-auto mb-8">
-        Last updated: July 1, 2023
+        Last updated: July 1, 2025
       </p>
       <Separator className="my-6" />
       
