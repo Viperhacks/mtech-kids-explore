@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, User, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import AuthForm from './AuthForm';
 import { useAuth } from '@/context/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,6 +15,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user, logout } = useAuth();
+  const isMobile = useIsMobile();
 
   // Check if we need to show login dialog based on navigation state
   React.useEffect(() => {
@@ -49,7 +51,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="mtech-container py-4">
+      <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-2">
             <span className="font-bold text-2xl text-mtech-primary">MTECH</span>
@@ -57,7 +59,7 @@ const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             <Link to="/" className="text-mtech-dark hover:text-mtech-primary font-medium">Home</Link>
             <Link to="/revision" className="text-mtech-dark hover:text-mtech-primary font-medium">Revision</Link>
             <Link to="/teachers" className="text-mtech-dark hover:text-mtech-primary font-medium">Teachers</Link>
@@ -79,7 +81,7 @@ const Navbar: React.FC = () => {
                     ) : (
                       <User size={18} />
                     )}
-                    <span>{user?.name.split(' ')[0]}</span>
+                    <span className="max-w-[100px] truncate">{user?.name.split(' ')[0]}</span>
                     <ChevronDown size={16} />
                   </Button>
                 </DropdownMenuTrigger>
@@ -87,7 +89,7 @@ const Navbar: React.FC = () => {
                   <div className="flex items-center justify-start p-2">
                     <div className="flex flex-col space-y-1">
                       <p className="font-medium text-sm">{user?.name}</p>
-                      <p className="text-xs text-muted-foreground">{user?.email}</p>
+                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">{user?.email}</p>
                     </div>
                   </div>
                   <DropdownMenuSeparator />
@@ -132,31 +134,31 @@ const Navbar: React.FC = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden pt-4 pb-2 animate-fade-in">
-            <div className="flex flex-col space-y-4">
+            <div className="flex flex-col space-y-3">
               <Link 
                 to="/" 
-                className="text-mtech-dark hover:text-mtech-primary py-2 px-2"
+                className="text-mtech-dark hover:text-mtech-primary py-2 px-2 text-base"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
               <Link 
                 to="/revision" 
-                className="text-mtech-dark hover:text-mtech-primary py-2 px-2"
+                className="text-mtech-dark hover:text-mtech-primary py-2 px-2 text-base"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Revision
               </Link>
               <Link 
                 to="/teachers" 
-                className="text-mtech-dark hover:text-mtech-primary py-2 px-2"
+                className="text-mtech-dark hover:text-mtech-primary py-2 px-2 text-base"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Teachers
               </Link>
               <Link 
                 to="/contacts" 
-                className="text-mtech-dark hover:text-mtech-primary py-2 px-2"
+                className="text-mtech-dark hover:text-mtech-primary py-2 px-2 text-base"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contacts
@@ -165,7 +167,7 @@ const Navbar: React.FC = () => {
               {isAuthenticated ? (
                 <>
                   <div 
-                    className="flex items-center px-2 py-2 cursor-pointer"
+                    className="flex items-center px-2 py-2 text-base cursor-pointer"
                     onClick={handleProfileClick}
                   >
                     <User size={16} className="mr-2" />
@@ -174,7 +176,7 @@ const Navbar: React.FC = () => {
                   <Button 
                     onClick={handleLogout}
                     variant="destructive"
-                    className="w-full"
+                    className="w-full mt-2"
                   >
                     <LogOut size={16} className="mr-2" />
                     Sign Out
@@ -183,7 +185,7 @@ const Navbar: React.FC = () => {
               ) : (
                 <Button 
                   onClick={handleAuthOpen}
-                  className="bg-mtech-primary text-white hover:bg-blue-700 w-full"
+                  className="bg-mtech-primary text-white hover:bg-blue-700 w-full mt-2"
                 >
                   Sign In
                 </Button>
@@ -197,6 +199,9 @@ const Navbar: React.FC = () => {
       <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogTitle>Welcome to MTECH Kids Explore</DialogTitle>
+          <DialogDescription>
+            Sign in to access personalized learning resources and track your progress.
+          </DialogDescription>
           <AuthForm onClose={handleAuthClose} />
         </DialogContent>
       </Dialog>
