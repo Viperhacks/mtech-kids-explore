@@ -49,6 +49,7 @@ const Footer: React.FC = () => {
               <li><Link to="/revision" className="text-gray-300 hover:text-white">Revision</Link></li>
               <li><Link to="/teachers" className="text-gray-300 hover:text-white">Teachers</Link></li>
               <li><Link to="/contacts" className="text-gray-300 hover:text-white">Contact Us</Link></li>
+              <li><Link to="/faq" className="text-gray-300 hover:text-white">FAQ</Link></li>
               <li><Link to="/privacy" className="text-gray-300 hover:text-white">Privacy Policy</Link></li>
               <li><Link to="/terms" className="text-gray-300 hover:text-white">Terms of Service</Link></li>
             </ul>
@@ -73,15 +74,15 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 mr-2 text-mtech-primary" />
-                <span className="text-gray-300">123 Education Street, Harare, Zimbabwe</span>
+                <span className="text-gray-300">15900 Sunningdale 2, Harare, Zimbabwe</span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 mr-2 text-mtech-primary" />
-                <span className="text-gray-300">+263 123 456 789</span>
+                <span className="text-gray-300">+263 787 778 679</span>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 mr-2 text-mtech-primary" />
-                <span className="text-gray-300">info@mtechkids.com</span>
+                <span className="text-gray-300">info@mtech.co.zw</span>
               </li>
             </ul>
           </div>

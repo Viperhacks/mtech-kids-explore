@@ -14,6 +14,7 @@ import Tutorials from "./pages/Tutorials";
 import Exercises from "./pages/Exercises";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import FAQ from "./pages/FAQ";
 import Profile from "./pages/Profile";
 import GradeResources from "./pages/GradeResources";
 import SubjectResources from "./pages/SubjectResources";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/exercises" element={<Exercises />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
             <Route path="/grade/:gradeId" element={<ProtectedRoute element={<GradeResources />} />} />
             <Route path="/grade/:gradeId/subject/:subjectId" element={<ProtectedRoute element={<SubjectResources />} />} />
