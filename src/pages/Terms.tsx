@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
@@ -15,6 +16,7 @@ import Footer from '@/components/Footer';
 
 const Terms = () => {
   const navigate = useNavigate();
+  const currentDate = format(new Date(), "MMMM d, yyyy");
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -35,7 +37,7 @@ const Terms = () => {
           </div>
           
           <p className="text-gray-600 mb-8">
-            Last updated: July 1, 2025
+            Last updated: {currentDate}
           </p>
           <Separator className="my-6" />
           

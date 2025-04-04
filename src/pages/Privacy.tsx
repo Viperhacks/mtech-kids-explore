@@ -1,7 +1,6 @@
-
 import React from 'react';
+import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +15,7 @@ import Footer from '@/components/Footer';
 
 const Privacy = () => {
   const navigate = useNavigate();
+  const currentDate = format(new Date(), "MMMM d, yyyy");
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -36,192 +36,92 @@ const Privacy = () => {
           </div>
           
           <p className="text-gray-600 mb-8">
-            Last updated: July 1, 2023
+            Last updated: {currentDate}
           </p>
           <Separator className="my-6" />
           
+          {/* Rest of the Privacy Policy content with accordions */}
           <div className="space-y-6">
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
                 <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  1. Introduction
+                  1. Information We Collect
                 </AccordionTrigger>
                 <AccordionContent>
-                  <p className="text-gray-600">
-                    MTECH ("we", "our", or "us") is committed to protecting the privacy of children who use our 
-                    educational platform. This Privacy Policy explains how we collect, use, disclose, and safeguard 
-                    your information when you use our website and services. Please read this privacy policy carefully.
+                  <p className="text-gray-600 mb-4">
+                    We collect several types of information from and about users of our Platform, including:
                   </p>
+                  <ul className="list-disc list-inside pl-4 text-gray-600 space-y-2">
+                    <li>Personal information such as name, email address, and in some cases, age or grade level.</li>
+                    <li>Educational information such as performance data, progress in educational activities, and assessment results.</li>
+                    <li>Usage information including how you interact with our Platform, features you use, and time spent on various activities.</li>
+                    <li>Device information such as IP address, browser type, operating system, and device identifiers.</li>
+                  </ul>
                 </AccordionContent>
               </AccordionItem>
               
               <AccordionItem value="item-2">
                 <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  2. Information We Collect
+                  2. How We Use Your Information
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="pl-4 space-y-4">
-                    <div>
-                      <h3 className="text-xl font-medium text-mtech-primary mb-2">2.1 Personal Information</h3>
-                      <p className="text-gray-600">
-                        We may collect personally identifiable information, such as:
-                      </p>
-                      <ul className="list-disc list-inside pl-4 mt-2 text-gray-600 space-y-1">
-                        <li>Full name</li>
-                        <li>Email address</li>
-                        <li>School name</li>
-                        <li>Grade level</li>
-                        <li>Parent or guardian contact information (for users under 13)</li>
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-xl font-medium text-mtech-primary mb-2">2.2 Non-Personal Information</h3>
-                      <p className="text-gray-600">
-                        We may also collect non-personal information about how you interact with our platform:
-                      </p>
-                      <ul className="list-disc list-inside pl-4 mt-2 text-gray-600 space-y-1">
-                        <li>Browser type and version</li>
-                        <li>Operating system</li>
-                        <li>Device information</li>
-                        <li>Time spent on pages</li>
-                        <li>Links clicked</li>
-                        <li>Learning progress and performance data</li>
-                      </ul>
-                    </div>
-                  </div>
+                  <p className="text-gray-600 mb-4">
+                    We use the information we collect for various purposes, including:
+                  </p>
+                  <ul className="list-disc list-inside pl-4 text-gray-600 space-y-2">
+                    <li>To provide and improve our educational services</li>
+                    <li>To personalize learning experiences based on skill level and progress</li>
+                    <li>To communicate with you about your account or our services</li>
+                    <li>To monitor and analyze usage patterns and trends</li>
+                    <li>To maintain the security and integrity of our Platform</li>
+                    <li>To comply with legal obligations</li>
+                  </ul>
                 </AccordionContent>
               </AccordionItem>
               
               <AccordionItem value="item-3">
                 <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  3. How We Use Your Information
+                  3. Children's Privacy
                 </AccordionTrigger>
                 <AccordionContent>
-                  <p className="text-gray-600 mb-3">
-                    The information we collect is used for the following purposes:
+                  <p className="text-gray-600 mb-4">
+                    We are committed to protecting the privacy of children under 13 years of age. For users under 13:
                   </p>
                   <ul className="list-disc list-inside pl-4 text-gray-600 space-y-2">
-                    <li>To provide and maintain our educational services</li>
-                    <li>To personalize the learning experience</li>
-                    <li>To track progress and provide appropriate educational content</li>
-                    <li>To communicate with parents/guardians about their child's progress</li>
-                    <li>To improve our platform based on feedback and usage patterns</li>
-                    <li>To comply with applicable laws and regulations</li>
+                    <li>We require verifiable parental consent before collecting personal information</li>
+                    <li>Parents can review, update, or request deletion of their child's personal information</li>
+                    <li>We collect only the information necessary to provide our educational services</li>
+                    <li>We do not share personal information with third parties except as necessary to provide our services</li>
                   </ul>
                 </AccordionContent>
               </AccordionItem>
               
+              {/* Add more sections as needed */}
               <AccordionItem value="item-4">
                 <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  4. Children's Privacy
+                  4. Sharing Your Information
                 </AccordionTrigger>
                 <AccordionContent>
-                  <Card>
-                    <CardContent className="pt-6">
-                      <p className="text-gray-600 mb-4">
-                        We are committed to protecting the privacy of children under 13 years of age. We comply with the 
-                        Children's Online Privacy Protection Act (COPPA).
-                      </p>
-                      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-                        <p className="text-yellow-800">
-                          <strong>Important:</strong> We only collect personal information from children under 13 with 
-                          verifiable parental consent. Parents have the right to review, delete, or refuse further 
-                          collection of their child's personal information.
-                        </p>
-                      </div>
-                      <p className="text-gray-600">
-                        For more information about COPPA and your child's privacy rights, please visit: 
-                        <a href="https://www.ftc.gov/business-guidance/privacy-security/childrens-privacy" 
-                           className="text-mtech-primary hover:underline ml-1" target="_blank" rel="noreferrer">
-                          FTC Children's Privacy
-                        </a>
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <p className="text-gray-600">
+                    We may share your personal information with the following parties:
+                    <ul className="list-disc list-inside pl-4 text-gray-600 mt-2 space-y-2">
+                      <li>Teachers and school administrators if you are using our Platform through a school program</li>
+                      <li>Service providers who perform services on our behalf</li>
+                      <li>Legal authorities when required by law or to protect our rights</li>
+                      <li>Parents or guardians of children under 13</li>
+                    </ul>
+                    We do not sell personal information to third parties.
+                  </p>
                 </AccordionContent>
               </AccordionItem>
               
               <AccordionItem value="item-5">
                 <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  5. Data Security
+                  5. Contact Information
                 </AccordionTrigger>
                 <AccordionContent>
                   <p className="text-gray-600 mb-4">
-                    We implement appropriate technical and organizational measures to protect your personal information 
-                    against unauthorized or unlawful processing, accidental loss, destruction, or damage. These measures include:
-                  </p>
-                  <ul className="list-disc list-inside pl-4 text-gray-600 space-y-2">
-                    <li>Encryption of sensitive data</li>
-                    <li>Regular security assessments</li>
-                    <li>Restricted access to personal information</li>
-                    <li>Employee training on data protection practices</li>
-                    <li>Secure data storage systems</li>
-                  </ul>
-                  <p className="text-gray-600 mt-4">
-                    However, no method of transmission over the internet or electronic storage is 100% secure, and we cannot 
-                    guarantee absolute security.
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="item-6">
-                <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  6. Data Retention
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-gray-600">
-                    We retain personal information only for as long as necessary to fulfill the purposes outlined in this 
-                    Privacy Policy, unless a longer retention period is required or permitted by law. When we no longer need 
-                    to use your information, we will either securely delete it or anonymize it so that it can no longer be 
-                    associated with you.
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="item-7">
-                <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  7. Your Rights
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-gray-600 mb-4">
-                    Depending on your location, you may have certain rights regarding your personal information:
-                  </p>
-                  <ul className="list-disc list-inside pl-4 text-gray-600 space-y-2">
-                    <li>Right to access your personal information</li>
-                    <li>Right to correct inaccurate information</li>
-                    <li>Right to delete your personal information</li>
-                    <li>Right to restrict or object to processing</li>
-                    <li>Right to data portability</li>
-                    <li>Right to withdraw consent</li>
-                  </ul>
-                  <p className="text-gray-600 mt-4">
-                    To exercise these rights, please contact us using the information provided in the "Contact Us" section.
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="item-8">
-                <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  8. Changes to This Privacy Policy
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-gray-600">
-                    We may update this Privacy Policy from time to time to reflect changes in our practices or for other 
-                    operational, legal, or regulatory reasons. We will notify you of any material changes by posting the 
-                    updated Privacy Policy on this page and updating the "Last Updated" date. We encourage you to review 
-                    this Privacy Policy periodically.
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="item-9">
-                <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  9. Contact Us
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-gray-600 mb-4">
-                    If you have any questions or concerns about this Privacy Policy or our data practices, please contact us at:
+                    If you have any questions about this Privacy Policy, please contact us at:
                   </p>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <p className="text-gray-700">
