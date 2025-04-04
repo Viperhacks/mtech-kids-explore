@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +26,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [resetToken, setResetToken] = useState('');
   const { toast } = useToast();
   const { login, register: registerUser, googleLogin } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,10 +35,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
     try {
       if (formType === 'login') {
         await login(email, password);
+        onClose();
+        navigate('/dashboard');
       } else {
         await registerUser(name, email, password, role as 'student' | 'teacher' | 'parent');
+        onClose();
+        navigate('/dashboard');
       }
-      onClose();
     } catch (error) {
       console.error('Auth error:', error);
       toast({
@@ -54,6 +58,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
     try {
       await googleLogin();
       onClose();
+      navigate('/dashboard');
     } catch (error) {
       console.error('Google auth error:', error);
       toast({

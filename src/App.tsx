@@ -18,6 +18,7 @@ import FAQ from "./pages/FAQ";
 import Profile from "./pages/Profile";
 import GradeResources from "./pages/GradeResources";
 import SubjectResources from "./pages/SubjectResources";
+import Dashboard from "./pages/Dashboard";
 import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
+            <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
             <Route path="/grade/:gradeId" element={<ProtectedRoute element={<GradeResources />} />} />
             <Route path="/grade/:gradeId/subject/:subjectId" element={<ProtectedRoute element={<SubjectResources />} />} />
             {/* Catch-all route for any undefined routes */}
