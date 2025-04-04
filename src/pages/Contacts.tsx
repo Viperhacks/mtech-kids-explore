@@ -5,10 +5,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from "sonner";
+import { ChevronLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 const Contacts = () => {
+  const navigate = useNavigate();
+  const currentDate = new Date();
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success("Your message has been sent successfully! We'll get back to you soon.");
@@ -20,7 +25,17 @@ const Contacts = () => {
       
       <main className="flex-1">
         <div className="container mx-auto py-10 px-4">
-          <h1 className="text-3xl font-bold text-center text-mtech-primary mb-10">Contact Us</h1>
+          <div className="flex items-center mb-6">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate(-1)} 
+              className="mr-2"
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+            <h1 className="text-3xl font-bold text-mtech-primary">Contact Us</h1>
+          </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
@@ -37,7 +52,7 @@ const Contacts = () => {
                   </div>
                   <div>
                     <h3 className="font-medium text-mtech-secondary">Phone</h3>
-                    <p className="text-gray-600">+1 (123) 456-7890</p>
+                    <p className="text-gray-600">+263 787 778 679</p>
                   </div>
                 </div>
                 
@@ -47,7 +62,7 @@ const Contacts = () => {
                   </div>
                   <div>
                     <h3 className="font-medium text-mtech-secondary">Email</h3>
-                    <p className="text-gray-600">info@mtechlearning.com</p>
+                    <p className="text-gray-600">info@mtech.co.zw</p>
                   </div>
                 </div>
                 
@@ -57,7 +72,7 @@ const Contacts = () => {
                   </div>
                   <div>
                     <h3 className="font-medium text-mtech-secondary">Address</h3>
-                    <p className="text-gray-600">123 Education Street, Learning City, ED 12345</p>
+                    <p className="text-gray-600">15900 Sunningdale 2, Harare, Zimbabwe</p>
                   </div>
                 </div>
               </div>
@@ -96,6 +111,10 @@ const Contacts = () => {
                   <div className="space-y-2">
                     <label htmlFor="message" className="text-sm font-medium">Message</label>
                     <Textarea id="message" placeholder="Type your message here..." className="min-h-[120px]" required />
+                  </div>
+
+                  <div className="text-sm text-gray-500">
+                    Message date: {currentDate.toLocaleDateString()}
                   </div>
                 </CardContent>
                 <CardFooter>

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, User, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Layout } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -93,6 +93,10 @@ const Navbar: React.FC = () => {
                     </div>
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')} className="cursor-pointer">
+                    <Layout className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
                     <User className="mr-2 h-4 w-4" />
                     My Profile
@@ -166,6 +170,14 @@ const Navbar: React.FC = () => {
               
               {isAuthenticated ? (
                 <>
+                  <Link 
+                    to="/dashboard"
+                    className="flex items-center px-2 py-2 text-base cursor-pointer"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Layout size={16} className="mr-2" />
+                    <span>Dashboard</span>
+                  </Link>
                   <div 
                     className="flex items-center px-2 py-2 text-base cursor-pointer"
                     onClick={handleProfileClick}

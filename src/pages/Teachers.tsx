@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +29,17 @@ const TeachersPage = () => {
   const [activeTab, setActiveTab] = useState('videos');
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [uploadType, setUploadType] = useState<'video' | 'quiz'>('video');
+  
+  // Get current date
+  const currentDate = new Date();
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
   
   // Sample data for teacher's materials
   const [materials, setMaterials] = useState({
@@ -95,6 +107,42 @@ const TeachersPage = () => {
   const handleUploadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Create a new item with today's date
+    const today = currentDate.toISOString().split('T')[0];
+    
+    if (uploadType === 'video') {
+      const newVideo = {
+        id: (materials.videos.length + 1).toString(),
+        title: "New Video",
+        subject: "Mathematics",
+        grade: "Grade 3",
+        thumbnail: "https://placehold.co/600x400?text=New+Video",
+        duration: "05:00",
+        status: "draft",
+        uploadDate: today
+      };
+      
+      setMaterials({
+        ...materials,
+        videos: [...materials.videos, newVideo]
+      });
+    } else {
+      const newQuiz = {
+        id: (materials.quizzes.length + 1).toString(),
+        title: "New Quiz",
+        subject: "Mathematics",
+        grade: "Grade 3",
+        questions: 5,
+        status: "draft",
+        uploadDate: today
+      };
+      
+      setMaterials({
+        ...materials,
+        quizzes: [...materials.quizzes, newQuiz]
+      });
+    }
+    
     // This would submit to an API in a real app
     toast({
       title: `${uploadType === 'video' ? 'Video' : 'Quiz'} Uploaded`,
@@ -128,6 +176,7 @@ const TeachersPage = () => {
             <div>
               <h1 className="text-3xl font-bold text-mtech-dark">Teacher Dashboard</h1>
               <p className="text-gray-600 mt-2">Manage your educational materials</p>
+              <p className="text-sm text-gray-500">Today: {currentDate.toLocaleDateString()}</p>
             </div>
             
             <div className="flex space-x-3 mt-4 md:mt-0">
@@ -189,7 +238,7 @@ const TeachersPage = () => {
                                 {video.subject} • {video.grade} • {video.duration}
                               </p>
                               <p className="text-xs text-muted-foreground mt-2">
-                                Uploaded on {new Date(video.uploadDate).toLocaleDateString()}
+                                Uploaded on {formatDate(video.uploadDate)}
                               </p>
                             </div>
                             <div className="flex space-x-2 mt-4 md:mt-0">
@@ -254,7 +303,7 @@ const TeachersPage = () => {
                             {quiz.subject} • {quiz.grade} • {quiz.questions} questions
                           </p>
                           <p className="text-xs text-muted-foreground mt-2">
-                            Created on {new Date(quiz.uploadDate).toLocaleDateString()}
+                            Created on {formatDate(quiz.uploadDate)}
                           </p>
                           <div className="flex space-x-2 mt-4">
                             <Button variant="outline" size="sm">
@@ -397,6 +446,10 @@ const TeachersPage = () => {
                       </div>
                     </div>
                   )}
+
+                  <div className="text-sm text-gray-500">
+                    Creation date: {currentDate.toLocaleDateString()}
+                  </div>
                 </div>
                 
                 <DialogFooter>

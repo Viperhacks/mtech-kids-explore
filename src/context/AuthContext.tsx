@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
@@ -76,19 +75,45 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       // This would be an actual API call in a real app
       // const response = await axios.post('/api/auth/login', { email, password });
       
-      // Mock response for demo
-      const mockUser: User = {
-        id: '123',
-        name: 'Demo User',
-        email: email,
-        role: 'student',
-        completedLessons: [],
-        earnedBadges: ['welcome'],
-        progress: {
-          'math': { watched: 2, completed: 1, total: 10 },
-          'english': { watched: 1, completed: 0, total: 8 },
-        }
-      };
+      // Mock response for demo purposes
+      // Check for demo credentials to provide role-specific mock users
+      let mockUser: User;
+      
+      if (email === 'admin@example.com') {
+        mockUser = {
+          id: '123',
+          name: 'Admin User',
+          email: email,
+          role: 'admin',
+          completedLessons: [],
+          earnedBadges: ['welcome'],
+          progress: {}
+        };
+      } else if (email === 'teacher@example.com') {
+        mockUser = {
+          id: '456',
+          name: 'Teacher User',
+          email: email,
+          role: 'teacher',
+          completedLessons: [],
+          earnedBadges: ['welcome'],
+          progress: {}
+        };
+      } else {
+        // Default to student
+        mockUser = {
+          id: '789',
+          name: 'Student User',
+          email: email,
+          role: 'student',
+          completedLessons: [],
+          earnedBadges: ['welcome'],
+          progress: {
+            'math': { watched: 2, completed: 1, total: 10 },
+            'english': { watched: 1, completed: 0, total: 8 },
+          }
+        };
+      }
       
       setUser(mockUser);
       localStorage.setItem('mtech_user', JSON.stringify(mockUser));

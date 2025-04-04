@@ -1,11 +1,15 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Key } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import ForgotPasswordForm from './ForgotPasswordForm';
+import ResetPasswordForm from './ResetPasswordForm';
+import OtpConfirmForm from './OtpConfirmForm';
 
 interface AuthFormProps {
   onClose: () => void;
@@ -14,22 +18,86 @@ interface AuthFormProps {
 const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formType, setFormType] = useState<'login' | 'register'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('student');
+  const [view, setView] = useState<'main' | 'forgot' | 'reset' | 'otp'>('main');
+  const [resetToken, setResetToken] = useState('');
   const { toast } = useToast();
+  const { login, register: registerUser, googleLogin } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      if (formType === 'login') {
+        await login(email, password);
+        onClose();
+        navigate('/dashboard');
+      } else {
+        await registerUser(name, email, password, role as 'student' | 'teacher' | 'parent');
+        onClose();
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
       toast({
-        title: formType === 'login' ? "Login Successful" : "Registration Successful",
-        description: formType === 'login' ? "Welcome back to MTECH!" : "Your account has been created!",
+        title: formType === 'login' ? "Login Failed" : "Registration Failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
       });
-      onClose();
-    }, 1500);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  const handleGoogleAuth = async () => {
+    try {
+      await googleLogin();
+      onClose();
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Google auth error:', error);
+      toast({
+        title: "Authentication Failed",
+        description: "Could not sign in with Google",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleForgotPassword = () => {
+    setView('forgot');
+  };
+
+  const handleBackToMain = () => {
+    setView('main');
+  };
+
+  const handleResetPassword = (token: string) => {
+    setResetToken(token);
+    setView('reset');
+  };
+
+  const handleOtpConfirm = (email: string) => {
+    setEmail(email);
+    setView('otp');
+  };
+
+  if (view === 'forgot') {
+    return <ForgotPasswordForm onBack={handleBackToMain} onResetRequest={handleOtpConfirm} />;
+  }
+
+  if (view === 'reset') {
+    return <ResetPasswordForm token={resetToken} onBack={handleBackToMain} onComplete={onClose} />;
+  }
+
+  if (view === 'otp') {
+    return <OtpConfirmForm email={email} onBack={handleBackToMain} onVerified={handleResetPassword} />;
+  }
 
   return (
     <div className="p-4 sm:p-6">
@@ -50,6 +118,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   placeholder="Enter your email" 
                   type="email" 
                   className="pl-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
@@ -59,6 +129,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                 <Label htmlFor="password">Password</Label>
                 <button 
                   type="button" 
+                  onClick={handleForgotPassword}
                   className="text-xs text-mtech-primary hover:underline"
                 >
                   Forgot Password?
@@ -71,6 +142,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   placeholder="Enter your password" 
                   type="password" 
                   className="pl-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
@@ -96,6 +169,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
               type="button" 
               variant="outline" 
               className="w-full"
+              onClick={handleGoogleAuth}
             >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5 mr-2" />
               Sign in with Google
@@ -113,6 +187,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   id="name" 
                   placeholder="Enter your full name" 
                   className="pl-10"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   required
                 />
               </div>
@@ -126,6 +202,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   placeholder="Enter your email" 
                   type="email" 
                   className="pl-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
@@ -139,6 +217,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   placeholder="Create a password" 
                   type="password" 
                   className="pl-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
@@ -148,7 +228,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
               <select 
                 id="role"
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                defaultValue="student"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
                 required
               >
                 <option value="student">Student</option>
@@ -178,6 +259,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
               type="button" 
               variant="outline" 
               className="w-full"
+              onClick={handleGoogleAuth}
             >
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5 mr-2" />
               Sign up with Google
