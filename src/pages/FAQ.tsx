@@ -15,6 +15,12 @@ import Footer from '@/components/Footer';
 
 const FAQ = () => {
   const navigate = useNavigate();
+  const currentDate = new Date();
+  const lastUpdated = currentDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -32,6 +38,10 @@ const FAQ = () => {
               Back
             </Button>
             <h1 className="text-3xl font-bold text-mtech-primary">Frequently Asked Questions</h1>
+          </div>
+          
+          <div className="text-sm text-gray-500 mb-4">
+            Last updated: {lastUpdated}
           </div>
           
           <Separator className="my-6" />

@@ -12,6 +12,7 @@ import Footer from '@/components/Footer';
 
 const Contacts = () => {
   const navigate = useNavigate();
+  const currentDate = new Date();
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,6 +111,10 @@ const Contacts = () => {
                   <div className="space-y-2">
                     <label htmlFor="message" className="text-sm font-medium">Message</label>
                     <Textarea id="message" placeholder="Type your message here..." className="min-h-[120px]" required />
+                  </div>
+
+                  <div className="text-sm text-gray-500">
+                    Message date: {currentDate.toLocaleDateString()}
                   </div>
                 </CardContent>
                 <CardFooter>
