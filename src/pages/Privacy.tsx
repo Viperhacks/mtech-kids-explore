@@ -1,143 +1,74 @@
+
 import React from 'react';
-import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from '@/components/ui/accordion';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 
 const Privacy = () => {
-  const navigate = useNavigate();
-  const currentDate = format(new Date(), "MMMM d, yyyy");
-  
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 text-center">Privacy Policy</h1>
       
-      <main className="flex-1">
-        <div className="container mx-auto py-10 px-4">
-          <div className="flex items-center mb-6">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate(-1)} 
-              className="mr-2"
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <h1 className="text-3xl font-bold text-mtech-primary">Privacy Policy</h1>
-          </div>
-          
-          <p className="text-gray-600 mb-8">
-            Last updated: {currentDate}
+      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm">
+        <p className="text-sm text-gray-500 mb-4">Last Updated: April 5, 2025</p>
+        
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-3">Introduction</h2>
+          <p className="text-gray-700">
+            MTECH Kids Explore ("we", "our", or "us") is committed to protecting the privacy of children and all users of our educational platform. This Privacy Policy explains how we collect, use, and share information about you when you use our website, mobile applications, and other online products and services (collectively, the "Services").
           </p>
-          <Separator className="my-6" />
-          
-          {/* Rest of the Privacy Policy content with accordions */}
-          <div className="space-y-6">
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="item-1">
-                <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  1. Information We Collect
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-gray-600 mb-4">
-                    We collect several types of information from and about users of our Platform, including:
-                  </p>
-                  <ul className="list-disc list-inside pl-4 text-gray-600 space-y-2">
-                    <li>Personal information such as name, email address, and in some cases, age or grade level.</li>
-                    <li>Educational information such as performance data, progress in educational activities, and assessment results.</li>
-                    <li>Usage information including how you interact with our Platform, features you use, and time spent on various activities.</li>
-                    <li>Device information such as IP address, browser type, operating system, and device identifiers.</li>
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="item-2">
-                <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  2. How We Use Your Information
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-gray-600 mb-4">
-                    We use the information we collect for various purposes, including:
-                  </p>
-                  <ul className="list-disc list-inside pl-4 text-gray-600 space-y-2">
-                    <li>To provide and improve our educational services</li>
-                    <li>To personalize learning experiences based on skill level and progress</li>
-                    <li>To communicate with you about your account or our services</li>
-                    <li>To monitor and analyze usage patterns and trends</li>
-                    <li>To maintain the security and integrity of our Platform</li>
-                    <li>To comply with legal obligations</li>
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="item-3">
-                <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  3. Children's Privacy
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-gray-600 mb-4">
-                    We are committed to protecting the privacy of children under 13 years of age. For users under 13:
-                  </p>
-                  <ul className="list-disc list-inside pl-4 text-gray-600 space-y-2">
-                    <li>We require verifiable parental consent before collecting personal information</li>
-                    <li>Parents can review, update, or request deletion of their child's personal information</li>
-                    <li>We collect only the information necessary to provide our educational services</li>
-                    <li>We do not share personal information with third parties except as necessary to provide our services</li>
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-              
-              {/* Add more sections as needed */}
-              <AccordionItem value="item-4">
-                <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  4. Sharing Your Information
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-gray-600">
-                    We may share your personal information with the following parties:
-                    <ul className="list-disc list-inside pl-4 text-gray-600 mt-2 space-y-2">
-                      <li>Teachers and school administrators if you are using our Platform through a school program</li>
-                      <li>Service providers who perform services on our behalf</li>
-                      <li>Legal authorities when required by law or to protect our rights</li>
-                      <li>Parents or guardians of children under 13</li>
-                    </ul>
-                    We do not sell personal information to third parties.
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="item-5">
-                <AccordionTrigger className="text-2xl font-semibold text-mtech-secondary">
-                  5. Contact Information
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-gray-600 mb-4">
-                    If you have any questions about this Privacy Policy, please contact us at:
-                  </p>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-gray-700">
-                      <strong>Email:</strong> info@mtech.co.zw<br />
-                      <strong>Address:</strong> 15900 Sunningdale 2, Harare, Zimbabwe<br />
-                      <strong>Phone:</strong> +263 787 778 679
-                    </p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        </div>
-      </main>
-      
-      <Footer />
+        </section>
+        
+        <Separator className="my-4" />
+        
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-3">Information We Collect</h2>
+          <p className="text-gray-700 mb-3">
+            We collect information you provide directly to us when you:
+          </p>
+          <ul className="list-disc pl-5 text-gray-700 space-y-1">
+            <li>Create an account and register as a student, parent, or teacher</li>
+            <li>Complete your profile information and preferences</li>
+            <li>Participate in learning activities, quizzes, and exercises</li>
+            <li>Communicate with us through the platform</li>
+            <li>Submit content or feedback about our Services</li>
+          </ul>
+        </section>
+        
+        <Separator className="my-4" />
+        
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-3">How We Use Information</h2>
+          <p className="text-gray-700 mb-3">
+            We use the information we collect to:
+          </p>
+          <ul className="list-disc pl-5 text-gray-700 space-y-1">
+            <li>Provide, maintain, and improve our educational Services</li>
+            <li>Track and personalize your learning experience</li>
+            <li>Process and fulfill your requests for specific content</li>
+            <li>Generate progress reports for students, parents, and teachers</li>
+            <li>Communicate with you about your account and our Services</li>
+            <li>Monitor and analyze trends, usage, and activities in connection with our Services</li>
+            <li>Comply with applicable laws, legal processes, and regulations</li>
+          </ul>
+        </section>
+        
+        <Separator className="my-4" />
+        
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-3">Children's Privacy</h2>
+          <p className="text-gray-700">
+            We comply with the Children's Online Privacy Protection Act (COPPA). We require parental consent before collecting personal information from children under 13, and we limit the information collected to what is reasonably necessary for participation in our educational activities. Parents can review, edit, or request deletion of their child's information at any time through their parent account.
+          </p>
+        </section>
+        
+        <Separator className="my-4" />
+        
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-3">Contact Us</h2>
+          <p className="text-gray-700">
+            If you have any questions about this Privacy Policy or our privacy practices, please contact us at privacy@mtechkidsexplore.com or through our Contact page.
+          </p>
+        </section>
+      </div>
     </div>
   );
 };

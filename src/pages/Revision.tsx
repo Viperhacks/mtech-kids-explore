@@ -1,62 +1,111 @@
 
-import React from 'react';
-import { Separator } from '@/components/ui/separator';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Revision = () => {
+  const [activeTab, setActiveTab] = useState("mathematics");
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  
+  const subjectTopics = {
+    mathematics: [
+      { id: 'math-1', title: 'Numbers and Operations', description: 'Learn about addition, subtraction, multiplication, and division.', level: 'Beginner' },
+      { id: 'math-2', title: 'Fractions and Decimals', description: 'Understanding fractions, decimals, and percentages.', level: 'Intermediate' },
+      { id: 'math-3', title: 'Geometry and Measurements', description: 'Explore shapes, angles, and measurements.', level: 'Intermediate' },
+      { id: 'math-4', title: 'Pre-Algebra Concepts', description: 'Introduction to variables, equations, and algebraic thinking.', level: 'Advanced' },
+    ],
+    english: [
+      { id: 'eng-1', title: 'Grammar Essentials', description: 'Master parts of speech, sentence structure, and punctuation.', level: 'Beginner' },
+      { id: 'eng-2', title: 'Reading Comprehension', description: 'Techniques for understanding and analyzing texts.', level: 'Intermediate' },
+      { id: 'eng-3', title: 'Vocabulary Building', description: 'Expand your vocabulary and improve word usage.', level: 'Intermediate' },
+      { id: 'eng-4', title: 'Creative Writing', description: 'Learn to write compelling stories and essays.', level: 'Advanced' },
+    ],
+    science: [
+      { id: 'sci-1', title: 'Life Sciences', description: 'Explore plants, animals, and human biology.', level: 'Beginner' },
+      { id: 'sci-2', title: 'Earth Sciences', description: 'Learn about geology, weather, and the environment.', level: 'Intermediate' },
+      { id: 'sci-3', title: 'Physical Sciences', description: 'Discover the basics of physics and chemistry.', level: 'Intermediate' },
+      { id: 'sci-4', title: 'Scientific Method', description: 'Understand how to conduct experiments and scientific inquiry.', level: 'Advanced' },
+    ],
+    history: [
+      { id: 'hist-1', title: 'Ancient Civilizations', description: 'Explore the earliest human societies and their achievements.', level: 'Beginner' },
+      { id: 'hist-2', title: 'Middle Ages', description: 'Learn about life, culture, and events from 500-1500 CE.', level: 'Intermediate' },
+      { id: 'hist-3', title: 'Modern History', description: 'Study significant events from the 1500s to the present.', level: 'Intermediate' },
+      { id: 'hist-4', title: 'Cultural History', description: 'Understand how art, music, and literature shaped societies.', level: 'Advanced' },
+    ]
+  };
+
+  const handleStartRevision = (topicId: string) => {
+    if (isAuthenticated) {
+      navigate(`/revision/${topicId}`);
+    } else {
+      navigate("/", { state: { showLogin: true } });
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="flex-1">
-        <div className="container mx-auto py-10 px-4">
-          <h1 className="text-3xl font-bold text-center text-mtech-primary mb-6">Revision Resources</h1>
-          <Separator className="my-4" />
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-3xl font-bold mb-2">Revision Resources</h1>
+        <p className="text-gray-600 mb-6">
+          Select a subject below to explore revision materials designed to help you practice and master key concepts.
+        </p>
+        
+        <Tabs defaultValue="mathematics" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid grid-cols-4 mb-8">
+            <TabsTrigger value="mathematics">Mathematics</TabsTrigger>
+            <TabsTrigger value="english">English</TabsTrigger>
+            <TabsTrigger value="science">Science</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
+          </TabsList>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-3 text-mtech-secondary">Study Guides</h2>
-              <p className="text-gray-600 mb-4">
-                Access comprehensive study guides for all subjects to help with your revision.
-              </p>
-              <div className="flex justify-end">
-                <button className="px-4 py-2 bg-mtech-accent text-white rounded-md hover:bg-mtech-accent/80 transition-colors">
-                  Browse Study Guides
-                </button>
+          {Object.entries(subjectTopics).map(([subject, topics]) => (
+            <TabsContent key={subject} value={subject} className="mt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {topics.map((topic) => (
+                  <Card key={topic.id} className="overflow-hidden transition-all hover:shadow-md">
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle>{topic.title}</CardTitle>
+                          <CardDescription>{topic.description}</CardDescription>
+                        </div>
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          topic.level === 'Beginner' ? 'bg-green-100 text-green-800' :
+                          topic.level === 'Intermediate' ? 'bg-blue-100 text-blue-800' :
+                          'bg-purple-100 text-purple-800'
+                        }`}>
+                          {topic.level}
+                        </span>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex justify-between items-center pt-2">
+                        <div className="text-sm text-gray-500">
+                          {subject === 'mathematics' ? '10 practice exercises' :
+                           subject === 'english' ? '8 practice exercises' :
+                           subject === 'science' ? '12 practice exercises' :
+                           '9 practice exercises'}
+                        </div>
+                        <Button 
+                          onClick={() => handleStartRevision(topic.id)}
+                          variant="outline" 
+                          className="text-mtech-primary border-mtech-primary"
+                        >
+                          Start Revision
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            </div>
-            
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-3 text-mtech-secondary">Practice Tests</h2>
-              <p className="text-gray-600 mb-4">
-                Test your knowledge with our practice tests designed to prepare you for exams.
-              </p>
-              <div className="flex justify-end">
-                <button className="px-4 py-2 bg-mtech-accent text-white rounded-md hover:bg-mtech-accent/80 transition-colors">
-                  Try Practice Tests
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold mb-4 text-center text-mtech-secondary">Revision Tips</h2>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <ul className="list-disc list-inside space-y-2 text-gray-700">
-                <li>Create a dedicated study space free from distractions</li>
-                <li>Use active recall techniques rather than passive reading</li>
-                <li>Take regular breaks - try the Pomodoro technique</li>
-                <li>Test yourself regularly with practice questions</li>
-                <li>Teach concepts to others to reinforce your understanding</li>
-                <li>Get enough sleep, especially the night before exams</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </main>
-      
-      <Footer />
+            </TabsContent>
+          ))}
+        </Tabs>
+      </div>
     </div>
   );
 };

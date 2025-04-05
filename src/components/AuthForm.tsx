@@ -255,6 +255,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                     <SelectItem value="4">Grade 4</SelectItem>
                     <SelectItem value="5">Grade 5</SelectItem>
                     <SelectItem value="6">Grade 6</SelectItem>
+                    <SelectItem value="7">Grade 7</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
