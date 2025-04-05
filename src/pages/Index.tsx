@@ -1,7 +1,5 @@
 
 import React, { useState } from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import HeroCarousel from '@/components/HeroCarousel';
 import WelcomeCards from '@/components/WelcomeCards';
 import CurriculumSection from '@/components/CurriculumSection';
@@ -15,8 +13,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-      
       <main className="flex-1">
         {/* Hero Carousel */}
         <HeroCarousel />
@@ -138,8 +134,6 @@ const Index = () => {
           </DialogContent>
         </Dialog>
       </main>
-
-      <Footer />
     </div>
   );
 };
