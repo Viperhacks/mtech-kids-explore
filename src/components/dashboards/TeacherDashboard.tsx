@@ -1,21 +1,101 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/context/AuthContext';
-import { Upload, Users, FileText, Book, PlusCircle } from 'lucide-react';
+import { Upload, Users, FileText, Book, PlusCircle, Video, CheckCircle, ArrowUpCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import DefaultLoginInfo from '../DefaultLoginInfo';
 
 const TeacherDashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, uploadResource } = useAuth();
+  const { toast } = useToast();
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadForm, setUploadForm] = useState({
+    title: '',
+    description: '',
+    grade: '',
+    subject: '',
+    type: 'video',
+    file: null as File | null,
+  });
   
   const recentUploads = [
     { id: 1, title: "Mathematics: Fractions Video", type: "Video", date: "2 days ago", status: "Published" },
     { id: 2, title: "Science: Plants Quiz", type: "Quiz", date: "1 week ago", status: "Published" },
     { id: 3, title: "English: Grammar Notes", type: "Document", date: "2 weeks ago", status: "Draft" },
   ];
+  
+  const handleUploadResource = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!uploadForm.title || !uploadForm.grade || !uploadForm.subject) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsUploading(true);
+    
+    try {
+      // In a real app, this would create a FormData and upload the file
+      // const formData = new FormData();
+      // formData.append('title', uploadForm.title);
+      // formData.append('description', uploadForm.description);
+      // formData.append('grade', uploadForm.grade);
+      // formData.append('subject', uploadForm.subject);
+      // formData.append('type', uploadForm.type);
+      // if (uploadForm.file) {
+      //   formData.append('file', uploadForm.file);
+      // }
+      
+      await uploadResource(uploadForm);
+      
+      toast({
+        title: "Upload Successful",
+        description: "Your resource has been uploaded"
+      });
+      
+      setIsUploadDialogOpen(false);
+      setUploadForm({
+        title: '',
+        description: '',
+        grade: '',
+        subject: '',
+        type: 'video',
+        file: null,
+      });
+    } catch (error) {
+      console.error('Upload failed', error);
+      toast({
+        title: "Upload Failed",
+        description: "Could not upload your resource. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setUploadForm({
+        ...uploadForm,
+        file: e.target.files[0]
+      });
+    }
+  };
   
   return (
     <div className="container mx-auto py-8 px-4">
@@ -27,7 +107,11 @@ const TeacherDashboard: React.FC = () => {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Button className="w-full flex items-center justify-start" variant="outline">
+            <Button 
+              className="w-full flex items-center justify-start" 
+              variant="outline"
+              onClick={() => setIsUploadDialogOpen(true)}
+            >
               <Upload className="mr-2 h-4 w-4" /> Upload Resource
             </Button>
             <Button className="w-full flex items-center justify-start" variant="outline">
@@ -147,6 +231,134 @@ const TeacherDashboard: React.FC = () => {
           <Button variant="ghost" size="sm">Create</Button>
         </Card>
       </div>
+      
+      {/* Upload Resource Dialog */}
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload Learning Resource</DialogTitle>
+            <DialogDescription>
+              Upload videos, documents, or quizzes for your students.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleUploadResource} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={uploadForm.title}
+                onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })}
+                placeholder="Enter resource title"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={uploadForm.description}
+                onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })}
+                placeholder="Enter resource description"
+                rows={3}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="grade">Grade</Label>
+                <Select 
+                  value={uploadForm.grade} 
+                  onValueChange={(value) => setUploadForm({ ...uploadForm, grade: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select grade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Grade 1</SelectItem>
+                    <SelectItem value="2">Grade 2</SelectItem>
+                    <SelectItem value="3">Grade 3</SelectItem>
+                    <SelectItem value="4">Grade 4</SelectItem>
+                    <SelectItem value="5">Grade 5</SelectItem>
+                    <SelectItem value="6">Grade 6</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="subject">Subject</Label>
+                <Select 
+                  value={uploadForm.subject} 
+                  onValueChange={(value) => setUploadForm({ ...uploadForm, subject: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="math">Mathematics</SelectItem>
+                    <SelectItem value="english">English</SelectItem>
+                    <SelectItem value="science">Science</SelectItem>
+                    <SelectItem value="social">Social Studies</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="type">Resource Type</Label>
+              <Select 
+                value={uploadForm.type} 
+                onValueChange={(value) => setUploadForm({ ...uploadForm, type: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="video">Video</SelectItem>
+                  <SelectItem value="document">Document</SelectItem>
+                  <SelectItem value="quiz">Quiz</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="file">Upload File</Label>
+              <div className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center cursor-pointer hover:bg-gray-50">
+                <ArrowUpCircle className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                <p className="text-sm text-gray-500 mb-1">Click to upload or drag and drop</p>
+                <p className="text-xs text-gray-400">Max file size: 50MB</p>
+                <Input
+                  id="file"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </div>
+              {uploadForm.file && (
+                <div className="flex items-center space-x-2 text-sm">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>{uploadForm.file.name}</span>
+                </div>
+              )}
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsUploadDialogOpen(false)}
+                disabled={isUploading}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isUploading}>
+                {isUploading ? 'Uploading...' : 'Upload Resource'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       
       <DefaultLoginInfo />
     </div>

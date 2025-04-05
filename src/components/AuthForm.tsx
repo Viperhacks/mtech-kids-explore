@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import ResetPasswordForm from './ResetPasswordForm';
 import OtpConfirmForm from './OtpConfirmForm';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface AuthFormProps {
   onClose: () => void;
@@ -22,6 +24,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState('student');
+  const [gradeLevel, setGradeLevel] = useState('');
   const [view, setView] = useState<'main' | 'forgot' | 'reset' | 'otp'>('main');
   const [resetToken, setResetToken] = useState('');
   const { toast } = useToast();
@@ -38,7 +41,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
         onClose();
         navigate('/dashboard');
       } else {
-        await registerUser(name, email, password, role as 'student' | 'teacher' | 'parent');
+        await registerUser(name, email, password, role as 'student' | 'teacher' | 'parent', gradeLevel);
         onClose();
         navigate('/dashboard');
       }
@@ -237,6 +240,26 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                 <option value="parent">Parent</option>
               </select>
             </div>
+            
+            {role === 'student' && (
+              <div className="space-y-2">
+                <Label htmlFor="grade-level">Grade Level</Label>
+                <Select value={gradeLevel} onValueChange={setGradeLevel} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your grade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Grade 1</SelectItem>
+                    <SelectItem value="2">Grade 2</SelectItem>
+                    <SelectItem value="3">Grade 3</SelectItem>
+                    <SelectItem value="4">Grade 4</SelectItem>
+                    <SelectItem value="5">Grade 5</SelectItem>
+                    <SelectItem value="6">Grade 6</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
             <Button 
               type="submit" 
               className="w-full bg-mtech-primary" 

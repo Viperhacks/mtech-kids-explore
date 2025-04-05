@@ -1,0 +1,216 @@
+
+import api, { 
+  authService, 
+  resourceService, 
+  quizService, 
+  trackingService, 
+  parentService, 
+  adminService 
+} from '@/lib/api';
+
+// Authentication services
+export const login = async (email: string, password: string) => {
+  try {
+    const response = await authService.login(email, password);
+    return response.data;
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
+};
+
+export const register = async (userData: any) => {
+  try {
+    const response = await authService.register(userData);
+    return response.data;
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw error;
+  }
+};
+
+export const forgotPassword = async (email: string) => {
+  try {
+    const response = await authService.forgotPassword(email);
+    return response.data;
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    throw error;
+  }
+};
+
+export const resetPassword = async (token: string, password: string) => {
+  try {
+    const response = await authService.resetPassword(token, password);
+    return response.data;
+  } catch (error) {
+    console.error('Reset password error:', error);
+    throw error;
+  }
+};
+
+export const confirmOtp = async (email: string, otp: string) => {
+  try {
+    const response = await authService.confirmOtp(email, otp);
+    return response.data;
+  } catch (error) {
+    console.error('OTP confirmation error:', error);
+    throw error;
+  }
+};
+
+// Resource services
+export const getResources = async (gradeId?: string, subjectId?: string) => {
+  try {
+    const response = await resourceService.getResources(gradeId, subjectId);
+    return response.data;
+  } catch (error) {
+    console.error('Get resources error:', error);
+    throw error;
+  }
+};
+
+export const uploadResource = async (resourceData: FormData) => {
+  try {
+    const response = await resourceService.uploadResource(resourceData);
+    return response.data;
+  } catch (error) {
+    console.error('Upload resource error:', error);
+    throw error;
+  }
+};
+
+export const getResourceById = async (id: string) => {
+  try {
+    const response = await resourceService.getResourceById(id);
+    return response.data;
+  } catch (error) {
+    console.error('Get resource error:', error);
+    throw error;
+  }
+};
+
+// Quiz services
+export const getQuizzes = async (gradeId?: string, subjectId?: string) => {
+  try {
+    const response = await quizService.getQuizzes(gradeId, subjectId);
+    return response.data;
+  } catch (error) {
+    console.error('Get quizzes error:', error);
+    throw error;
+  }
+};
+
+export const startQuiz = async (quizId: string) => {
+  try {
+    const response = await quizService.startQuiz(quizId);
+    return response.data;
+  } catch (error) {
+    console.error('Start quiz error:', error);
+    throw error;
+  }
+};
+
+export const submitQuiz = async (quizId: string, answers: any) => {
+  try {
+    const response = await quizService.submitQuiz(quizId, answers);
+    return response.data;
+  } catch (error) {
+    console.error('Submit quiz error:', error);
+    throw error;
+  }
+};
+
+// Tracking services
+export const trackActivity = async (activityData: any) => {
+  try {
+    const response = await trackingService.trackActivity(activityData);
+    return response.data;
+  } catch (error) {
+    console.error('Track activity error:', error);
+    // Silently fail for tracking to not disrupt user experience
+    return null;
+  }
+};
+
+export const getUserProgress = async (userId: string) => {
+  try {
+    const response = await trackingService.getUserProgress(userId);
+    return response.data;
+  } catch (error) {
+    console.error('Get user progress error:', error);
+    throw error;
+  }
+};
+
+// Parent services
+export const connectToStudent = async (parentId: string, studentEmail: string) => {
+  try {
+    const response = await parentService.connectToStudent(parentId, studentEmail);
+    return response.data;
+  } catch (error) {
+    console.error('Connect to student error:', error);
+    throw error;
+  }
+};
+
+export const getStudentData = async (studentId: string) => {
+  try {
+    const response = await parentService.getStudentData(studentId);
+    return response.data;
+  } catch (error) {
+    console.error('Get student data error:', error);
+    throw error;
+  }
+};
+
+export const getConnectedStudents = async (parentId: string) => {
+  try {
+    const response = await parentService.getConnectedStudents(parentId);
+    return response.data;
+  } catch (error) {
+    console.error('Get connected students error:', error);
+    throw error;
+  }
+};
+
+// Admin services
+export const getUserStats = async () => {
+  try {
+    const response = await adminService.getUserStats();
+    return response.data;
+  } catch (error) {
+    console.error('Get user stats error:', error);
+    throw error;
+  }
+};
+
+export const getResourceStats = async () => {
+  try {
+    const response = await adminService.getResourceStats();
+    return response.data;
+  } catch (error) {
+    console.error('Get resource stats error:', error);
+    throw error;
+  }
+};
+
+export const getActivityLogs = async (filters?: any) => {
+  try {
+    const response = await adminService.getActivityLogs(filters);
+    return response.data;
+  } catch (error) {
+    console.error('Get activity logs error:', error);
+    throw error;
+  }
+};
+
+export const updateUserRole = async (userId: string, role: string) => {
+  try {
+    const response = await adminService.updateUserRole(userId, role);
+    return response.data;
+  } catch (error) {
+    console.error('Update user role error:', error);
+    throw error;
+  }
+};

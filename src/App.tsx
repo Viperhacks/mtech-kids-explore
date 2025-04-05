@@ -21,6 +21,7 @@ import SubjectResources from "./pages/SubjectResources";
 import Dashboard from "./pages/Dashboard";
 import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./components/Layout";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -33,22 +34,24 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/revision" element={<Revision />} />
-            <Route path="/teachers" element={<ProtectedRoute allowedRoles={["teacher", "admin"]} element={<Teachers />} />} />
-            <Route path="/contacts" element={<Contacts />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/tutorials" element={<Tutorials />} />
-            <Route path="/exercises" element={<Exercises />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
-            <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
-            <Route path="/grade/:gradeId" element={<ProtectedRoute element={<GradeResources />} />} />
-            <Route path="/grade/:gradeId/subject/:subjectId" element={<ProtectedRoute element={<SubjectResources />} />} />
-            {/* Catch-all route for any undefined routes */}
-            <Route path="*" element={<NotFound />} />
+            <Route element={<Layout />}>
+              <Route path="/" element={<Index />} />
+              <Route path="/revision" element={<Revision />} />
+              <Route path="/teachers" element={<ProtectedRoute allowedRoles={["teacher", "admin"]} element={<Teachers />} />} />
+              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/tutorials" element={<Tutorials />} />
+              <Route path="/exercises" element={<Exercises />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
+              <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
+              <Route path="/grade/:gradeId" element={<ProtectedRoute element={<GradeResources />} />} />
+              <Route path="/grade/:gradeId/subject/:subjectId" element={<ProtectedRoute element={<SubjectResources />} />} />
+              {/* Catch-all route for any undefined routes */}
+              <Route path="*" element={<NotFound />} />
+            </Route>
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
