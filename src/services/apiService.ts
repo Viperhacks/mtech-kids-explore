@@ -1,4 +1,3 @@
-
 import api, { 
   authService, 
   resourceService, 
@@ -70,7 +69,7 @@ export const getResources = async (gradeId?: string, subjectId?: string) => {
   }
 };
 
-export const uploadResource = async (resourceData: FormData) => {
+export const uploadResource = async (resourceData: FormData | any) => {
   try {
     const response = await resourceService.uploadResource(resourceData);
     return response.data;
@@ -86,6 +85,26 @@ export const getResourceById = async (id: string) => {
     return response.data;
   } catch (error) {
     console.error('Get resource error:', error);
+    throw error;
+  }
+};
+
+export const updateResource = async (id: string, data: any) => {
+  try {
+    const response = await resourceService.updateResource(id, data);
+    return response.data;
+  } catch (error) {
+    console.error('Update resource error:', error);
+    throw error;
+  }
+};
+
+export const deleteResource = async (id: string) => {
+  try {
+    const response = await resourceService.deleteResource(id);
+    return response.data;
+  } catch (error) {
+    console.error('Delete resource error:', error);
     throw error;
   }
 };
@@ -143,6 +162,46 @@ export const getUserProgress = async (userId: string) => {
   }
 };
 
+export const getUserStats = async (userId: string) => {
+  try {
+    const response = await trackingService.getUserStats(userId);
+    return response.data;
+  } catch (error) {
+    console.error('Get user stats error:', error);
+    throw error;
+  }
+};
+
+export const getUserBadges = async (userId: string) => {
+  try {
+    const response = await trackingService.getUserBadges(userId);
+    return response.data;
+  } catch (error) {
+    console.error('Get user badges error:', error);
+    throw error;
+  }
+};
+
+export const getSystemStats = async () => {
+  try {
+    const response = await trackingService.getSystemStats();
+    return response.data;
+  } catch (error) {
+    console.error('Get system stats error:', error);
+    throw error;
+  }
+};
+
+export const getActiveUsers = async (period: string = 'day') => {
+  try {
+    const response = await trackingService.getActiveUsers(period);
+    return response.data;
+  } catch (error) {
+    console.error('Get active users error:', error);
+    throw error;
+  }
+};
+
 // Parent services
 export const connectToStudent = async (parentId: string, studentEmail: string) => {
   try {
@@ -175,6 +234,26 @@ export const getConnectedStudents = async (parentId: string) => {
 };
 
 // Admin services
+export const getAllUsers = async (page: number = 1, limit: number = 10, filters?: any) => {
+  try {
+    const response = await adminService.getAllUsers(page, limit, filters);
+    return response.data;
+  } catch (error) {
+    console.error('Get all users error:', error);
+    throw error;
+  }
+};
+
+export const getUsageMetrics = async (period: string = 'week') => {
+  try {
+    const response = await adminService.getUsageMetrics(period);
+    return response.data;
+  } catch (error) {
+    console.error('Get usage metrics error:', error);
+    throw error;
+  }
+};
+
 export const getUserStats = async () => {
   try {
     const response = await adminService.getUserStats();

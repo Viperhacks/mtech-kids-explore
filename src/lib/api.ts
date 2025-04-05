@@ -47,10 +47,15 @@ export const authService = {
 export const resourceService = {
   getResources: (gradeId?: string, subjectId?: string) => 
     api.get('/resources', { params: { gradeId, subjectId } }),
-  uploadResource: (resourceData: FormData) => 
-    api.post('/resources/upload', resourceData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }),
+  uploadResource: (resourceData: FormData | any) => {
+    if (resourceData instanceof FormData) {
+      return api.post('/resources/upload', resourceData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    } else {
+      return api.post('/resources', resourceData);
+    }
+  },
   getResourceById: (id: string) => api.get(`/resources/${id}`),
   deleteResource: (id: string) => api.delete(`/resources/${id}`),
   updateResource: (id: string, data: any) => api.put(`/resources/${id}`, data),
@@ -70,6 +75,15 @@ export const trackingService = {
   trackActivity: (activityData: any) => api.post('/tracking/activity', activityData),
   getUserProgress: (userId: string) => api.get(`/tracking/progress/${userId}`),
   getCompletedLessons: (userId: string) => api.get(`/tracking/completed/${userId}`),
+  // New endpoints for user tracking
+  trackPageView: (userId: string, data: any) => api.post(`/tracking/pageview`, { userId, ...data }),
+  trackHeartbeat: (userId: string) => api.post(`/tracking/heartbeat`, { userId, timestamp: new Date().toISOString() }),
+  trackSession: (userId: string, duration: number) => 
+    api.post(`/tracking/session`, { userId, duration, endTime: new Date().toISOString() }),
+  getUserStats: (userId: string) => api.get(`/users/${userId}/activity-stats`),
+  getUserBadges: (userId: string) => api.get(`/users/${userId}/badges`),
+  getSystemStats: () => api.get('/admin/system-stats'),
+  getActiveUsers: (period: string = 'day') => api.get(`/admin/active-users`, { params: { period } }),
 };
 
 // Parent-student connection services
@@ -86,6 +100,9 @@ export const adminService = {
   getResourceStats: () => api.get('/admin/stats/resources'),
   getActivityLogs: (filters?: any) => api.get('/admin/logs', { params: filters }),
   updateUserRole: (userId: string, role: string) => api.put(`/admin/users/${userId}/role`, { role }),
+  getAllUsers: (page: number = 1, limit: number = 10, filters?: any) => 
+    api.get('/admin/users', { params: { page, limit, ...filters } }),
+  getUsageMetrics: (period: string = 'week') => api.get(`/admin/metrics/usage`, { params: { period } }),
 };
 
 export default api;
