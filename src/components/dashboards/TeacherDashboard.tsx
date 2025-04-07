@@ -12,7 +12,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseEditor from '../CourseEditor';
-import { getResources, deleteResource } from '@/services/apiService';
+import { getResources, deleteResource, getAllUsers } from '@/services/apiService';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const TeacherDashboard: React.FC = () => {
@@ -22,13 +22,19 @@ const TeacherDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [resources, setResources] = useState<any[]>([]);
+  const [students, setStudents] = useState<any[]>([]);
   const [selectedResource, setSelectedResource] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isStudentsLoading, setIsStudentsLoading] = useState(true);
+  const [resourceType, setResourceType] = useState('document');
   
   useEffect(() => {
     fetchResources();
-  }, []);
+    if (activeTab === 'students') {
+      fetchStudents();
+    }
+  }, [activeTab]);
   
   const fetchResources = async () => {
     setIsLoading(true);
@@ -43,18 +49,63 @@ const TeacherDashboard: React.FC = () => {
         description: "Could not load your learning materials. Please try again.",
         variant: "destructive"
       });
+      // Fallback data if API fails
+      setResources([
+        {
+          id: 'fallback-1',
+          title: 'Introduction to Mathematics',
+          type: 'document',
+          grade: '6',
+          subject: 'Mathematics',
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 'fallback-2',
+          title: 'Basic Science Concepts',
+          type: 'video',
+          grade: '6',
+          subject: 'Science',
+          createdAt: new Date().toISOString()
+        }
+      ]);
     } finally {
       setIsLoading(false);
     }
   };
   
-  const handleCreateNew = () => {
+  const fetchStudents = async () => {
+    setIsStudentsLoading(true);
+    try {
+      // Use a filter to only get students
+      const response = await getAllUsers(1, 50, { role: 'student' });
+      setStudents(response.data || []);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      toast({
+        title: "Failed to load students",
+        description: "Could not load student data. Please try again.",
+        variant: "destructive"
+      });
+      // Fallback data for students
+      setStudents([
+        { id: 's1', name: 'John Doe', email: 'john@example.com', grade: '6', lastActive: '2 hours ago' },
+        { id: 's2', name: 'Jane Smith', email: 'jane@example.com', grade: '6', lastActive: '1 day ago' },
+        { id: 's3', name: 'Alex Johnson', email: 'alex@example.com', grade: '6', lastActive: '3 days ago' }
+      ]);
+    } finally {
+      setIsStudentsLoading(false);
+    }
+  };
+  
+  const handleCreateNew = (type: string = 'document') => {
     setSelectedResource(null);
+    setResourceType(type);
     setIsEditing(true);
   };
   
   const handleEditResource = (resource: any) => {
     setSelectedResource(resource);
+    setResourceType(resource.type || 'document');
     setIsEditing(true);
   };
   
@@ -98,7 +149,7 @@ const TeacherDashboard: React.FC = () => {
   const recentUploads = resources.slice(0, 3).map(resource => ({
     id: resource.id,
     title: resource.title,
-    type: resource.type.charAt(0).toUpperCase() + resource.type.slice(1),
+    type: resource.type?.charAt(0).toUpperCase() + resource.type?.slice(1) || 'Document',
     date: new Date(resource.createdAt || Date.now()).toLocaleDateString(),
     status: "Published"
   }));
@@ -111,7 +162,7 @@ const TeacherDashboard: React.FC = () => {
         <TabsList className={`mb-6 ${isMobile ? 'grid grid-cols-2 gap-2' : ''}`}>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="materials">My Materials</TabsTrigger>
-          {!isMobile && <TabsTrigger value="students">Students</TabsTrigger>}
+          <TabsTrigger value="students">Students</TabsTrigger>
           {!isMobile && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
         </TabsList>
       
@@ -125,14 +176,22 @@ const TeacherDashboard: React.FC = () => {
                 <Button 
                   className="w-full flex items-center justify-start" 
                   variant="outline"
-                  onClick={handleCreateNew}
+                  onClick={() => handleCreateNew('document')}
                 >
-                  <Upload className="mr-2 h-4 w-4" /> Upload Resource
+                  <Upload className="mr-2 h-4 w-4" /> Upload Document
                 </Button>
-                <Button className="w-full flex items-center justify-start" variant="outline">
+                <Button 
+                  className="w-full flex items-center justify-start" 
+                  variant="outline"
+                  onClick={() => handleCreateNew('quiz')}
+                >
                   <FileText className="mr-2 h-4 w-4" /> Create Quiz
                 </Button>
-                <Button className="w-full flex items-center justify-start" variant="outline">
+                <Button 
+                  className="w-full flex items-center justify-start" 
+                  variant="outline"
+                  onClick={() => setActiveTab('students')}
+                >
                   <Users className="mr-2 h-4 w-4" /> View Students
                 </Button>
               </CardContent>
@@ -231,9 +290,14 @@ const TeacherDashboard: React.FC = () => {
                   <CardTitle>My Learning Materials</CardTitle>
                   <CardDescription>Manage all your teaching resources</CardDescription>
                 </div>
-                <Button onClick={handleCreateNew}>
-                  <PlusCircle className="mr-2 h-4 w-4" /> Create New
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={() => handleCreateNew('document')}>
+                    <FileText className="mr-2 h-4 w-4" /> Upload Document
+                  </Button>
+                  <Button onClick={() => handleCreateNew('quiz')} variant="outline">
+                    <CheckCircle className="mr-2 h-4 w-4" /> Create Quiz
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent className={isMobile ? "px-2" : ""}>
@@ -260,14 +324,17 @@ const TeacherDashboard: React.FC = () => {
                           <TableCell>
                             <div className="flex items-center">
                               {getResourceTypeIcon(resource.type)}
-                              {resource.type.charAt(0).toUpperCase() + resource.type.slice(1)}
+                              {resource.type?.charAt(0).toUpperCase() + resource.type?.slice(1) || 'Document'}
                             </div>
                           </TableCell>
                           {!isMobile && <TableCell>Grade {resource.grade}</TableCell>}
                           {!isMobile && <TableCell>{resource.subject}</TableCell>}
-                          <TableCell className="text-right">
+                          <TableCell className="text-right space-x-2">
                             <Button variant="ghost" size="sm" onClick={() => handleEditResource(resource)}>
                               Edit
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteResource(resource.id)}>
+                              Delete
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -280,9 +347,14 @@ const TeacherDashboard: React.FC = () => {
                   <Book className="mx-auto h-12 w-12 text-gray-300 mb-3" />
                   <h3 className="font-medium text-lg">No materials yet</h3>
                   <p className="text-muted-foreground mb-4">Start by creating your first learning resource</p>
-                  <Button onClick={handleCreateNew}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Create New Resource
-                  </Button>
+                  <div className="flex gap-2 justify-center">
+                    <Button onClick={() => handleCreateNew('document')}>
+                      <FileText className="mr-2 h-4 w-4" /> Upload Document
+                    </Button>
+                    <Button onClick={() => handleCreateNew('quiz')} variant="outline">
+                      <CheckCircle className="mr-2 h-4 w-4" /> Create Quiz
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -296,11 +368,44 @@ const TeacherDashboard: React.FC = () => {
               <CardDescription>View and manage your students</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-10">
-                <Users className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                <h3 className="font-medium text-lg">Student Management Coming Soon</h3>
-                <p className="text-muted-foreground">Track student progress and engagement</p>
-              </div>
+              {isStudentsLoading ? (
+                <div className="text-center py-10">
+                  <p>Loading students...</p>
+                </div>
+              ) : students.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        {!isMobile && <TableHead>Grade</TableHead>}
+                        <TableHead>Last Active</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {students.map(student => (
+                        <TableRow key={student.id}>
+                          <TableCell className="font-medium">{student.name || `${student.firstName || ''} ${student.lastName || ''}`}</TableCell>
+                          <TableCell>{student.email}</TableCell>
+                          {!isMobile && <TableCell>Grade {student.grade || 'N/A'}</TableCell>}
+                          <TableCell>{student.lastActive || 'N/A'}</TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="sm">View Progress</Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <Users className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                  <h3 className="font-medium text-lg">No students found</h3>
+                  <p className="text-muted-foreground">You don't have any students assigned yet</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -326,9 +431,14 @@ const TeacherDashboard: React.FC = () => {
       <Dialog open={isEditing} onOpenChange={(open) => !open && setIsEditing(false)}>
         <DialogContent className="sm:max-w-[800px] h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedResource ? 'Edit Resource' : 'Create New Resource'}</DialogTitle>
+            <DialogTitle>{selectedResource ? 'Edit Resource' : resourceType === 'quiz' ? 'Create New Quiz' : 'Upload New Resource'}</DialogTitle>
             <DialogDescription>
-              {selectedResource ? 'Modify your existing learning material' : 'Add a new learning resource for your students'}
+              {selectedResource 
+                ? 'Modify your existing learning material' 
+                : resourceType === 'quiz' 
+                  ? 'Create a new quiz for your students'
+                  : 'Add a new learning resource for your students'
+              }
             </DialogDescription>
           </DialogHeader>
           <CourseEditor 
@@ -336,6 +446,7 @@ const TeacherDashboard: React.FC = () => {
             onSave={handleSaveComplete} 
             onCancel={() => setIsEditing(false)}
             isNew={!selectedResource}
+            initialType={resourceType}
           />
         </DialogContent>
       </Dialog>

@@ -13,10 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import ResourcesData from '@/data/resources';
+import { uploadResource } from '@/services/apiService';
 
 const GradeResources = () => {
   const { gradeId } = useParams<{ gradeId: string }>();
-  const { user, uploadResource, trackActivity } = useAuth();
+  const { user, trackActivity } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('all');
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -62,13 +63,25 @@ const GradeResources = () => {
     setIsUploading(true);
     
     try {
-      // In a real app, this would upload the file
-      const resourceData = {
-        ...uploadForm,
-        grade: gradeId
-      };
+      // Create form data for file upload
+      let formData;
+      if (uploadForm.file) {
+        formData = new FormData();
+        formData.append('file', uploadForm.file);
+        formData.append('title', uploadForm.title);
+        formData.append('description', uploadForm.description);
+        formData.append('subject', uploadForm.subject);
+        formData.append('type', uploadForm.type);
+        formData.append('grade', gradeId || '');
+      } else {
+        // If no file, just send the JSON data
+        formData = {
+          ...uploadForm,
+          grade: gradeId
+        };
+      }
       
-      await uploadResource(resourceData);
+      await uploadResource(formData);
       
       toast({
         title: "Upload Successful",
@@ -83,6 +96,18 @@ const GradeResources = () => {
         type: 'video',
         file: null,
       });
+      
+      // Track the activity
+      if (user) {
+        trackActivity({
+          userId: user.id,
+          type: 'resource_uploaded',
+          resourceType: uploadForm.type,
+          subjectId: uploadForm.subject,
+          gradeId,
+          timestamp: new Date().toISOString()
+        });
+      }
     } catch (error) {
       console.error('Upload failed', error);
       toast({
@@ -345,9 +370,13 @@ const GradeResources = () => {
       <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Upload Learning Resource</DialogTitle>
+            <DialogTitle>
+              {uploadForm.type === 'quiz' ? 'Create New Quiz' : 'Upload Learning Resource'}
+            </DialogTitle>
             <DialogDescription>
-              Upload videos, documents, or quizzes for Grade {gradeData.name}.
+              {uploadForm.type === 'quiz' 
+                ? `Create a new quiz for Grade ${gradeData.name} students.`
+                : `Upload videos, documents, or quizzes for Grade ${gradeData.name}.`}
             </DialogDescription>
           </DialogHeader>
           
@@ -408,14 +437,16 @@ const GradeResources = () => {
               </Select>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="file">Upload File</Label>
-              <Input
-                id="file"
-                type="file"
-                onChange={handleFileChange}
-              />
-            </div>
+            {uploadForm.type !== 'quiz' && (
+              <div className="space-y-2">
+                <Label htmlFor="file">Upload File</Label>
+                <Input
+                  id="file"
+                  type="file"
+                  onChange={handleFileChange}
+                />
+              </div>
+            )}
             
             <DialogFooter>
               <Button 
@@ -427,7 +458,11 @@ const GradeResources = () => {
                 Cancel
               </Button>
               <Button type="submit" disabled={isUploading}>
-                {isUploading ? 'Uploading...' : 'Upload Resource'}
+                {isUploading 
+                  ? 'Uploading...' 
+                  : uploadForm.type === 'quiz' 
+                    ? 'Create Quiz' 
+                    : 'Upload Resource'}
               </Button>
             </DialogFooter>
           </form>

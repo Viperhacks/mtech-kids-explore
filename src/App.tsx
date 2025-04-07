@@ -47,8 +47,8 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/profile" element={<ProtectedRoute allowedRoles={["student", "teacher", "admin", "parent"]} element={<Profile />} />} />
               <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["student", "teacher", "admin", "parent"]} element={<Dashboard />} />} />
-              <Route path="/grade/:gradeId" element={<ProtectedRoute element={<GradeResources />} />} />
-              <Route path="/grade/:gradeId/subject/:subjectId" element={<ProtectedRoute element={<SubjectResources />} />} />
+              <Route path="/grade/:gradeId" element={<ProtectedRoute allowedRoles={["student", "teacher", "admin", "parent"]} element={<GradeResources />} />} />
+              <Route path="/grade/:gradeId/subject/:subjectId" element={<ProtectedRoute allowedRoles={["student", "teacher", "admin", "parent"]} element={<SubjectResources />} />} />
               {/* Catch-all route for any undefined routes */}
               <Route path="*" element={<NotFound />} />
             </Route>

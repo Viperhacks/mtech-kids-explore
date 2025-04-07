@@ -4,7 +4,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Video, FileText, CheckCircle, ArrowLeft, Play } from 'lucide-react';
+import { Video, FileText, CheckCircle, ArrowLeft, Play, PlusCircle, Edit, Trash } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import ResourcesData from '@/data/resources';
+import { getResources, deleteResource } from '@/services/apiService';
+import CourseEditor from '@/components/CourseEditor';
 
 const SubjectResources = () => {
   const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
@@ -22,10 +24,14 @@ const SubjectResources = () => {
   const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingResource, setEditingResource] = useState<any>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswers, setUserAnswers] = useState<{ [key: number]: string }>({});
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
+  const [resources, setResources] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { toast } = useToast();
   const { user, updateUserProgress, trackActivity } = useAuth();
@@ -33,6 +39,27 @@ const SubjectResources = () => {
   // Get the grade and subject data
   const grade = ResourcesData.grades.find(g => g.id === gradeId);
   const subject = grade?.subjects.find(s => s.id === subjectId);
+  
+  useEffect(() => {
+    fetchResources();
+  }, [gradeId, subjectId]);
+  
+  const fetchResources = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getResources(gradeId, subjectId);
+      setResources(response.data || []);
+    } catch (error) {
+      console.error('Error fetching resources:', error);
+      toast({
+        title: "Failed to load resources",
+        description: "Could not load learning materials. Using sample data instead.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   if (!grade || !subject) {
     return (
@@ -141,6 +168,43 @@ const SubjectResources = () => {
     setQuizCompleted(false);
   };
   
+  const handleEditResource = (resource: any) => {
+    setEditingResource(resource);
+    setIsEditDialogOpen(true);
+  };
+  
+  const handleDeleteResource = async (resourceId: string) => {
+    try {
+      await deleteResource(resourceId);
+      toast({
+        title: "Resource Deleted",
+        description: "The resource has been successfully deleted."
+      });
+      fetchResources();
+    } catch (error) {
+      console.error('Delete failed', error);
+      toast({
+        title: "Delete Failed",
+        description: "Could not delete the resource. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handleCreateNewResource = (type: string) => {
+    setEditingResource({
+      type,
+      grade: gradeId,
+      subject: subjectId
+    });
+    setIsEditDialogOpen(true);
+  };
+  
+  const handleSaveComplete = () => {
+    setIsEditDialogOpen(false);
+    fetchResources();
+  };
+  
   // Calculate progress for this subject
   const progress = user?.progress?.[subjectId as string] || { watched: 0, completed: 0, total: 10 };
   const completionPercent = Math.round((progress.completed / progress.total) * 100);
@@ -210,10 +274,20 @@ const SubjectResources = () => {
             </p>
           </div>
           {user?.role === 'teacher' && (
-            <Button size="sm" variant="outline">
-              <FileText className="mr-2 h-4 w-4" />
-              Upload Materials
-            </Button>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('document')}>
+                <FileText className="mr-2 h-4 w-4" />
+                Upload Document
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('video')}>
+                <Video className="mr-2 h-4 w-4" />
+                Upload Video
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('quiz')}>
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Create Quiz
+              </Button>
+            </div>
           )}
         </div>
         <Progress value={completionPercent} className="h-2 mt-3" />
@@ -263,18 +337,56 @@ const SubjectResources = () => {
                       {video.duration} • {video.teacher}
                     </CardDescription>
                   </CardHeader>
-                  <CardFooter className="pt-0">
+                  <CardFooter className="pt-0 flex justify-between">
                     <Button 
                       size="sm" 
-                      className="w-full" 
+                      className="flex-1"
                       onClick={() => handleWatchVideo(video)}
                     >
                       {isCompleted ? 'Watch Again' : 'Watch Now'}
                     </Button>
+                    
+                    {user?.role === 'teacher' && (
+                      <div className="flex gap-1 ml-2">
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditResource(video);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteResource(video.id);
+                          }}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </CardFooter>
                 </Card>
               );
             })}
+            
+            {user?.role === 'teacher' && (
+              <Card className="flex flex-col items-center justify-center h-full min-h-[250px] border-dashed">
+                <Button 
+                  variant="ghost" 
+                  className="flex flex-col h-full w-full p-6"
+                  onClick={() => handleCreateNewResource('video')}
+                >
+                  <PlusCircle className="h-8 w-8 mb-2" />
+                  <p>Upload New Video</p>
+                </Button>
+              </Card>
+            )}
           </div>
         </TabsContent>
         
@@ -298,18 +410,50 @@ const SubjectResources = () => {
                   <CardContent>
                     <p className="text-sm text-gray-600">{quiz.description}</p>
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="flex justify-between">
                     <Button 
                       size="sm" 
-                      className="w-full bg-mtech-secondary"
+                      className="flex-1 bg-mtech-secondary"
                       onClick={() => handleStartQuiz(quiz)}
                     >
                       {isCompleted ? 'Retry Quiz' : 'Start Quiz'}
                     </Button>
+                    
+                    {user?.role === 'teacher' && (
+                      <div className="flex gap-1 ml-2">
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => handleEditResource(quiz)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => handleDeleteResource(quiz.id)}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </CardFooter>
                 </Card>
               );
             })}
+            
+            {user?.role === 'teacher' && (
+              <Card className="flex flex-col items-center justify-center h-full min-h-[200px] border-dashed">
+                <Button 
+                  variant="ghost" 
+                  className="flex flex-col h-full w-full p-6"
+                  onClick={() => handleCreateNewResource('quiz')}
+                >
+                  <PlusCircle className="h-8 w-8 mb-2" />
+                  <p>Create New Quiz</p>
+                </Button>
+              </Card>
+            )}
           </div>
         </TabsContent>
       </Tabs>
@@ -439,6 +583,36 @@ const SubjectResources = () => {
               </Button>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+      
+      {/* Resource Editor Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={(open) => !open && setIsEditDialogOpen(false)}>
+        <DialogContent className="sm:max-w-[800px] h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingResource?.id 
+                ? 'Edit Resource' 
+                : editingResource?.type === 'quiz' 
+                  ? 'Create New Quiz' 
+                  : 'Upload New Resource'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingResource?.id 
+                ? 'Modify your existing learning material' 
+                : editingResource?.type === 'quiz' 
+                  ? 'Create a new quiz for your students'
+                  : 'Add a new learning resource for your students'
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <CourseEditor 
+            resource={editingResource} 
+            onSave={handleSaveComplete} 
+            onCancel={() => setIsEditDialogOpen(false)}
+            isNew={!editingResource?.id}
+            initialType={editingResource?.type}
+          />
         </DialogContent>
       </Dialog>
     </div>
