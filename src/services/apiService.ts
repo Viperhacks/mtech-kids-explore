@@ -1,3 +1,4 @@
+
 import api, { 
   authService, 
   resourceService, 
@@ -254,12 +255,13 @@ export const getUsageMetrics = async (period: string = 'week') => {
   }
 };
 
-export const getUserStats = async () => {
+// Renamed from getUserStats to getAdminUserStats to avoid duplicate declaration
+export const getAdminUserStats = async () => {
   try {
     const response = await adminService.getUserStats();
     return response.data;
   } catch (error) {
-    console.error('Get user stats error:', error);
+    console.error('Get admin user stats error:', error);
     throw error;
   }
 };

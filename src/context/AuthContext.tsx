@@ -9,6 +9,8 @@ interface User {
   role: 'student' | 'teacher' | 'admin';
   avatar?: string;
   grade?: string;
+  school?: string;
+  provider?: string;
   completedLessons?: string[];
   earnedBadges?: string[];
   progress?: {
@@ -18,7 +20,7 @@ interface User {
       total: number;
     };
   };
-  parentOf?: string[]; // IDs of student accounts a parent has access to
+  parentOf?: string[];
 }
 
 interface AuthContextType {
@@ -37,6 +39,7 @@ interface AuthContextType {
   trackActivity: (activity: any) => Promise<void>;
   connectParentToStudent: (studentEmail: string) => Promise<void>;
   getStudentData: (studentId: string) => Promise<User | null>;
+  updateUserProfile: (userData: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,8 +57,6 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { toast } = useToast();
   
-  // For demo purposes, we'll use localStorage to simulate authentication
-  // In a real app, this would verify a token with the backend
   useEffect(() => {
     const checkAuth = () => {
       const storedUser = localStorage.getItem('mtech_user');
@@ -73,7 +74,6 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     checkAuth();
   }, []);
   
-  // In a real app, these functions would call a backend API
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
@@ -110,8 +110,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           id: '567',
           name: 'Parent User',
           email: email,
-          role: 'student', // Parents use the student role for permissions
-          parentOf: ['789'], // Reference to student accounts
+          role: 'student',
+          parentOf: ['789'],
           completedLessons: [],
           earnedBadges: [],
           progress: {}
@@ -123,7 +123,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           name: 'Student User',
           email: email,
           role: 'student',
-          grade: '3', // Default grade level
+          grade: '3',
           completedLessons: [],
           earnedBadges: ['welcome'],
           progress: {
@@ -146,7 +146,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         description: "Invalid email or password",
         variant: "destructive"
       });
-      throw error; // Re-throw to handle in the component
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -185,7 +185,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         description: "Could not create your account",
         variant: "destructive"
       });
-      throw error; // Re-throw to handle in the component
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -478,6 +478,29 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     });
   };
   
+  const updateUserProfile = async (userData: Partial<User>) => {
+    if (!user) return Promise.reject(new Error("User not authenticated"));
+    
+    try {
+      setIsLoading(true);
+      
+      // In a real app, this would call an API
+      // await api.put(`/users/${user.id}`, userData);
+      
+      // For the demo, just update the local state
+      const updatedUser = { ...user, ...userData };
+      setUser(updatedUser);
+      localStorage.setItem('mtech_user', JSON.stringify(updatedUser));
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Update profile failed', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   const value = {
     user,
     isAuthenticated: !!user,
@@ -493,7 +516,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     uploadResource,
     trackActivity,
     connectParentToStudent,
-    getStudentData
+    getStudentData,
+    updateUserProfile
   };
   
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
