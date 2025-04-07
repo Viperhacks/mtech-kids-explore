@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,13 +15,15 @@ interface CourseEditorProps {
   onSave: () => void;
   onCancel: () => void;
   isNew?: boolean;
+  initialType?: string;
 }
 
 const CourseEditor: React.FC<CourseEditorProps> = ({ 
   resource, 
   onSave, 
   onCancel,
-  isNew = false
+  isNew = false,
+  initialType
 }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -31,10 +33,24 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
     description: resource?.description || '',
     grade: resource?.grade || '',
     subject: resource?.subject || '',
-    type: resource?.type || 'video',
+    type: resource?.type || initialType || 'video',
     content: resource?.content || '',
     thumbnail: resource?.thumbnail || '',
   });
+
+  // Update form data if resource or initialType changes
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      title: resource?.title || prev.title,
+      description: resource?.description || prev.description,
+      grade: resource?.grade || prev.grade,
+      subject: resource?.subject || prev.subject,
+      type: resource?.type || initialType || prev.type,
+      content: resource?.content || prev.content,
+      thumbnail: resource?.thumbnail || prev.thumbnail,
+    }));
+  }, [resource, initialType]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
