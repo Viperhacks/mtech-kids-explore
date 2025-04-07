@@ -6,12 +6,12 @@ import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
   element: React.ReactNode;
-  allowedRoles?: ('student' | 'teacher' | 'admin')[];
+  allowedRoles?: ('student' | 'teacher' | 'admin' | 'parent')[];
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   element,
-  allowedRoles = ['student', 'teacher', 'admin']
+  allowedRoles = ['student', 'teacher', 'admin', 'parent']
 }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   
@@ -27,8 +27,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/" replace state={{ showLogin: true }} />;
   }
   
+  // Special case for parent users (who have parentOf property)
+  const userRole = user?.parentOf && user.parentOf.length > 0 && user.role === 'student' ? 'parent' : user?.role;
+  
   // Check role-based permissions
-  if (user && !allowedRoles.includes(user.role)) {
+  if (user && !allowedRoles.includes(userRole as any)) {
     return <Navigate to="/" replace />;
   }
   

@@ -322,9 +322,15 @@ const TeacherDashboard: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Course Editor Dialog */}
+      {/* Course Editor Dialog - Fixed accessibility warning by adding DialogTitle */}
       <Dialog open={isEditing} onOpenChange={(open) => !open && setIsEditing(false)}>
         <DialogContent className="sm:max-w-[800px] h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedResource ? 'Edit Resource' : 'Create New Resource'}</DialogTitle>
+            <DialogDescription>
+              {selectedResource ? 'Modify your existing learning material' : 'Add a new learning resource for your students'}
+            </DialogDescription>
+          </DialogHeader>
           <CourseEditor 
             resource={selectedResource} 
             onSave={handleSaveComplete} 

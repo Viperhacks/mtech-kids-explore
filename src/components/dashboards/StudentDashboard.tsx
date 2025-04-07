@@ -103,7 +103,9 @@ const StudentDashboard: React.FC = () => {
             <CardDescription className="text-xs">14 min • Ms. Johnson</CardDescription>
           </CardHeader>
           <CardFooter className="pt-0">
-            <Button size="sm" className="w-full">Continue Learning</Button>
+            <Button size="sm" className="w-full" asChild>
+              <Link to="/tutorials">Continue Learning</Link>
+            </Button>
           </CardFooter>
         </Card>
         
@@ -120,7 +122,9 @@ const StudentDashboard: React.FC = () => {
             <CardDescription className="text-xs">Quiz • 10 questions</CardDescription>
           </CardHeader>
           <CardFooter className="pt-0">
-            <Button size="sm" className="w-full">Start Quiz</Button>
+            <Button size="sm" className="w-full" asChild>
+              <Link to="/exercises">Start Quiz</Link>
+            </Button>
           </CardFooter>
         </Card>
         
@@ -137,7 +141,9 @@ const StudentDashboard: React.FC = () => {
             <CardDescription className="text-xs">Interactive Lesson • Mr. Thomas</CardDescription>
           </CardHeader>
           <CardFooter className="pt-0">
-            <Button size="sm" className="w-full">Explore Lesson</Button>
+            <Button size="sm" className="w-full" asChild>
+              <Link to="/tutorials">Explore Lesson</Link>
+            </Button>
           </CardFooter>
         </Card>
       </div>
