@@ -101,12 +101,12 @@ const Navbar: React.FC = () => {
                     <User className="mr-2 h-4 w-4" />
                     My Profile
                   </DropdownMenuItem>
-                  {(user?.role === 'teacher' || user?.role === 'admin') && (
+                  {/*(user?.role === 'teacher' || user?.role === 'admin') && (
                     <DropdownMenuItem onClick={() => navigate('/teachers')} className="cursor-pointer">
                       <span className="mr-2">👨‍🏫</span>
                       Teacher Dashboard
                     </DropdownMenuItem>
-                  )}
+                  )*/}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500">
                     <LogOut className="mr-2 h-4 w-4" />
