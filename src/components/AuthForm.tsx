@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import ResetPasswordForm from './ResetPasswordForm';
 import OtpConfirmForm from './OtpConfirmForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 
 interface AuthFormProps {
   onClose: () => void;
@@ -19,6 +21,13 @@ interface AuthFormProps {
 
 interface CredentialResponse {
   credential: string;
+}
+
+interface GoogleUserInfo {
+  email: string;
+  name: string;
+  picture: string;
+  sub: string;
 }
 
 const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
@@ -31,6 +40,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [gradeLevel, setGradeLevel] = useState('');
   const [view, setView] = useState<'main' | 'forgot' | 'reset' | 'otp'>('main');
   const [resetToken, setResetToken] = useState('');
+  const [googleRole, setGoogleRole] = useState('student');
+  const [googleGradeLevel, setGoogleGradeLevel] = useState('');
+  const [showGoogleRoleSelect, setShowGoogleRoleSelect] = useState(false);
   const { toast } = useToast();
   const { login, register: registerUser, googleLogin } = useAuth();
   const navigate = useNavigate();
@@ -69,6 +81,50 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
     setView('otp');
   };
 
+  const handleGoogleSuccess = async (res: CredentialResponse) => {
+    try {
+      const userInfo = jwtDecode<GoogleUserInfo>(res.credential);
+      
+      if (formType === 'register') {
+        setShowGoogleRoleSelect(true);
+        setEmail(userInfo.email);
+        setName(userInfo.name);
+        return;
+      }
+      
+      // For login flow
+      await googleLogin(res.credential, userInfo.name, userInfo.email, userInfo.picture);
+      onClose();
+      navigate('/dashboard');
+    } catch (err) {
+      toast({
+        title: 'Authentication Failed',
+        description: 'Could not sign in with Google',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const completeGoogleSignup = async () => {
+    if (!email || !name) return;
+    
+    try {
+      setIsSubmitting(true);
+      await registerUser(name, email, '', googleRole as 'student' | 'teacher' | 'parent', googleGradeLevel, 'google');
+      onClose();
+      navigate('/dashboard');
+    } catch (err) {
+      toast({
+        title: 'Registration Failed',
+        description: 'Could not create your account with Google',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+      setShowGoogleRoleSelect(false);
+    }
+  };
+
   if (view === 'forgot') {
     return <ForgotPasswordForm onBack={handleBackToMain} onResetRequest={handleOtpConfirm} />;
   }
@@ -77,6 +133,66 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   }
   if (view === 'otp') {
     return <OtpConfirmForm email={email} onBack={handleBackToMain} onVerified={handleResetPassword} />;
+  }
+
+  if (showGoogleRoleSelect) {
+    return (
+      <div className="p-4 sm:p-6 space-y-4">
+        <h2 className="text-lg font-medium">Complete Your Registration</h2>
+        <p className="text-sm text-gray-500">Please select your role to complete signup with Google.</p>
+        
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="google-role">I am a:</Label>
+            <Select value={googleRole} onValueChange={setGoogleRole}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select your role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="student">Student</SelectItem>
+                <SelectItem value="teacher">Teacher</SelectItem>
+                <SelectItem value="parent">Parent</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {googleRole === 'student' && (
+            <div className="space-y-2">
+              <Label htmlFor="google-grade-level">Grade Level</Label>
+              <Select value={googleGradeLevel} onValueChange={setGoogleGradeLevel}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your grade" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 7 }, (_, i) => (
+                    <SelectItem key={i + 1} value={`${i + 1}`}>
+                      Grade {i + 1}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div className="flex space-x-2 pt-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowGoogleRoleSelect(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={completeGoogleSignup}
+              className="flex-1 bg-mtech-primary"
+              disabled={isSubmitting || (googleRole === 'student' && !googleGradeLevel)}
+            >
+              {isSubmitting ? 'Creating Account...' : 'Complete Signup'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -139,28 +255,19 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
               </div>
             </div>
 
-            <GoogleLogin
-              onSuccess={async (res: CredentialResponse) => {
-                try {
-                  await googleLogin(res);
-                  onClose();
-                  navigate('/dashboard');
-                } catch (err) {
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
                   toast({
-                    title: 'Authentication Failed',
-                    description: 'Could not sign in with Google',
+                    title: 'Authentication Error',
+                    description: 'Google login failed. Try again.',
                     variant: 'destructive',
                   });
-                }
-              }}
-              onError={() => {
-                toast({
-                  title: 'Authentication Error',
-                  description: 'Google login failed. Try again.',
-                  variant: 'destructive',
-                });
-              }}
-            />
+                }}
+                useOneTap
+              />
+            </div>
           </form>
         </TabsContent>
 
@@ -215,17 +322,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
 
             <div className="space-y-2">
               <Label htmlFor="role">I am a:</Label>
-              <select
-                id="role"
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={role}
-                onChange={e => setRole(e.target.value)}
-                required
-              >
-                <option value="student">Student</option>
-                <option value="teacher">Teacher</option>
-                <option value="parent">Parent</option>
-              </select>
+              <Select value={role} onValueChange={setRole} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="teacher">Teacher</SelectItem>
+                  <SelectItem value="parent">Parent</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {role === 'student' && (
@@ -260,28 +366,19 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
               </div>
             </div>
 
-            <GoogleLogin
-              onSuccess={async (res: CredentialResponse) => {
-                try {
-                  await googleLogin(res);
-                  onClose();
-                  navigate('/dashboard');
-                } catch (err) {
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
                   toast({
-                    title: 'Authentication Failed',
-                    description: 'Could not sign in with Google',
+                    title: 'Authentication Error',
+                    description: 'Google login failed. Try again.',
                     variant: 'destructive',
                   });
-                }
-              }}
-              onError={() => {
-                toast({
-                  title: 'Authentication Error',
-                  description: 'Google login failed. Try again.',
-                  variant: 'destructive',
-                });
-              }}
-            />
+                }}
+                useOneTap
+              />
+            </div>
           </form>
         </TabsContent>
       </Tabs>

@@ -28,12 +28,12 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: 'student' | 'teacher' | 'parent', grade?: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role: 'student' | 'teacher' | 'parent', grade?: string, provider?: string) => Promise<void>;
   logout: () => void;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, password: string) => Promise<void>;
   confirmOtp: (email: string, otp: string) => Promise<void>;
-  googleLogin: () => Promise<void>;
+  googleLogin: (token: string, name?: string, email?: string, picture?: string) => Promise<void>;
   updateUserProgress: (subjectId: string, lessonId: string) => void;
   uploadResource: (resource: any) => Promise<void>;
   trackActivity: (activity: any) => Promise<void>;
@@ -152,20 +152,21 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   };
   
-  const register = async (name: string, email: string, password: string, role: 'student' | 'teacher' | 'parent', grade?: string) => {
+  const register = async (name: string, email: string, password: string, role: 'student' | 'teacher' | 'parent', grade?: string, provider?: string) => {
     try {
       setIsLoading(true);
       
       // This would be an actual API call in a real app
-      // const response = await api.post('/auth/signup', { name, email, password, role, grade });
+      // const response = await api.post('/auth/signup', { name, email, password, role, grade, provider });
       
       // Mock response for demo
       const mockUser: User = {
-        id: '123',
+        id: `user-${Date.now()}`,
         name: name,
         email: email,
         role: role === 'parent' ? 'student' : role,
         grade: role === 'student' ? grade : undefined,
+        provider: provider,
         completedLessons: [],
         earnedBadges: ['welcome'],
         progress: {},
@@ -266,21 +267,26 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   };
   
-  const googleLogin = async () => {
+  const googleLogin = async (token: string, name?: string, email?: string, picture?: string) => {
     try {
       setIsLoading(true);
-      // In a real app, this would redirect to Google OAuth
-      // For demo purposes, we'll simulate a successful login
+      // In a real app, this would make an API call with the token
+      // const response = await api.post('/auth/google', { token });
       
+      // Mock for demo purposes
       const mockUser: User = {
-        id: '789',
-        name: 'Google User',
-        email: 'google@example.com',
-        role: 'student',
-        avatar: 'https://lh3.googleusercontent.com/a/default-user=s120',
+        id: `google-${Date.now()}`,
+        name: name || 'Google User',
+        email: email || 'google@example.com',
+        role: 'student', // Default role
+        avatar: picture || 'https://lh3.googleusercontent.com/a/default-user=s120',
+        provider: 'google',
         completedLessons: [],
         earnedBadges: ['welcome'],
-        progress: {},
+        progress: {
+          'math': { watched: 0, completed: 0, total: 10 },
+          'english': { watched: 0, completed: 0, total: 8 },
+        },
       };
       
       setUser(mockUser);
@@ -296,6 +302,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         description: "Could not sign in with Google",
         variant: "destructive"
       });
+      throw error;
     } finally {
       setIsLoading(false);
     }

@@ -1,285 +1,257 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { ChevronRight, BookOpen, Award, Clock, Check } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { Book, Video, FileText, Award, Users, User } from 'lucide-react';
-import DefaultLoginInfo from '../DefaultLoginInfo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import UserActivity from './UserActivity';
 
-interface StudentDashboardProps {
-  isParent?: boolean;
-  studentId?: string;
-}
-
-const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false, studentId }) => {
-  const { user, getStudentData } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
-  const [studentData, setStudentData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
+const StudentDashboard: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
-  useEffect(() => {
-    // If this is a parent view and we have a studentId, fetch that student's data
-    const fetchStudentData = async () => {
-      if (isParent && user?.parentOf && user.parentOf.length > 0) {
-        setIsLoading(true);
-        try {
-          // If studentId is provided, use that, otherwise use the first student in the list
-          const targetStudentId = studentId || user.parentOf[0];
-          const data = await getStudentData(targetStudentId);
-          if (data) {
-            setStudentData(data);
-          }
-        } catch (error) {
-          console.error('Error fetching student data:', error);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
+  // Helper function to safely calculate progress
+  const calculateProgress = (subject: string): { progress: number, completed: number, total: number } => {
+    if (!user?.progress || !user.progress[subject]) {
+      return { progress: 0, completed: 0, total: 10 };
+    }
     
-    fetchStudentData();
-  }, [isParent, user, studentId, getStudentData]);
+    const subjectProgress = user.progress[subject];
+    const completed = subjectProgress.completed || 0;
+    const total = subjectProgress.total || 10;
+    const progress = Math.round((completed / total) * 100);
+    
+    return { progress, completed, total };
+  };
   
-  // Use either the fetched student data (for parent view) or the current user (for student view)
-  const displayUser = isParent ? studentData : user;
+  const getRecommendedGrade = () => {
+    return user?.grade || '1';
+  };
   
-  // Calculate overall progress
-  const overallProgress = displayUser?.progress ? 
-    Object.values(displayUser.progress).reduce((acc: any, curr: any) => {
-      acc.completed += curr.completed;
-      acc.total += curr.total;
-      return acc;
-    }, { completed: 0, total: 0 }) : 
-    { completed: 0, total: 0 };
-  
-  const completionPercentage = overallProgress.total > 0 ? 
-    Math.round((overallProgress.completed / overallProgress.total) * 100) : 0;
-
-  // If parent but no student data yet, show loading state
-  if (isParent && isLoading) {
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold mb-8">Student Dashboard</h1>
-        <div className="flex justify-center items-center p-12">
-          <Card className="w-full max-w-lg">
-            <CardHeader>
-              <CardTitle>Loading Student Data</CardTitle>
-              <CardDescription>Please wait while we fetch the student's information</CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center py-6">
-              <div className="animate-spin w-8 h-8 border-4 border-mtech-primary border-t-transparent rounded-full"></div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-  
-  // Parent view with no students
-  if (isParent && (!user?.parentOf || user.parentOf.length === 0)) {
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold mb-8">Parent Dashboard</h1>
-        <Card>
-          <CardHeader>
-            <CardTitle>No Students Connected</CardTitle>
-            <CardDescription>You haven't connected to any student accounts yet.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center py-6">
-            <Users className="h-16 w-16 text-gray-300 mb-4" />
-            <p className="text-center mb-4">Connect to your child's account to view their progress and activities.</p>
-            <Button asChild>
-              <Link to="/profile">Connect Student Account</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Badges earned by student
+  const badges = user?.earnedBadges || [];
   
   return (
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">
-        {isParent ? 'Student Dashboard' : 'Student Dashboard'}
-        {isParent && studentData && (
-          <span className="text-base font-normal ml-2 text-muted-foreground">
-            Viewing: {studentData.name}
-          </span>
-        )}
-      </h1>
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">
+          Hello, {user?.name.split(' ')[0] || 'Student'}!
+        </h1>
+        <Button 
+          onClick={() => navigate(`/grade/${getRecommendedGrade()}`)}
+          className="bg-mtech-primary hover:bg-blue-700 text-white"
+        >
+          Continue Learning
+          <ChevronRight className="ml-1 h-4 w-4" />
+        </Button>
+      </div>
       
-      {isParent && user?.parentOf && user.parentOf.length > 1 && (
-        <Card className="mb-8">
-          <CardHeader className="pb-3">
-            <CardTitle>Select Student</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {user.parentOf.map((childId, index) => (
-              <Button 
-                key={childId} 
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <User className="h-4 w-4" />
-                Child {index + 1}
-              </Button>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Stats Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Progress</CardTitle>
-            <CardDescription>Overall learning completion</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Overall Completion</span>
-                <span>{completionPercentage}%</span>
-              </div>
-              <Progress value={completionPercentage} />
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="progress">
+        <TabsList className="w-full md:w-auto">
+          <TabsTrigger value="progress">My Progress</TabsTrigger>
+          <TabsTrigger value="achievements">Achievements</TabsTrigger>
+          <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+        </TabsList>
         
-        {/* Recent Activity Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest learning activities</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {displayUser?.completedLessons && displayUser.completedLessons.length > 0 ? (
-                <p>Completed {displayUser.completedLessons.length} lessons</p>
-              ) : (
-                <p>No recent activity</p>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/profile">View All Activities</Link>
-            </Button>
-          </CardFooter>
-        </Card>
-        
-        {/* Badges Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Achievements</CardTitle>
-            <CardDescription>Badges earned</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2">
-              {displayUser?.earnedBadges && displayUser.earnedBadges.map((badge: string, index: number) => (
-                <div key={index} className="flex items-center justify-center h-12 w-12 rounded-full bg-mtech-primary/10 text-mtech-primary">
-                  <Award className="h-6 w-6" />
+        <TabsContent value="progress" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Mathematics Progress */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="bg-blue-100 text-blue-700 p-2 rounded-full">
+                    <BookOpen className="h-4 w-4" />
+                  </span>
+                  Mathematics
+                </CardTitle>
+                <CardDescription>Grade {user?.grade || '1'} Mathematics</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Progress</span>
+                    <span className="text-muted-foreground">
+                      {calculateProgress('math').completed}/{calculateProgress('math').total} lessons
+                    </span>
+                  </div>
+                  <Progress value={calculateProgress('math').progress} className="h-2" />
                 </div>
-              ))}
-              {(!displayUser?.earnedBadges || displayUser.earnedBadges.length === 0) && (
-                <p>No badges earned yet</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <h2 className="text-2xl font-semibold mb-4">Continue Learning</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <Card className="overflow-hidden">
-          <div className="relative aspect-video bg-gray-100">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-mtech-primary text-white rounded-full p-3 opacity-90 hover:opacity-100 transition-opacity">
-                <Video className="h-6 w-6" />
-              </div>
-            </div>
+                <Button
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => navigate(`/grade/${user?.grade || '1'}/subject/math`)}
+                >
+                  Continue <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* English Progress */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="bg-green-100 text-green-700 p-2 rounded-full">
+                    <BookOpen className="h-4 w-4" />
+                  </span>
+                  English
+                </CardTitle>
+                <CardDescription>Grade {user?.grade || '1'} English</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Progress</span>
+                    <span className="text-muted-foreground">
+                      {calculateProgress('english').completed}/{calculateProgress('english').total} lessons
+                    </span>
+                  </div>
+                  <Progress value={calculateProgress('english').progress} className="h-2" />
+                </div>
+                <Button
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => navigate(`/grade/${user?.grade || '1'}/subject/english`)}
+                >
+                  Continue <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Science Progress */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="bg-purple-100 text-purple-700 p-2 rounded-full">
+                    <BookOpen className="h-4 w-4" />
+                  </span>
+                  Science
+                </CardTitle>
+                <CardDescription>Grade {user?.grade || '1'} Science</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Progress</span>
+                    <span className="text-muted-foreground">
+                      {calculateProgress('science').completed}/{calculateProgress('science').total} lessons
+                    </span>
+                  </div>
+                  <Progress value={calculateProgress('science').progress} className="h-2" />
+                </div>
+                <Button
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => navigate(`/grade/${user?.grade || '1'}/subject/science`)}
+                >
+                  Continue <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
           </div>
-          <CardHeader className="py-3">
-            <CardTitle className="text-base">Mathematics: Basic Addition</CardTitle>
-            <CardDescription className="text-xs">14 min • Ms. Johnson</CardDescription>
-          </CardHeader>
-          <CardFooter className="pt-0">
-            <Button size="sm" className="w-full" asChild>
-              <Link to="/tutorials">Continue Learning</Link>
-            </Button>
-          </CardFooter>
-        </Card>
-        
-        <Card className="overflow-hidden">
-          <div className="relative aspect-video bg-gray-100">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-mtech-primary text-white rounded-full p-3 opacity-90 hover:opacity-100 transition-opacity">
-                <FileText className="h-6 w-6" />
-              </div>
-            </div>
-          </div>
-          <CardHeader className="py-3">
-            <CardTitle className="text-base">English: Reading Comprehension</CardTitle>
-            <CardDescription className="text-xs">Quiz • 10 questions</CardDescription>
-          </CardHeader>
-          <CardFooter className="pt-0">
-            <Button size="sm" className="w-full" asChild>
-              <Link to="/exercises">Start Quiz</Link>
-            </Button>
-          </CardFooter>
-        </Card>
-        
-        <Card className="overflow-hidden">
-          <div className="relative aspect-video bg-gray-100">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-mtech-primary text-white rounded-full p-3 opacity-90 hover:opacity-100 transition-opacity">
-                <Book className="h-6 w-6" />
-              </div>
-            </div>
-          </div>
-          <CardHeader className="py-3">
-            <CardTitle className="text-base">Science: Plants & Growth</CardTitle>
-            <CardDescription className="text-xs">Interactive Lesson • Mr. Thomas</CardDescription>
-          </CardHeader>
-          <CardFooter className="pt-0">
-            <Button size="sm" className="w-full" asChild>
-              <Link to="/tutorials">Explore Lesson</Link>
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-      
-      <h2 className="text-2xl font-semibold mb-4">Recommended Resources</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <Link to="/grade/1" className="block">
-          <Card className="transition-all hover:shadow-md">
+          
+          <Card>
             <CardHeader>
-              <CardTitle>Grade 1 Resources</CardTitle>
-              <CardDescription>Core subjects for Grade 1 students</CardDescription>
+              <CardTitle>Suggested Resources</CardTitle>
+              <CardDescription>
+                Based on your recent activity and progress
+              </CardDescription>
             </CardHeader>
-            <CardFooter>
-              <Button variant="outline" size="sm">Explore Resources</Button>
-            </CardFooter>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Button variant="outline" className="justify-start p-6 h-auto">
+                  <div className="flex flex-col items-start gap-2">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">15 minutes</span>
+                    </div>
+                    <h3 className="text-lg font-medium">Basic Fractions</h3>
+                    <p className="text-sm text-muted-foreground text-left">
+                      Learn how to identify and work with basic fractions
+                    </p>
+                  </div>
+                </Button>
+                
+                <Button variant="outline" className="justify-start p-6 h-auto">
+                  <div className="flex flex-col items-start gap-2">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">10 minutes</span>
+                    </div>
+                    <h3 className="text-lg font-medium">Reading Comprehension</h3>
+                    <p className="text-sm text-muted-foreground text-left">
+                      Practice understanding story elements
+                    </p>
+                  </div>
+                </Button>
+                
+                <Button variant="outline" className="justify-start p-6 h-auto">
+                  <div className="flex flex-col items-start gap-2">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">20 minutes</span>
+                    </div>
+                    <h3 className="text-lg font-medium">Animal Habitats</h3>
+                    <p className="text-sm text-muted-foreground text-left">
+                      Learn about different animal homes and environments
+                    </p>
+                  </div>
+                </Button>
+              </div>
+            </CardContent>
           </Card>
-        </Link>
+        </TabsContent>
         
-        <Link to="/grade/2" className="block">
-          <Card className="transition-all hover:shadow-md">
+        <TabsContent value="achievements" className="space-y-6">
+          <Card>
             <CardHeader>
-              <CardTitle>Grade 2 Resources</CardTitle>
-              <CardDescription>Core subjects for Grade 2 students</CardDescription>
+              <CardTitle>My Badges</CardTitle>
+              <CardDescription>Achievements you've earned through learning</CardDescription>
             </CardHeader>
-            <CardFooter>
-              <Button variant="outline" size="sm">Explore Resources</Button>
-            </CardFooter>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <div className={`p-4 rounded-lg flex flex-col items-center justify-center text-center border ${badges.includes('welcome') ? 'bg-amber-50 border-amber-200' : 'bg-gray-100 border-gray-200 opacity-50'}`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${badges.includes('welcome') ? 'bg-amber-100 text-amber-700' : 'bg-gray-200 text-gray-400'}`}>
+                    <Award className="h-6 w-6" />
+                  </div>
+                  <h3 className="font-medium text-sm">Welcome</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Joined the platform</p>
+                </div>
+                
+                <div className={`p-4 rounded-lg flex flex-col items-center justify-center text-center border ${badges.includes('eager_learner') ? 'bg-blue-50 border-blue-200' : 'bg-gray-100 border-gray-200 opacity-50'}`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${badges.includes('eager_learner') ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-400'}`}>
+                    <BookOpen className="h-6 w-6" />
+                  </div>
+                  <h3 className="font-medium text-sm">Eager Learner</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Completed 5 lessons</p>
+                </div>
+                
+                <div className={`p-4 rounded-lg flex flex-col items-center justify-center text-center border ${badges.includes('math_whiz') ? 'bg-green-50 border-green-200' : 'bg-gray-100 border-gray-200 opacity-50'}`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${badges.includes('math_whiz') ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-400'}`}>
+                    <Check className="h-6 w-6" />
+                  </div>
+                  <h3 className="font-medium text-sm">Math Whiz</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Mastered math basics</p>
+                </div>
+                
+                <div className={`p-4 rounded-lg flex flex-col items-center justify-center text-center border ${badges.includes('reading_star') ? 'bg-purple-50 border-purple-200' : 'bg-gray-100 border-gray-200 opacity-50'}`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${badges.includes('reading_star') ? 'bg-purple-100 text-purple-700' : 'bg-gray-200 text-gray-400'}`}>
+                    <Check className="h-6 w-6" />
+                  </div>
+                  <h3 className="font-medium text-sm">Reading Star</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Completed all reading lessons</p>
+                </div>
+              </div>
+            </CardContent>
           </Card>
-        </Link>
-      </div>
-      
-      <DefaultLoginInfo />
+        </TabsContent>
+        
+        <TabsContent value="activity">
+          <UserActivity userId={user?.id || ''} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
