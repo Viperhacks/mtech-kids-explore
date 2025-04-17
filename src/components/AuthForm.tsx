@@ -53,11 +53,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
     try {
       if (formType === 'login') {
         await login(email, password);
+        onClose();
+        navigate('/dashboard');
       } else {
         await registerUser(name, email, password, role as 'student' | 'teacher' | 'parent', gradeLevel);
+        onClose();
+        navigate('/dashboard');
       }
-      onClose();
-      navigate('/dashboard');
     } catch (err) {
       console.error('Auth error:', err);
       toast({
@@ -92,7 +94,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
         return;
       }
       
-      // For login flow
+      // For login flow - pass all decoded information
       await googleLogin(res.credential, userInfo.name, userInfo.email, userInfo.picture);
       onClose();
       navigate('/dashboard');

@@ -53,7 +53,7 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// MTECH Educational Theme Colors
+				// MTECH Educational Theme Colors - Updated with professional palette
 				mtech: {
 					primary: '#2563EB', // Blue
 					secondary: '#0EA5E9', // Light Blue
@@ -62,6 +62,14 @@ export default {
 					danger: '#EF4444', // Red
 					light: '#F8FAFC', // Very light blue/gray
 					dark: '#1E293B',  // Dark blue/slate
+					neutral: '#8E9196', // Neutral Gray
+					purple: {
+						primary: '#9b87f5',
+						secondary: '#7E69AB',
+						tertiary: '#6E59A5',
+						dark: '#1A1F2C',
+						light: '#D6BCFA'
+					}
 				}
 			},
 			borderRadius: {

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +8,11 @@ import { useAuth } from '@/context/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UserActivity from './UserActivity';
 
-const StudentDashboard: React.FC = () => {
+interface StudentDashboardProps {
+  isParent?: boolean;
+}
+
+const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -36,24 +39,22 @@ const StudentDashboard: React.FC = () => {
   
   return (
     <div className="space-y-8">
-      <div className="px-4 pt-6 md:px-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
-  <div className="text-left md:mb-0 mb-2 ms-2 md:ms-0">
-    <h1 className="text-3xl font-bold tracking-tight ps-2 md:ps-0">
-      Hello, {user?.name.split(' ')[0] || 'Student'}!
-    </h1>
-  </div>
-  <div className="text-left md:text-right">
-    <Button 
-      onClick={() => navigate(`/grade/${getRecommendedGrade()}`)}
-      className="bg-mtech-primary hover:bg-blue-700 text-white"
-    >
-      Continue Learning
-      <ChevronRight className="ml-1 h-4 w-4" />
-    </Button>
-  </div>
-</div>
-
-      
+      <div className="px-4 pt-6 md:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="text-left md:mb-0 mb-2">
+          <h1 className="text-3xl font-bold tracking-tight">
+            Hello, {user?.name.split(' ')[0] || 'Student'}!
+          </h1>
+        </div>
+        <div className="text-left md:text-right">
+          <Button 
+            onClick={() => navigate(`/grade/${getRecommendedGrade()}`)}
+            className="bg-mtech-primary hover:bg-mtech-dark text-white"
+          >
+            Continue Learning
+            <ChevronRight className="ml-1 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
       
       <Tabs defaultValue="progress">
         <TabsList className="w-full md:w-auto">
@@ -64,7 +65,6 @@ const StudentDashboard: React.FC = () => {
         
         <TabsContent value="progress" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Mathematics Progress */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2">
@@ -95,7 +95,6 @@ const StudentDashboard: React.FC = () => {
               </CardContent>
             </Card>
             
-            {/* English Progress */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2">
@@ -126,7 +125,6 @@ const StudentDashboard: React.FC = () => {
               </CardContent>
             </Card>
             
-            {/* Science Progress */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2">
