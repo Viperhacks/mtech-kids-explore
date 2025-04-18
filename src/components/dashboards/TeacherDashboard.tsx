@@ -245,35 +245,35 @@ const TeacherDashboard: React.FC = () => {
           
           <h2 className="text-xl font-semibold mb-4">Manage Grade Resources</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <Link to="/grade/1" className="block">
-              <Card className="transition-all hover:shadow-md">
-                <CardHeader>
-                  <CardTitle>Grade 1</CardTitle>
-                  <CardDescription>Manage Grade 1 resources</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button variant="outline" size="sm">View Resources</Button>
-                </CardFooter>
-              </Card>
-            </Link>
-            
-            <Link to="/grade/2" className="block">
-              <Card className="transition-all hover:shadow-md">
-                <CardHeader>
-                  <CardTitle>Grade 2</CardTitle>
-                  <CardDescription>Manage Grade 2 resources</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button variant="outline" size="sm">View Resources</Button>
-                </CardFooter>
-              </Card>
-            </Link>
-            
-            <Link to="/grade/3" className="block">
+            <Link to="/grade/grade3" className="block">
               <Card className="transition-all hover:shadow-md">
                 <CardHeader>
                   <CardTitle>Grade 3</CardTitle>
                   <CardDescription>Manage Grade 3 resources</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                  <Button variant="outline" size="sm">View Resources</Button>
+                </CardFooter>
+              </Card>
+            </Link>
+            
+            <Link to="/grade/grade4" className="block">
+              <Card className="transition-all hover:shadow-md">
+                <CardHeader>
+                  <CardTitle>Grade 4</CardTitle>
+                  <CardDescription>Manage Grade 4 resources</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                  <Button variant="outline" size="sm">View Resources</Button>
+                </CardFooter>
+              </Card>
+            </Link>
+            
+            <Link to="/grade/grade5" className="block">
+              <Card className="transition-all hover:shadow-md">
+                <CardHeader>
+                  <CardTitle>Grade 5</CardTitle>
+                  <CardDescription>Manage Grade 5 resources</CardDescription>
                 </CardHeader>
                 <CardFooter>
                   <Button variant="outline" size="sm">View Resources</Button>
