@@ -1,14 +1,21 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { authService } from '@/lib/api';
 
 interface User {
+  id?: string;
   fullName: string;
   email: string;
   role: 'STUDENT' | 'TEACHER' | 'PARENT';
   status?: 'PENDING' | 'APPROVED';
   gradeLevel?: string;
+  avatar?: string;
+  provider?: 'google' | 'email';
+  progress?: {
+    completed: number;
+    total: number;
+  };
+  parentOf?: { id: string; name: string }[];
 }
 
 interface AuthContextType {
@@ -23,6 +30,7 @@ interface AuthContextType {
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, password: string) => Promise<void>;
   refreshTokens: () => Promise<void>;
+  googleLogin: (credential: string, name: string, email: string, picture: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -65,13 +73,13 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       setIsLoading(true);
       const response = await authService.login(email, password);
       
-      if (response.success) {
-        const { token, refreshToken, role, status } = response.data;
+      if (response.data.success) {
+        const { token, refreshToken, role, status } = response.data.data;
         localStorage.setItem('auth_token', token);
         localStorage.setItem('refresh_token', refreshToken);
         
         const userData: User = {
-          fullName: email.split('@')[0], // This should come from the API
+          fullName: email.split('@')[0],
           email,
           role,
           status
@@ -82,7 +90,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         
         toast({
           title: "Login Successful",
-          description: response.message
+          description: response.data.message
         });
       }
     } catch (error: any) {
@@ -103,14 +111,16 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       setIsLoading(true);
       const response = await authService.register(name, email, password, password, role, grade);
       
-      if (response.success) {
-        const { token } = response.data;
+      if (response.data.success) {
+        const { token } = response.data.data;
         localStorage.setItem('auth_token', token);
         
         toast({
           title: "Registration Successful",
-          description: response.message
+          description: response.data.message
         });
+
+        return response.data;
       }
     } catch (error: any) {
       console.error('Registration failed', error);
@@ -130,11 +140,12 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       setIsLoading(true);
       const response = await authService.confirmOtp(email, otp);
       
-      if (response.success) {
+      if (response.data.success) {
         toast({
           title: "OTP Confirmed",
-          description: response.message
+          description: response.data.message
         });
+        return response.data;
       }
     } catch (error: any) {
       toast({
@@ -154,12 +165,40 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       const response = await authService.requestOtp(email);
       toast({
         title: "OTP Sent",
-        description: response || "Check your email for the verification code"
+        description: response.data || "Check your email for the verification code"
       });
     } catch (error: any) {
       toast({
         title: "Request Failed",
         description: error.message || "Could not send OTP",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const googleLogin = async (credential: string, name: string, email: string, picture: string) => {
+    try {
+      setIsLoading(true);
+      const userData: User = {
+        fullName: name,
+        email,
+        role: 'STUDENT',
+        avatar: picture,
+        provider: 'google'
+      };
+      setUser(userData);
+      localStorage.setItem('user_data', JSON.stringify(userData));
+      toast({
+        title: "Google Login Successful",
+        description: "Welcome back!"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description: error.message || "Could not sign in with Google",
         variant: "destructive"
       });
       throw error;
@@ -247,7 +286,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     requestOtp,
     forgotPassword,
     resetPassword,
-    refreshTokens
+    refreshTokens,
+    googleLogin
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

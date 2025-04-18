@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,11 @@ import OtpConfirmForm from './OtpConfirmForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import { 
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 interface AuthFormProps {
   onClose: () => void;
@@ -44,8 +48,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [googleGradeLevel, setGoogleGradeLevel] = useState('');
   const [showGoogleRoleSelect, setShowGoogleRoleSelect] = useState(false);
   const { toast } = useToast();
-  const { login, register: registerUser, googleLogin } = useAuth();
+  const { login, register: registerUser, googleLogin, confirmOtp } = useAuth();
   const navigate = useNavigate();
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [showOtpForm, setShowOtpForm] = useState(false);
+  const [otp, setOtp] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,9 +63,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
         onClose();
         navigate('/dashboard');
       } else {
-        await registerUser(name, email, password, role as 'student' | 'teacher' | 'parent', gradeLevel);
-        onClose();
-        navigate('/dashboard');
+        const response = await registerUser(name, email, password, role.toUpperCase() as 'STUDENT' | 'TEACHER' | 'PARENT', gradeLevel);
+        if (response.success) {
+          setRegisteredEmail(email);
+          setShowOtpForm(true);
+          toast({
+            title: "Registration Successful",
+            description: "Please check your email for the verification code",
+          });
+        }
       }
     } catch (err) {
       console.error('Auth error:', err);
@@ -69,6 +82,25 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await confirmOtp(registeredEmail, otp);
+      toast({
+        title: "Account Verified",
+        description: "You can now log in with your credentials",
+      });
+      setFormType('login');
+      setShowOtpForm(false);
+    } catch (error) {
+      toast({
+        title: "Verification Failed",
+        description: "Invalid or expired verification code",
+        variant: "destructive",
+      });
     }
   };
 
@@ -94,7 +126,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
         return;
       }
       
-      // For login flow - pass all decoded information
       await googleLogin(res.credential, userInfo.name, userInfo.email, userInfo.picture);
       onClose();
       navigate('/dashboard');
@@ -193,6 +224,42 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
             </Button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (showOtpForm) {
+    return (
+      <div className="p-4 sm:p-6">
+        <h2 className="text-xl font-semibold mb-4">Verify Your Email</h2>
+        <p className="text-sm text-gray-500 mb-6">
+          We've sent a verification code to {registeredEmail}. Please enter it below:
+        </p>
+        <form onSubmit={handleOtpSubmit} className="space-y-4">
+          <InputOTP 
+            maxLength={6}
+            value={otp}
+            onChange={(value) => setOtp(value)}
+            className="flex justify-center gap-2"
+          >
+            <InputOTPGroup>
+              <InputOTPSlot index={0} />
+              <InputOTPSlot index={1} />
+              <InputOTPSlot index={2} />
+              <InputOTPSlot index={3} />
+              <InputOTPSlot index={4} />
+              <InputOTPSlot index={5} />
+            </InputOTPGroup>
+          </InputOTP>
+          
+          <Button 
+            type="submit" 
+            className="w-full bg-mtech-primary"
+            disabled={otp.length !== 6}
+          >
+            Verify Email
+          </Button>
+        </form>
       </div>
     );
   }
