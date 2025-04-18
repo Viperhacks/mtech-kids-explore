@@ -9,6 +9,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { useToast } from '@/hooks/use-toast';
 import { Trash, Save, X } from 'lucide-react';
 import { resourceService } from '@/lib/api';
+import { title } from 'process';
 
 interface CourseEditorProps {
   resource?: any;
@@ -65,15 +66,25 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
     e.preventDefault();
     setIsLoading(true);
     
+    
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("grade", formData.grade);
+      formDataToSend.append("subject", formData.subject);
+      formDataToSend.append("type", formData.type);
+      formDataToSend.append("content", formData.content);
+      formDataToSend.append("thumbnail" , formData.thumbnail);
+      
       if (isNew) {
-        await resourceService.uploadResource(formData);
+        await resourceService.uploadResource(formDataToSend);
         toast({
           title: "Resource Created",
           description: "Your resource has been successfully created.",
         });
       } else {
-        await resourceService.updateResource(resource.id, formData);
+        await resourceService.updateResource(resource.id, formDataToSend);
         toast({
           title: "Resource Updated",
           description: "Your resource has been successfully updated.",

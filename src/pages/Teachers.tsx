@@ -41,7 +41,7 @@ const TeachersPage = () => {
     });
   };
   
-  // Sample data for teacher's materials
+  /*// Sample data for teacher's materials
   const [materials, setMaterials] = useState({
     videos: [
       { 
@@ -52,7 +52,7 @@ const TeachersPage = () => {
         thumbnail: 'https://placehold.co/600x400?text=Addition',
         duration: '10:25',
         status: 'published',
-        uploadDate: '2023-10-15'
+        uploadDate: '2024-10-15'
       },
       { 
         id: '2',
@@ -62,7 +62,7 @@ const TeachersPage = () => {
         thumbnail: 'https://placehold.co/600x400?text=Reading',
         duration: '15:30',
         status: 'published',
-        uploadDate: '2023-10-10'
+        uploadDate: '2024-10-10'
       },
       { 
         id: '3',
@@ -72,7 +72,7 @@ const TeachersPage = () => {
         thumbnail: 'https://placehold.co/600x400?text=Plants',
         duration: '12:10',
         status: 'draft',
-        uploadDate: '2023-10-20'
+        uploadDate: '2024-10-20'
       }
     ],
     quizzes: [
@@ -83,7 +83,7 @@ const TeachersPage = () => {
         grade: 'Grade 3',
         questions: 10,
         status: 'published',
-        uploadDate: '2023-10-14'
+        uploadDate: '2024-10-14'
       },
       { 
         id: '2',
@@ -92,7 +92,7 @@ const TeachersPage = () => {
         grade: 'Grade 5',
         questions: 8,
         status: 'published',
-        uploadDate: '2023-10-08'
+        uploadDate: '2024-10-08'
       }
     ]
   });
@@ -164,13 +164,17 @@ const TeachersPage = () => {
       title: "Content Deleted",
       description: "The content has been removed successfully.",
     });
-  };
+  };*/
   
   return (
     <div className="min-h-screen flex flex-col">
+      <div className='container mx-auto py-8 px-4'>
+              <h1 className="text-3xl font-bold text-mtech-dark">will show info about teachers</h1>
+             
+              <p className="text-sm text-gray-500">Today: {currentDate.toLocaleDateString()}</p>
+            </div>
       
-      
-      <main className="flex-1">
+     {/*} <main className="flex-1">
         <div className="container mx-auto py-8 px-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <div>
@@ -354,7 +358,7 @@ const TeachersPage = () => {
             </TabsContent>
           </Tabs>
           
-          {/* Upload Dialog */}
+          
           <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
@@ -464,7 +468,7 @@ const TeachersPage = () => {
             </DialogContent>
           </Dialog>
         </div>
-      </main>
+      </main>*/}
       
       
     </div>

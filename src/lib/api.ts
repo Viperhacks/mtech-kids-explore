@@ -63,10 +63,10 @@ export const authService = {
 // Resource services
 export const resourceService = {
   getResources: (gradeId?: string, subjectId?: string) => 
-    api.get('/resources', { params: { gradeId, subjectId } }),
+    api.get('/resources/my-resources', { params: { gradeId, subjectId } }),
   uploadResource: (resourceData: FormData | any) => {
     if (resourceData instanceof FormData) {
-      return api.post('/resources/upload', resourceData, {
+      return api.post('/resources', resourceData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
     } else {
@@ -75,7 +75,15 @@ export const resourceService = {
   },
   getResourceById: (id: string) => api.get(`/resources/${id}`),
   deleteResource: (id: string) => api.delete(`/resources/${id}`),
-  updateResource: (id: string, data: any) => api.put(`/resources/${id}`, data),
+  updateResource: (id: string, data: any) => {
+    if(data instanceof FormData){
+      return api.put(`/resources/${id}`, data,{
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }else {
+      return api.put(`/resources/${id}`, data);
+    }
+  }
 };
 
 // Quiz services
