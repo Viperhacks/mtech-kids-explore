@@ -49,6 +49,9 @@ const Navbar: React.FC = () => {
     setIsMenuOpen(false);
   };
 
+  const userName = user?.name || user?.fullName || '';
+  const firstNameOrEmail = userName ? userName.split(' ')[0] : (user?.email || '').split('@')[0];
+
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -75,20 +78,20 @@ const Navbar: React.FC = () => {
                     {user?.avatar ? (
                       <img 
                         src={user.avatar} 
-                        alt={user.name} 
+                        alt={userName} 
                         className="w-6 h-6 rounded-full"
                       />
                     ) : (
                       <User size={18} />
                     )}
-                    <span className="max-w-[100px] truncate">{user?.name.split(' ')[0]}</span>
+                    <span className="max-w-[100px] truncate">{firstNameOrEmail}</span>
                     <ChevronDown size={16} />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="flex items-center justify-start p-2">
                     <div className="flex flex-col space-y-1">
-                      <p className="font-medium text-sm">{user?.name}</p>
+                      <p className="font-medium text-sm">{userName}</p>
                       <p className="text-xs text-muted-foreground truncate max-w-[200px]">{user?.email}</p>
                     </div>
                   </div>
@@ -101,12 +104,6 @@ const Navbar: React.FC = () => {
                     <User className="mr-2 h-4 w-4" />
                     My Profile
                   </DropdownMenuItem>
-                  {/*(user?.role === 'teacher' || user?.role === 'admin') && (
-                    <DropdownMenuItem onClick={() => navigate('/teachers')} className="cursor-pointer">
-                      <span className="mr-2">👨‍🏫</span>
-                      Teacher Dashboard
-                    </DropdownMenuItem>
-                  )*/}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500">
                     <LogOut className="mr-2 h-4 w-4" />

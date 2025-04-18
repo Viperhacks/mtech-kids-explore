@@ -1,21 +1,34 @@
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { authService } from '@/lib/api';
+import axios from 'axios';
+
+// Set base URL for API requests
+axios.defaults.baseURL = 'http://localhost:8080';
 
 interface User {
   id?: string;
   fullName: string;
   email: string;
-  role: 'STUDENT' | 'TEACHER' | 'PARENT';
+  role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN';
   status?: 'PENDING' | 'APPROVED';
   gradeLevel?: string;
   avatar?: string;
   provider?: 'google' | 'email';
   progress?: {
-    completed: number;
-    total: number;
+    [key: string]: {
+      completed: number;
+      total: number;
+    };
   };
   parentOf?: { id: string; name: string }[];
+  // Additional properties used in the app
+  name: string;
+  grade?: string;
+  school?: string;
+  earnedBadges?: string[];
+  completedLessons?: string[];
 }
 
 interface AuthContextType {
@@ -23,14 +36,17 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER' | 'PARENT', grade?: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN', grade?: string) => Promise<any>;
   logout: () => void;
-  confirmOtp: (email: string, otp: string) => Promise<void>;
+  confirmOtp: (email: string, otp: string) => Promise<any>;
   requestOtp: (email: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, password: string) => Promise<void>;
   refreshTokens: () => Promise<void>;
   googleLogin: (credential: string, name: string, email: string, picture: string) => Promise<void>;
+  updateUserProfile: (userData: any) => Promise<void>;
+  trackActivity: (activity: any) => void;
+  updateUserProgress: (subjectId: string, completed: number, total: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,7 +70,17 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       const userData = localStorage.getItem('user_data');
       if (token && userData) {
         try {
-          setUser(JSON.parse(userData));
+          const parsedUser = JSON.parse(userData);
+          // Ensure user has required fields for UI components
+          setUser({
+            ...parsedUser,
+            name: parsedUser.fullName || parsedUser.name || '',
+            grade: parsedUser.gradeLevel || parsedUser.grade || '',
+            // Default empty values for optional fields
+            earnedBadges: parsedUser.earnedBadges || [],
+            completedLessons: parsedUser.completedLessons || [],
+            school: parsedUser.school || '',
+          });
         } catch (error) {
           console.error('Failed to parse user data', error);
           localStorage.removeItem('auth_token');
@@ -71,7 +97,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const response = await authService.login(email, password);
+      const response = await axios.post('/api/auth/login', { email, password });
       
       if (response.data.success) {
         const { token, refreshToken, role, status } = response.data.data;
@@ -80,9 +106,14 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         
         const userData: User = {
           fullName: email.split('@')[0],
+          name: email.split('@')[0],
           email,
           role,
-          status
+          status,
+          // Default empty values
+          earnedBadges: [],
+          completedLessons: [],
+          progress: {}
         };
         
         setUser(userData);
@@ -97,7 +128,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       console.error('Login failed', error);
       toast({
         title: "Login Failed",
-        description: error.message || "Invalid email or password",
+        description: error.response?.data?.message || "Invalid email or password",
         variant: "destructive"
       });
       throw error;
@@ -106,10 +137,18 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   };
 
-  const register = async (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER' | 'PARENT', grade?: string) => {
+  const register = async (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN', grade?: string) => {
     try {
       setIsLoading(true);
-      const response = await authService.register(name, email, password, password, role, grade);
+      const requestData = {
+        fullName: name,
+        email,
+        password,
+        confirmPassword: password,
+        gradeLevel: grade
+      };
+      
+      const response = await axios.post(`/api/auth/register?role=${role}`, requestData);
       
       if (response.data.success) {
         toast({
@@ -118,11 +157,13 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         });
         return response.data;
       }
+      
+      return response.data;
     } catch (error: any) {
       console.error('Registration failed', error);
       toast({
         title: "Registration Failed",
-        description: error.message || "Could not create your account",
+        description: error.response?.data?.message || "Could not create your account",
         variant: "destructive"
       });
       throw error;
@@ -134,7 +175,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const confirmOtp = async (email: string, otp: string) => {
     try {
       setIsLoading(true);
-      const response = await authService.confirmOtp(email, otp);
+      const response = await axios.post(`/api/auth/confirm-otp?email=${email}&otp=${otp}`);
       
       if (response.data.success) {
         toast({
@@ -143,10 +184,12 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         });
         return response.data;
       }
+      
+      return response.data;
     } catch (error: any) {
       toast({
         title: "Verification Failed",
-        description: error.message || "Invalid or expired OTP",
+        description: error.response?.data?.message || "Invalid or expired OTP",
         variant: "destructive"
       });
       throw error;
@@ -158,15 +201,15 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const requestOtp = async (email: string) => {
     try {
       setIsLoading(true);
-      const response = await authService.requestOtp(email);
+      const response = await axios.post(`/api/auth/request-otp?email=${email}`);
       toast({
         title: "OTP Sent",
-        description: response.data || "Check your email for the verification code"
+        description: "Check your email for the verification code"
       });
     } catch (error: any) {
       toast({
         title: "Request Failed",
-        description: error.message || "Could not send OTP",
+        description: error.response?.data?.message || "Could not send OTP",
         variant: "destructive"
       });
       throw error;
@@ -180,10 +223,15 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       setIsLoading(true);
       const userData: User = {
         fullName: name,
+        name: name,
         email,
         role: 'STUDENT',
         avatar: picture,
-        provider: 'google'
+        provider: 'google',
+        // Default empty values
+        earnedBadges: [],
+        completedLessons: [],
+        progress: {}
       };
       setUser(userData);
       localStorage.setItem('user_data', JSON.stringify(userData));
@@ -206,15 +254,15 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const forgotPassword = async (email: string) => {
     try {
       setIsLoading(true);
-      const response = await authService.forgotPassword(email);
+      const response = await axios.post(`/api/auth/forgot-password?email=${email}`);
       toast({
         title: "Email Sent",
-        description: response || "Check your inbox for password reset instructions"
+        description: "Check your inbox for password reset instructions"
       });
     } catch (error: any) {
       toast({
         title: "Request Failed",
-        description: error.message || "Could not process your request",
+        description: error.response?.data?.message || "Could not process your request",
         variant: "destructive"
       });
       throw error;
@@ -226,15 +274,15 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const resetPassword = async (token: string, password: string) => {
     try {
       setIsLoading(true);
-      const response = await authService.resetPassword(token, password);
+      const response = await axios.post(`/api/auth/reset-password?token=${token}&newPassword=${password}`);
       toast({
         title: "Password Reset",
-        description: response || "Your password has been updated"
+        description: "Your password has been updated"
       });
     } catch (error: any) {
       toast({
         title: "Reset Failed",
-        description: error.message || "Could not reset your password",
+        description: error.response?.data?.message || "Could not reset your password",
         variant: "destructive"
       });
       throw error;
@@ -248,15 +296,73 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       const refreshToken = localStorage.getItem('refresh_token');
       if (!refreshToken) throw new Error('No refresh token available');
 
-      const response = await authService.refreshToken(refreshToken);
-      if (response.success) {
-        const { token, refreshToken: newRefreshToken } = response.data;
+      const response = await axios.post(`/api/auth/refresh-token?refreshToken=${refreshToken}`);
+      
+      if (response.data.success) {
+        const { token, refreshToken: newRefreshToken } = response.data.data;
         localStorage.setItem('auth_token', token);
         localStorage.setItem('refresh_token', newRefreshToken);
       }
     } catch (error) {
       console.error('Token refresh failed', error);
       logout();
+    }
+  };
+
+  const updateUserProfile = async (userData: any) => {
+    // Mock implementation - would be connected to a real API
+    try {
+      setIsLoading(true);
+      
+      // Update the user state with new data
+      if (user) {
+        const updatedUser = {
+          ...user,
+          ...userData,
+          name: userData.name || user.name,
+          fullName: userData.name || user.fullName,
+          grade: userData.grade || user.grade,
+          gradeLevel: userData.grade || user.gradeLevel,
+          school: userData.school || user.school
+        };
+        
+        setUser(updatedUser);
+        localStorage.setItem('user_data', JSON.stringify(updatedUser));
+        
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been successfully updated"
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Update Failed",
+        description: "Could not update your profile",
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const trackActivity = (activity: any) => {
+    // Mock implementation - would be connected to a real API
+    console.log('Activity tracked:', activity);
+  };
+
+  const updateUserProgress = (subjectId: string, completed: number, total: number) => {
+    // Mock implementation - would be connected to a real API
+    if (user) {
+      const updatedUser = { ...user };
+      
+      if (!updatedUser.progress) {
+        updatedUser.progress = {};
+      }
+      
+      updatedUser.progress[subjectId] = { completed, total };
+      setUser(updatedUser);
+      localStorage.setItem('user_data', JSON.stringify(updatedUser));
     }
   };
 
@@ -283,7 +389,10 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     forgotPassword,
     resetPassword,
     refreshTokens,
-    googleLogin
+    googleLogin,
+    updateUserProfile,
+    trackActivity,
+    updateUserProgress
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

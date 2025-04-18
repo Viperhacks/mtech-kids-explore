@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,18 +32,21 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
   };
   
   const getRecommendedGrade = () => {
-    return user?.grade || '1';
+    return user?.grade || user?.gradeLevel || '1';
   };
   
   // Badges earned by student
   const badges = user?.earnedBadges || [];
+  
+  // Get user's display name
+  const displayName = user?.name || user?.fullName || (user?.email ? user.email.split('@')[0] : 'Student');
   
   return (
     <div className="space-y-8">
       <div className="px-4 pt-6 md:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-left md:mb-0 mb-2">
           <h1 className="text-3xl font-bold tracking-tight">
-            Hello, {user?.name.split(' ')[0] || 'Student'}!
+            Hello, {displayName.split(' ')[0] || 'Student'}!
           </h1>
         </div>
         <div className="text-left md:text-right">
@@ -73,7 +77,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
                   </span>
                   Mathematics
                 </CardTitle>
-                <CardDescription>Grade {user?.grade || '1'} Mathematics</CardDescription>
+                <CardDescription>Grade {getRecommendedGrade()} Mathematics</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -88,7 +92,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
                 <Button
                   variant="outline" 
                   className="w-full" 
-                  onClick={() => navigate(`/grade/${user?.grade || '1'}/subject/math`)}
+                  onClick={() => navigate(`/grade/${getRecommendedGrade()}/subject/math`)}
                 >
                   Continue <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -103,7 +107,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
                   </span>
                   English
                 </CardTitle>
-                <CardDescription>Grade {user?.grade || '1'} English</CardDescription>
+                <CardDescription>Grade {getRecommendedGrade()} English</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -118,7 +122,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
                 <Button
                   variant="outline" 
                   className="w-full" 
-                  onClick={() => navigate(`/grade/${user?.grade || '1'}/subject/english`)}
+                  onClick={() => navigate(`/grade/${getRecommendedGrade()}/subject/english`)}
                 >
                   Continue <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -133,7 +137,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
                   </span>
                   Science
                 </CardTitle>
-                <CardDescription>Grade {user?.grade || '1'} Science</CardDescription>
+                <CardDescription>Grade {getRecommendedGrade()} Science</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -148,7 +152,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
                 <Button
                   variant="outline" 
                   className="w-full" 
-                  onClick={() => navigate(`/grade/${user?.grade || '1'}/subject/science`)}
+                  onClick={() => navigate(`/grade/${getRecommendedGrade()}/subject/science`)}
                 >
                   Continue <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -253,7 +257,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
         </TabsContent>
         
         <TabsContent value="activity">
-          <UserActivity userId={user?.id || ''} />
+          {user?.id && <UserActivity userId={user.id} />}
         </TabsContent>
       </Tabs>
     </div>

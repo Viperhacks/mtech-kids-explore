@@ -12,9 +12,9 @@ const ProfileEdit = ({ onCancel }: { onCancel: () => void }) => {
   const { user, updateUserProfile } = useAuth();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    name: user?.name || user?.fullName || '',
     email: user?.email || '',
-    grade: user?.grade || '',
+    grade: user?.grade || user?.gradeLevel || '',
     school: user?.school || '',
     avatar: user?.avatar || '',
   });
@@ -88,7 +88,7 @@ const ProfileEdit = ({ onCancel }: { onCancel: () => void }) => {
             )}
           </div>
           
-          {user?.role === 'student' && (
+          {user?.role === 'STUDENT' && (
             <div className="space-y-2">
               <Label htmlFor="grade">Grade</Label>
               <Select 
