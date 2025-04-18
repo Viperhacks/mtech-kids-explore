@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -276,116 +277,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
     );
   }
 
-  const renderRegistrationContent = () => (
-    <div className="max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-mtech-primary">
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="space-y-2">
-          <Label htmlFor="name">Full Name</Label>
-          <div className="relative">
-            <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              id="name"
-              placeholder="Enter your full name"
-              className="pl-10"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="register-email">Email</Label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              id="register-email"
-              type="email"
-              placeholder="Enter your email"
-              className="pl-10"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="register-password">Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              id="register-password"
-              type="password"
-              placeholder="Create a password"
-              className="pl-10"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="confirm-password">Confirm Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              id="confirm-password"
-              type="password"
-              placeholder="Confirm your password"
-              className="pl-10"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="role">I am a:</Label>
-          <Select 
-            value={role} 
-            onValueChange={(value) => setRole(value as 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN')} 
-            required
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select your role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="STUDENT">Student</SelectItem>
-              <SelectItem value="TEACHER">Teacher</SelectItem>
-              <SelectItem value="PARENT">Parent</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {role === 'STUDENT' && (
-          <div className="space-y-2">
-            <Label htmlFor="grade-level">Grade Level</Label>
-            <Select value={gradeLevel} onValueChange={setGradeLevel} required>
-              <SelectTrigger>
-                <SelectValue placeholder="Select your grade" />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 7 }, (_, i) => (
-                  <SelectItem key={i + 1} value={`${i + 1}`}>
-                    Grade {i + 1}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        <Button type="submit" className="w-full bg-mtech-primary" disabled={isSubmitting}>
-          {isSubmitting ? 'Creating Account...' : 'Create Account'}
-          {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
-        </Button>
-      </form>
-    </div>
-  );
-
   return (
     <div className="p-4 sm:p-6">
       <Tabs value={formType} onValueChange={v => setFormType(v as 'login' | 'register')} className="w-full">
@@ -462,31 +353,135 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
           </form>
         </TabsContent>
 
-        <TabsContent value="register" className="max-h-[600px]">
-          {renderRegistrationContent()}
-
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
+        <TabsContent value="register">
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="name"
+                  placeholder="Enter your full name"
+                  className="pl-10"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  required
+                />
+              </div>
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">Or continue with</span>
-            </div>
-          </div>
 
-          <div className="flex justify-center">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => {
-                toast({
-                  title: 'Authentication Error',
-                  description: 'Google login failed. Try again.',
-                  variant: 'destructive',
-                });
-              }}
-              useOneTap
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="register-email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="register-email"
+                  type="email"
+                  placeholder="Enter your email"
+                  className="pl-10"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="register-password">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="register-password"
+                  type="password"
+                  placeholder="Create a password"
+                  className="pl-10"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  placeholder="Confirm your password"
+                  className="pl-10"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="role">I am a:</Label>
+              <Select 
+                value={role} 
+                onValueChange={(value) => setRole(value as 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN')} 
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="STUDENT">Student</SelectItem>
+                  <SelectItem value="TEACHER">Teacher</SelectItem>
+                  <SelectItem value="PARENT">Parent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {role === 'STUDENT' && (
+              <div className="space-y-2">
+                <Label htmlFor="grade-level">Grade Level</Label>
+                <Select value={gradeLevel} onValueChange={setGradeLevel} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your grade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 7 }, (_, i) => (
+                      <SelectItem key={i + 1} value={`${i + 1}`}>
+                        Grade {i + 1}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <Button type="submit" className="w-full bg-mtech-primary" disabled={isSubmitting}>
+              {isSubmitting ? 'Creating Account...' : 'Create Account'}
+              {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
+            </Button>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
+                  toast({
+                    title: 'Authentication Error',
+                    description: 'Google login failed. Try again.',
+                    variant: 'destructive',
+                  });
+                }}
+                useOneTap
+              />
+            </div>
+          </form>
         </TabsContent>
       </Tabs>
     </div>
