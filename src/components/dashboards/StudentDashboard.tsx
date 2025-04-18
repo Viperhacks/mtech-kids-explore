@@ -257,7 +257,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
         </TabsContent>
         
         <TabsContent value="activity">
-          {user?.id && <UserActivity userId={user.id} />}
+          {user?.id && <UserActivity/>}
         </TabsContent>
       </Tabs>
     </div>

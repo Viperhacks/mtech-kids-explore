@@ -25,7 +25,7 @@ const Profile = () => {
   }
   
   // Calculate overall progress - only relevant for students
-  const overallProgress = user.role === 'student' && user.progress ? 
+  const overallProgress = user.role === 'STUDENT' && user.progress ? 
     Object.values(user.progress).reduce((acc, curr) => {
       acc.completed += curr.completed;
       acc.total += curr.total;
@@ -147,13 +147,13 @@ const Profile = () => {
               <CardTitle className="mt-4 text-xl">{user.name}</CardTitle>
               <CardDescription className="flex items-center justify-center mt-1">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs">
-                  {user.role === 'admin' ? 'Admin' : user.role === 'teacher' ? 'Teacher' : 'Student'}
+                  {user.role === 'ADMIN' ? 'Admin' : user.role === 'TEACHER' ? 'Teacher' : 'Student'}
                 </span>
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <div className="flex justify-center space-x-4 mb-4">
-                {user.role === 'student' && (
+                {user.role === 'STUDENT' && (
                   <>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-mtech-primary">
@@ -176,7 +176,7 @@ const Profile = () => {
                   </>
                 )}
                 
-                {user.role === 'teacher' && (
+                {user.role === 'TEACHER' && (
                   <>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-mtech-primary">
@@ -199,7 +199,7 @@ const Profile = () => {
                   </>
                 )}
                 
-                {user.role === 'admin' && (
+                {user.role === 'ADMIN' && (
                   <>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-mtech-primary">
@@ -255,7 +255,7 @@ const Profile = () => {
                 )}
                 <div>
                   <p className="text-sm font-medium text-gray-500">Member Since</p>
-                  <p>October 2023</p>
+                  <p>{user.createdAt || "April 2025"} </p>
                 </div>
               </div>
             </CardContent>
@@ -264,7 +264,7 @@ const Profile = () => {
         
         {/* Main Content - Different tabs based on role */}
         <div className="w-full md:w-2/3">
-          {user.role === 'student' && (
+          {user.role === 'STUDENT' && (
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full">
                 <TabsTrigger value="progress" className="flex-1">
@@ -421,7 +421,7 @@ const Profile = () => {
           )}
           
           {/* Teacher specific tabs */}
-          {user.role === 'teacher' && (
+          {user.role === 'TEACHER' && (
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full">
                 <TabsTrigger value="resources" className="flex-1">
@@ -519,7 +519,7 @@ const Profile = () => {
           )}
           
           {/* Admin specific tabs */}
-          {user.role === 'admin' && (
+          {user.role === 'ADMIN' && (
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full">
                 <TabsTrigger value="users" className="flex-1">
