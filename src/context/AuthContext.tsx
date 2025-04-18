@@ -8,7 +8,6 @@ import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:8080';
 
 interface User {
-  createdAt: ReactNode;
   id?: string;
   fullName: string;
   email: string;

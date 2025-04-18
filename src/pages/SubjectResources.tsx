@@ -273,7 +273,7 @@ const SubjectResources = () => {
               You've watched {progress.watched} videos and completed {progress.completed} out of {progress.total} items
             </p>
           </div>
-          {user?.role === 'teacher' && (
+          {user?.role === 'TEACHER' && (
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('document')}>
                 <FileText className="mr-2 h-4 w-4" />
@@ -346,7 +346,7 @@ const SubjectResources = () => {
                       {isCompleted ? 'Watch Again' : 'Watch Now'}
                     </Button>
                     
-                    {user?.role === 'teacher' && (
+                    {user?.role === 'TEACHER' && (
                       <div className="flex gap-1 ml-2">
                         <Button 
                           size="sm" 
@@ -375,7 +375,7 @@ const SubjectResources = () => {
               );
             })}
             
-            {user?.role === 'teacher' && (
+            {user?.role === 'TEACHER' && (
               <Card className="flex flex-col items-center justify-center h-full min-h-[250px] border-dashed">
                 <Button 
                   variant="ghost" 
@@ -419,7 +419,7 @@ const SubjectResources = () => {
                       {isCompleted ? 'Retry Quiz' : 'Start Quiz'}
                     </Button>
                     
-                    {user?.role === 'teacher' && (
+                    {user?.role === 'TEACHER' && (
                       <div className="flex gap-1 ml-2">
                         <Button 
                           size="sm" 
@@ -442,7 +442,7 @@ const SubjectResources = () => {
               );
             })}
             
-            {user?.role === 'teacher' && (
+            {user?.role === 'TEACHER' && (
               <Card className="flex flex-col items-center justify-center h-full min-h-[200px] border-dashed">
                 <Button 
                   variant="ghost" 

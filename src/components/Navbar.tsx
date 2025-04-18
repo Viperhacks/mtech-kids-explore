@@ -206,14 +206,20 @@ const Navbar: React.FC = () => {
       
       {/* Auth Dialog */}
       <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogTitle>Welcome to MTECH Kids Explore</DialogTitle>
-          <DialogDescription>
-            Sign in to access personalized learning resources and track your progress.
-          </DialogDescription>
-          <AuthForm onClose={handleAuthClose} />
-        </DialogContent>
-      </Dialog>
+  <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto p-0">
+    <div className="p-6">
+      <DialogTitle>Welcome to MTECH Kids Explore</DialogTitle>
+      <DialogDescription className="mb-4">
+        Sign in to access personalized learning resources and track your progress.
+      </DialogDescription>
+
+      
+        <AuthForm onClose={handleAuthClose} />
+      
+    </div>
+  </DialogContent>
+</Dialog>
+
     </nav>
   );
 };
