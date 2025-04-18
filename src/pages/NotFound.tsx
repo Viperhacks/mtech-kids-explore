@@ -19,7 +19,7 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      
       
       <div className="flex-grow flex items-center justify-center bg-gray-50 py-16">
         <div className="mtech-container text-center">
@@ -57,7 +57,7 @@ const NotFound = () => {
         </div>
       </div>
       
-      <Footer />
+      
     </div>
   );
 };

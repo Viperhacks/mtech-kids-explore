@@ -8,6 +8,7 @@ import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:8080';
 
 interface User {
+  createdAt: ReactNode;
   id?: string;
   fullName: string;
   email: string;
@@ -98,30 +99,30 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     try {
       setIsLoading(true);
       const response = await axios.post('/api/auth/login', { email, password });
-      
+  
       if (response.data.success) {
-        const { token, refreshToken, role, status } = response.data.data;
+        const { token, refreshToken, role, status, fullName } = response.data.data;
+  
         localStorage.setItem('auth_token', token);
         localStorage.setItem('refresh_token', refreshToken);
-        
+  
         const userData: User = {
-          fullName: email.split('@')[0],
-          name: email.split('@')[0],
+          fullName,
+          name: fullName, // you can tweak this if you wanna shorten/display first name only
           email,
           role,
           status,
-          // Default empty values
           earnedBadges: [],
           completedLessons: [],
           progress: {}
         };
-        
+  
         setUser(userData);
         localStorage.setItem('user_data', JSON.stringify(userData));
-        
+  
         toast({
           title: "Login Successful",
-          description: response.data.message
+          description: response.data.message || "You're in!"
         });
       }
     } catch (error: any) {
@@ -136,6 +137,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       setIsLoading(false);
     }
   };
+  
 
   const register = async (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN', grade?: string) => {
     try {

@@ -27,7 +27,7 @@ import Layout from "./components/Layout";
 const queryClient = new QueryClient();
 
 // You would need to replace this with your actual Google OAuth client ID
-const googleClientId = "YOUR_GOOGLE_CLIENT_ID";
+const googleClientId = "102147016941-lcucaktk0sioga2o5irssqcuedih5l0p.apps.googleusercontent.com";
 
 const App = () => (
   <GoogleOAuthProvider clientId={googleClientId}>
