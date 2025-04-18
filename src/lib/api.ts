@@ -1,9 +1,8 @@
-
 import axios from 'axios';
 
 // Create an axios instance with the base URL
 const api = axios.create({
-  baseURL: 'https://emall-backend.onrender.com/api',
+  baseURL: 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -20,27 +19,45 @@ api.interceptors.request.use((config) => {
 
 // Response interceptor for handling common errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => response.data,
   (error) => {
-    // Handle common errors like 401, 403, etc.
     if (error.response?.status === 401) {
-      // Handle unauthorized access
       localStorage.removeItem('auth_token');
-      localStorage.removeItem('mtech_user');
-      // You could redirect to login or dispatch an action
+      localStorage.removeItem('refresh_token');
       window.location.href = '/?auth=expired';
     }
-    return Promise.reject(error);
+    return Promise.reject(error.response?.data || error);
   }
 );
 
 // Auth services
 export const authService = {
-  login: (email: string, password: string) => api.post('/auth/login', { email, password }),
-  register: (userData: any) => api.post('/auth/register', userData),
-  forgotPassword: (email: string) => api.post('/auth/forgot-password', { email }),
-  resetPassword: (token: string, password: string) => api.post('/auth/reset-password', { token, password }),
-  confirmOtp: (email: string, otp: string) => api.post('/auth/confirm-otp', { email, otp }),
+  login: (email: string, password: string) => 
+    api.post('/auth/login', { email, password }),
+
+  register: (fullName: string, email: string, password: string, confirmPassword: string, role: 'STUDENT' | 'TEACHER' | 'PARENT', gradeLevel?: string) => 
+    api.post(`/auth/register?role=${role}`, { 
+      fullName, 
+      email, 
+      password,
+      confirmPassword,
+      gradeLevel 
+    }),
+
+  confirmOtp: (email: string, otp: string) => 
+    api.post(`/auth/confirm-otp?email=${email}&otp=${otp}`),
+
+  requestOtp: (email: string) => 
+    api.post(`/auth/request-otp?email=${email}`),
+
+  forgotPassword: (email: string) => 
+    api.post(`/auth/forgot-password?email=${email}`),
+
+  resetPassword: (token: string, newPassword: string) => 
+    api.post(`/auth/reset-password?token=${token}`, { newPassword }),
+
+  refreshToken: (refreshToken: string) => 
+    api.post(`/auth/refresh-token?refreshToken=${refreshToken}`),
 };
 
 // Resource services
