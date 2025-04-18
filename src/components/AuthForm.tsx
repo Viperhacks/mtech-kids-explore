@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -40,11 +41,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState('student');
+  const [role, setRole] = useState<'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN'>('STUDENT');
   const [gradeLevel, setGradeLevel] = useState('');
   const [view, setView] = useState<'main' | 'forgot' | 'reset' | 'otp'>('main');
   const [resetToken, setResetToken] = useState('');
-  const [googleRole, setGoogleRole] = useState('student');
+  const [googleRole, setGoogleRole] = useState<'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN'>('STUDENT');
   const [googleGradeLevel, setGoogleGradeLevel] = useState('');
   const [showGoogleRoleSelect, setShowGoogleRoleSelect] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -67,11 +68,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
             description: "The passwords you entered do not match",
             variant: "destructive"
           });
+          setIsSubmitting(false);
           return;
         }
 
-        const response = await registerUser(name, email, password, role.toUpperCase() as 'STUDENT' | 'TEACHER' | 'PARENT', gradeLevel);
-        if (response?.success) {
+        const response = await registerUser(name, email, password, role, gradeLevel);
+        if (response && response.success) {
           setRegisteredEmail(email);
           setShowOtpForm(true);
           toast({
@@ -154,7 +156,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
     
     try {
       setIsSubmitting(true);
-      await registerUser(name, email, '', googleRole as 'student' | 'teacher' | 'parent', googleGradeLevel, 'google');
+      await registerUser(name, email, '', googleRole, googleGradeLevel);
       onClose();
       navigate('/dashboard');
     } catch (err) {
@@ -188,19 +190,19 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="google-role">I am a:</Label>
-            <Select value={googleRole} onValueChange={setGoogleRole}>
+            <Select value={googleRole} onValueChange={(value) => setGoogleRole(value as 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN')}>
               <SelectTrigger>
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="student">Student</SelectItem>
-                <SelectItem value="teacher">Teacher</SelectItem>
-                <SelectItem value="parent">Parent</SelectItem>
+                <SelectItem value="STUDENT">Student</SelectItem>
+                <SelectItem value="TEACHER">Teacher</SelectItem>
+                <SelectItem value="PARENT">Parent</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {googleRole === 'student' && (
+          {googleRole === 'STUDENT' && (
             <div className="space-y-2">
               <Label htmlFor="google-grade-level">Grade Level</Label>
               <Select value={googleGradeLevel} onValueChange={setGoogleGradeLevel}>
@@ -229,7 +231,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
             <Button 
               onClick={completeGoogleSignup}
               className="flex-1 bg-mtech-primary"
-              disabled={isSubmitting || (googleRole === 'student' && !googleGradeLevel)}
+              disabled={isSubmitting || (googleRole === 'STUDENT' && !googleGradeLevel)}
             >
               {isSubmitting ? 'Creating Account...' : 'Complete Signup'}
             </Button>
@@ -418,19 +420,23 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
 
             <div className="space-y-2">
               <Label htmlFor="role">I am a:</Label>
-              <Select value={role} onValueChange={setRole} required>
+              <Select 
+                value={role} 
+                onValueChange={(value) => setRole(value as 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN')} 
+                required
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select your role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="student">Student</SelectItem>
-                  <SelectItem value="teacher">Teacher</SelectItem>
-                  <SelectItem value="parent">Parent</SelectItem>
+                  <SelectItem value="STUDENT">Student</SelectItem>
+                  <SelectItem value="TEACHER">Teacher</SelectItem>
+                  <SelectItem value="PARENT">Parent</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {role === 'student' && (
+            {role === 'STUDENT' && (
               <div className="space-y-2">
                 <Label htmlFor="grade-level">Grade Level</Label>
                 <Select value={gradeLevel} onValueChange={setGradeLevel} required>

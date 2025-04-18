@@ -23,7 +23,7 @@ const Dashboard: React.FC = () => {
   }
   
   // Special case for parent users (who have parentOf property)
-  const isParent = user.parentOf && user.parentOf.length > 0 && user.role === 'student';
+  const isParent = user.parentOf && user.parentOf.length > 0 && user.role === 'PARENT';
   
   // Render the appropriate dashboard based on user role
   if (isParent) {
@@ -31,11 +31,11 @@ const Dashboard: React.FC = () => {
   }
   
   switch (user.role) {
-    case 'student':
+    case 'STUDENT':
       return <StudentDashboard />;
-    case 'teacher':
+    case 'TEACHER':
       return <TeacherDashboard />;
-    case 'admin':
+    case 'ADMIN':
       return <AdminDashboard />;
     default:
       return <StudentDashboard />;

@@ -1,8 +1,10 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Revision from "./pages/Revision";
@@ -24,36 +26,41 @@ import Layout from "./components/Layout";
 
 const queryClient = new QueryClient();
 
+// You would need to replace this with your actual Google OAuth client ID
+const googleClientId = "YOUR_GOOGLE_CLIENT_ID";
+
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route element={<Layout />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/revision" element={<Revision />} />
-              <Route path="/teachers" element={<ProtectedRoute allowedRoles={["TEACHER", "ADMIN"]} element={<Teachers />} />} />
-              <Route path="/contacts" element={<Contacts />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/tutorials" element={<Tutorials />} />
-              <Route path="/exercises" element={<Exercises />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/profile" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<Profile />} />} />
-              <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<Dashboard />} />} />
-              <Route path="/grade/:gradeId" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<GradeResources />} />} />
-              <Route path="/grade/:gradeId/subject/:subjectId" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<SubjectResources />} />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <GoogleOAuthProvider clientId={googleClientId}>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/revision" element={<Revision />} />
+                <Route path="/teachers" element={<ProtectedRoute allowedRoles={["TEACHER", "ADMIN"]} element={<Teachers />} />} />
+                <Route path="/contacts" element={<Contacts />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/tutorials" element={<Tutorials />} />
+                <Route path="/exercises" element={<Exercises />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/profile" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<Profile />} />} />
+                <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<Dashboard />} />} />
+                <Route path="/grade/:gradeId" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<GradeResources />} />} />
+                <Route path="/grade/:gradeId/subject/:subjectId" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<SubjectResources />} />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </GoogleOAuthProvider>
 );
 
 export default App;
