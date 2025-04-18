@@ -112,14 +112,10 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       const response = await authService.register(name, email, password, password, role, grade);
       
       if (response.data.success) {
-        const { token } = response.data.data;
-        localStorage.setItem('auth_token', token);
-        
         toast({
           title: "Registration Successful",
-          description: response.data.message
+          description: "Please check your email for verification"
         });
-
         return response.data;
       }
     } catch (error: any) {

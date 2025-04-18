@@ -47,6 +47,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [googleRole, setGoogleRole] = useState('student');
   const [googleGradeLevel, setGoogleGradeLevel] = useState('');
   const [showGoogleRoleSelect, setShowGoogleRoleSelect] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
   const { toast } = useToast();
   const { login, register: registerUser, googleLogin, confirmOtp } = useAuth();
   const navigate = useNavigate();
@@ -57,14 +58,20 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
     try {
-      if (formType === 'login') {
-        await login(email, password);
-        onClose();
-        navigate('/dashboard');
-      } else {
+      if (formType === 'register') {
+        if (password !== confirmPassword) {
+          toast({
+            title: "Password Mismatch",
+            description: "The passwords you entered do not match",
+            variant: "destructive"
+          });
+          return;
+        }
+
         const response = await registerUser(name, email, password, role.toUpperCase() as 'STUDENT' | 'TEACHER' | 'PARENT', gradeLevel);
-        if (response.success) {
+        if (response?.success) {
           setRegisteredEmail(email);
           setShowOtpForm(true);
           toast({
@@ -72,6 +79,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
             description: "Please check your email for the verification code",
           });
         }
+      } else {
+        await login(email, password);
+        onClose();
+        navigate('/dashboard');
       }
     } catch (err) {
       console.error('Auth error:', err);
@@ -341,7 +352,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
         </TabsContent>
 
         <TabsContent value="register">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <div className="relative">
@@ -384,6 +395,22 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   className="pl-10"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  placeholder="Confirm your password"
+                  className="pl-10"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
                   required
                 />
               </div>
