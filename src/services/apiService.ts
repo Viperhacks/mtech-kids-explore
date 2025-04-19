@@ -7,7 +7,7 @@ import api, {
   parentService, 
   adminService 
 } from '@/lib/api';
-
+/*
 // Authentication services
 export const login = async (email: string, password: string) => {
   try {
@@ -57,7 +57,7 @@ export const confirmOtp = async (email: string, otp: string) => {
     console.error('OTP confirmation error:', error);
     throw error;
   }
-};
+};*/
 
 // Resource services
 export const getResources = async (grade?: string, subject?: string) => {

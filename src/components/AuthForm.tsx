@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, User2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import ResetPasswordForm from './ResetPasswordForm';
@@ -38,7 +38,8 @@ interface GoogleUserInfo {
 const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formType, setFormType] = useState<'login' | 'register'>('login');
-  const [email, setEmail] = useState('');
+  //const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN'>('STUDENT');
@@ -53,6 +54,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const { login, register: registerUser, googleLogin, confirmOtp } = useAuth();
   const navigate = useNavigate();
   const [registeredEmail, setRegisteredEmail] = useState('');
+  const [registeredUsername, setRegisteredUsername] = useState('');
   const [showOtpForm, setShowOtpForm] = useState(false);
   const [otp, setOtp] = useState('');
 
@@ -72,22 +74,30 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
           return;
         }
 
-        const response = await registerUser(name, email, password, role, gradeLevel);
+        const response = await registerUser(name, username, password, role, gradeLevel);
+        //console.log("registration response",response);
         if (response && response.success) {
-          setRegisteredEmail(email);
-          setShowOtpForm(true);
+          setRegisteredUsername(username);
+          //setShowOtpForm(true);
           toast({
             title: "Registration Successful",
-            description: "Please check your email for the verification code",
+            description: "You can now log in with your credentials",
           });
+          setFormType('login');
+          setName('');
+  setUsername('');
+  setPassword('');
+  setConfirmPassword('');
+  setGradeLevel('');
+  setRole('STUDENT');
         }
       } else {
-        await login(email, password);
+        await login(username, password);
         onClose();
         navigate('/dashboard');
       }
-    } catch (err) {
-      console.error('Auth error:', err);
+    } catch (err:any) {
+      console.error('Auth error:', err.response.data.message);
       toast({
         title: formType === 'login' ? 'Login Failed' : 'Registration Failed',
         description: 'Please check your credentials and try again.',
@@ -98,7 +108,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
     }
   };
 
-  const handleOtpSubmit = async (e: React.FormEvent) => {
+ /* const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await confirmOtp(registeredEmail, otp);
@@ -115,11 +125,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
         variant: "destructive",
       });
     }
-  };
+  };*/
 
-  const handleForgotPassword = () => setView('forgot');
+  //const handleForgotPassword = () => setView('forgot');
   const handleBackToMain = () => setView('main');
-  const handleResetPassword = (token: string) => {
+  /*const handleResetPassword = (token: string) => {
     setResetToken(token);
     setView('reset');
   };
@@ -275,7 +285,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
         </form>
       </div>
     );
-  }
+  }*/
 
   return (
     <div className="p-4 sm:p-6">
@@ -287,7 +297,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
 
         <TabsContent value="login">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
+            {/*<div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -301,15 +311,30 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   required
                 />
               </div>
+            </div>*/}
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <div className="relative">
+                <User2 className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="username"
+                  type="username"
+                  placeholder="Enter your username"
+                  className="pl-10"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              {/*<div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
                 <button type="button" onClick={handleForgotPassword} className="text-xs text-mtech-primary hover:underline">
                   Forgot Password?
                 </button>
-              </div>
+              </div> */}
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -328,7 +353,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </Button>
 
-            <div className="relative my-4">
+           {/*Google login } <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200" />
               </div>
@@ -349,7 +374,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                 }}
                 useOneTap
               />
-            </div>
+            </div>*/}
           </form>
         </TabsContent>
 
@@ -371,6 +396,21 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="register-username">Username</Label>
+              <div className="relative">
+                <User2 className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="register-username"
+                  type="username"
+                  placeholder="Enter your username"
+                  className="pl-10"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            {/*<div className="space-y-2">
               <Label htmlFor="register-email">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -384,7 +424,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   required
                 />
               </div>
-            </div>
+            </div>*/}
 
             <div className="space-y-2">
               <Label htmlFor="register-password">Password</Label>
@@ -459,16 +499,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
               {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
             </Button>
 
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Or continue with</span>
-              </div>
-            </div>
+            
 
-            <div className="flex justify-center">
+            {/*<div className="flex justify-center">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={() => {
@@ -480,7 +513,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                 }}
                 useOneTap
               />
-            </div>
+            </div>*/}
           </form>
         </TabsContent>
       </Tabs>

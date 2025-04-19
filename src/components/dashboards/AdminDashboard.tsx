@@ -166,7 +166,7 @@ const AdminDashboard: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      <DefaultLoginInfo />
+     
     </div>
   );
 };

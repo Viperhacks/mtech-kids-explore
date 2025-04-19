@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
   };
 
   const userName = user?.name || user?.fullName || '';
-  const firstNameOrEmail = userName ? userName.split(' ')[0] : (user?.email || '').split('@')[0];
+  const firstNameOrEmail = userName ? userName.split(' ')[0] : (user?.username || '').split('@')[0];
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -92,7 +92,7 @@ const Navbar: React.FC = () => {
                   <div className="flex items-center justify-start p-2">
                     <div className="flex flex-col space-y-1">
                       <p className="font-medium text-sm">{userName}</p>
-                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">{user?.email}</p>
+                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">{user?.username}</p>
                     </div>
                   </div>
                   <DropdownMenuSeparator />

@@ -32,13 +32,13 @@ api.interceptors.response.use(
 
 // Auth services
 export const authService = {
-  login: (email: string, password: string) => 
-    api.post('/auth/login', { email, password }),
+  login: (username: string, password: string) => 
+    api.post('/auth/login', { username, password }),
 
-  register: (fullName: string, email: string, password: string, confirmPassword: string, role: 'STUDENT' | 'TEACHER' | 'PARENT', gradeLevel?: string) => 
+  register: (fullName: string, username: string, password: string, confirmPassword: string, role: 'STUDENT' | 'TEACHER' | 'PARENT', gradeLevel?: string) => 
     api.post(`/auth/register?role=${role}`, { 
       fullName, 
-      email, 
+      username, 
       password,
       confirmPassword,
       gradeLevel 
