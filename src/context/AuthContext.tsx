@@ -20,6 +20,7 @@ interface User {
     [key: string]: {
       completed: number;
       total: number;
+      watched:number;
     };
   };
   parentOf?: { id: string; name: string }[];

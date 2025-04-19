@@ -194,7 +194,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
                   <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="math">Mathematics</SelectItem>
+                  <SelectItem value="mathematics">Mathematics</SelectItem>
                   <SelectItem value="english">English</SelectItem>
                   <SelectItem value="science">Science</SelectItem>
                   <SelectItem value="social">Social Studies</SelectItem>

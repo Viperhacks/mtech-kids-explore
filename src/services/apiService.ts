@@ -60,9 +60,9 @@ export const confirmOtp = async (email: string, otp: string) => {
 };
 
 // Resource services
-export const getResources = async (gradeId?: string, subjectId?: string) => {
+export const getResources = async (grade?: string, subject?: string) => {
   try {
-    const response = await resourceService.getResources(gradeId, subjectId);
+    const response = await resourceService.getResources(grade, subject);
     return response.data;
   } catch (error) {
     console.error('Get resources error:', error);
@@ -70,9 +70,9 @@ export const getResources = async (gradeId?: string, subjectId?: string) => {
   }
 };
 
-export const getResourcesForAnyOne = async (gradeId?: string, subjectId?: string) => {
+export const getResourcesForAnyOne = async (grade?: string, subject?: string) => {
   try {
-    const response = await resourceService.getResourcesForStudent(gradeId, subjectId);
+    const response = await resourceService.getResourcesForStudent(grade, subject);
     return response.data;
   } catch (error) {
     console.error('Get resources error:', error);

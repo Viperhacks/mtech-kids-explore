@@ -62,10 +62,10 @@ export const authService = {
 
 // Resource services
 export const resourceService = {
-  getResources: (gradeId?: string, subjectId?: string) => 
-    api.get('/resources/my-resources', { params: { gradeId, subjectId } }),
-  getResourcesForStudent: (gradeId?: string, subjectId?: string) => 
-    api.get('/resources', { params: { gradeId, subjectId } }),
+  getResources: (grade?: string, subject?: string) => 
+    api.get('/resources/my-resources', { params: { grade, subject } }),
+  getResourcesForStudent: (grade?: string, subject?: string) => 
+    api.get('/resources', { params: { grade, subject } }),
   uploadResource: (resourceData: FormData | any) => {
     if (resourceData instanceof FormData) {
       return api.post('/resources', resourceData, {

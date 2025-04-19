@@ -49,9 +49,11 @@ const SubjectResources = () => {
     try {
       let response;
        if(user?.role == "TEACHER"){
-        response = await getResources(gradeId, subjectId);
+        
+        response = await getResources(grade.name, subject.name);
        } else{
-        response = await getResourcesForAnyOne(gradeId, subjectId);
+        console.log("grade name is+",grade.name)
+        response = await getResourcesForAnyOne(grade.name, subject.name);
        }
       console.log("-----",response.resources)
       setResources(response.resources || []);
@@ -87,19 +89,19 @@ const SubjectResources = () => {
     // Track the activity
     if (user) {
       trackActivity({
-        userId: user.id,
+        userId: user.id || "user",
         type: 'video_started',
-        videoId: video.id,
-        subjectId,
-        gradeId,
+        videoId: video.response.id,
+        subjectId : grade.id,
+        gradeId: subject.id,
         timestamp: new Date().toISOString()
       });
     }
     
     // In a real app, this would track that the user started the video
     // For demo purposes, we'll mark it as completed
-    if (user && video.id) {
-      updateUserProgress(subjectId as string, video.id);
+    if (user && video.response.id) {
+      updateUserProgress(subjectId as string, video.response.id,video.length);
     }
   };
   
@@ -160,7 +162,7 @@ const SubjectResources = () => {
         });
         
         // Mark quiz as completed
-        updateUserProgress(subjectId as string, selectedQuiz.id);
+        updateUserProgress(subjectId as string, selectedQuiz.id,10);
       }
     }
   };
@@ -314,7 +316,7 @@ const SubjectResources = () => {
         <TabsContent value="videos" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             { resources.filter(resource => resource.response.type === "video").map((video) => {
-              const isCompleted = user?.completedLessons?.includes(video.id);
+              const isCompleted = user?.completedLessons?.includes(video.response.id);
               return (
                 <Card key={video.response.id} className="overflow-hidden">
                   <div 
@@ -323,7 +325,7 @@ const SubjectResources = () => {
                   >
                     <img 
                       src={"/mtech-kidz-app-icon.svg" || video.response.thumbnail /*'https://placehold.co/600x400?text=Video+Thumbnail'*/} 
-                      alt={video.response.title}
+                      alt={video.title}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -476,7 +478,7 @@ const SubjectResources = () => {
           <div className="aspect-video bg-black rounded-md overflow-hidden">
             {/* In a real app, this would be a video player */}
             <div className="flex items-center justify-center h-full text-white">
-            <video src={"/Holy_Ten_-_Kepele_ne_Close__Official_Video__ft.__MrCandy(720p).mp4" ||selectedVideo?.response.content}  controls autoPlay className='p-4 text-center'/>
+            <video src={"/Holy_Ten_-_Kepele_ne_Close__Official_Video__ft.__MrCandy(720p).mp4" ||selectedVideo?.content}  controls autoPlay className='p-4 text-center'/>
              {/*} <p className="p-4 text-center"  >
                 Video player would be embedded here. For demo purposes, 
                 this video is automatically marked as watched.
