@@ -322,7 +322,7 @@ const SubjectResources = () => {
                     onClick={() => handleWatchVideo(video)}
                   >
                     <img 
-                      src={video.response.thumbnail || 'https://placehold.co/600x400?text=Video+Thumbnail'} 
+                      src={"/mtech-kidz-app-icon.svg" || video.response.thumbnail /*'https://placehold.co/600x400?text=Video+Thumbnail'*/} 
                       alt={video.response.title}
                       className="w-full h-full object-cover"
                     />
@@ -476,12 +476,12 @@ const SubjectResources = () => {
           <div className="aspect-video bg-black rounded-md overflow-hidden">
             {/* In a real app, this would be a video player */}
             <div className="flex items-center justify-center h-full text-white">
-            <iframe src={selectedVideo?.response.content}  allowFullScreen className='p-4 text-center'/>
-              <p className="p-4 text-center"  >
+            <video src={"/Holy_Ten_-_Kepele_ne_Close__Official_Video__ft.__MrCandy(720p).mp4" ||selectedVideo?.response.content}  controls autoPlay className='p-4 text-center'/>
+             {/*} <p className="p-4 text-center"  >
                 Video player would be embedded here. For demo purposes, 
                 this video is automatically marked as watched.
                 
-              </p>
+              </p>*/}
             </div>
           </div>
           <DialogFooter>
