@@ -70,6 +70,16 @@ export const getResources = async (gradeId?: string, subjectId?: string) => {
   }
 };
 
+export const getResourcesForAnyOne = async (gradeId?: string, subjectId?: string) => {
+  try {
+    const response = await resourceService.getResourcesForStudent(gradeId, subjectId);
+    return response.data;
+  } catch (error) {
+    console.error('Get resources error:', error);
+    throw error;
+  }
+};
+
 export const uploadResource = async (resourceData: FormData | any) => {
   try {
     const response = await resourceService.uploadResource(resourceData);

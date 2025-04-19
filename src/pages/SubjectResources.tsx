@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import ResourcesData from '@/data/resources';
-import { getResources, deleteResource } from '@/services/apiService';
+import { getResources, deleteResource, getResourcesForAnyOne } from '@/services/apiService';
 import CourseEditor from '@/components/CourseEditor';
 
 const SubjectResources = () => {
@@ -47,8 +47,14 @@ const SubjectResources = () => {
   const fetchResources = async () => {
     setIsLoading(true);
     try {
-      const response = await getResources(gradeId, subjectId);
-      setResources(response.data || []);
+      let response;
+       if(user?.role == "TEACHER"){
+        response = await getResources(gradeId, subjectId);
+       } else{
+        response = await getResourcesForAnyOne(gradeId, subjectId);
+       }
+      console.log("-----",response.resources)
+      setResources(response.resources || []);
     } catch (error) {
       console.error('Error fetching resources:', error);
       toast({
@@ -307,17 +313,17 @@ const SubjectResources = () => {
         
         <TabsContent value="videos" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {subject.videos.map((video) => {
+            { resources.filter(resource => resource.response.type === "video").map((video) => {
               const isCompleted = user?.completedLessons?.includes(video.id);
               return (
-                <Card key={video.id} className="overflow-hidden">
+                <Card key={video.response.id} className="overflow-hidden">
                   <div 
                     className="relative aspect-video bg-gray-100 cursor-pointer"
                     onClick={() => handleWatchVideo(video)}
                   >
                     <img 
-                      src={video.thumbnail || 'https://placehold.co/600x400?text=Video+Thumbnail'} 
-                      alt={video.title}
+                      src={video.response.thumbnail || 'https://placehold.co/600x400?text=Video+Thumbnail'} 
+                      alt={video.response.title}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -332,9 +338,9 @@ const SubjectResources = () => {
                     )}
                   </div>
                   <CardHeader className="py-3">
-                    <CardTitle className="text-base">{video.title}</CardTitle>
+                    <CardTitle className="text-base">{video.response.title}</CardTitle>
                     <CardDescription className="text-xs">
-                      {video.duration} • {video.teacher}
+                      {video.response.duration || "10:00"} • {video.response.teacher.split(' ')[0]}
                     </CardDescription>
                   </CardHeader>
                   <CardFooter className="pt-0 flex justify-between">
@@ -375,7 +381,7 @@ const SubjectResources = () => {
               );
             })}
             
-            {user?.role === 'TEACHER' && (
+            {user?.role === 'TEACHER' &&  resources.filter(resource => resource.type === "video").length === 0 && (
               <Card className="flex flex-col items-center justify-center h-full min-h-[250px] border-dashed">
                 <Button 
                   variant="ghost" 
@@ -462,17 +468,19 @@ const SubjectResources = () => {
       <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
         <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{selectedVideo?.title}</DialogTitle>
+            <DialogTitle>{selectedVideo?.response.title}</DialogTitle>
             <DialogDescription>
-              By {selectedVideo?.teacher} • {selectedVideo?.duration}
+              By {selectedVideo?.response.teacher.split(' ')[0]} • {selectedVideo?.response.duration}
             </DialogDescription>
           </DialogHeader>
           <div className="aspect-video bg-black rounded-md overflow-hidden">
             {/* In a real app, this would be a video player */}
             <div className="flex items-center justify-center h-full text-white">
-              <p className="p-4 text-center">
+            <iframe src={selectedVideo?.response.content}  allowFullScreen className='p-4 text-center'/>
+              <p className="p-4 text-center"  >
                 Video player would be embedded here. For demo purposes, 
                 this video is automatically marked as watched.
+                
               </p>
             </div>
           </div>

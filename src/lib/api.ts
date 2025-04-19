@@ -64,6 +64,8 @@ export const authService = {
 export const resourceService = {
   getResources: (gradeId?: string, subjectId?: string) => 
     api.get('/resources/my-resources', { params: { gradeId, subjectId } }),
+  getResourcesForStudent: (gradeId?: string, subjectId?: string) => 
+    api.get('/resources', { params: { gradeId, subjectId } }),
   uploadResource: (resourceData: FormData | any) => {
     if (resourceData instanceof FormData) {
       return api.post('/resources', resourceData, {
