@@ -67,12 +67,12 @@ const GradeResources = () => {
       let formData;
       if (uploadForm.file) {
         formData = new FormData();
-        formData.append('file', uploadForm.file);
+        formData.append('content', uploadForm.file);
         formData.append('title', uploadForm.title);
         formData.append('description', uploadForm.description);
         formData.append('subject', uploadForm.subject);
         formData.append('type', uploadForm.type);
-        formData.append('grade', gradeId || '');
+        formData.append('grade', gradeData.name || '');
       } else {
         // If no file, just send the JSON data
         formData = {

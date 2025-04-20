@@ -67,6 +67,10 @@ const CurriculumSection: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const getRecommendedGrade = () => {
+    return user?.grade || user?.gradeLevel || '1';
+  };
+
   const handleResourceClick = (gradeId: string, subjectId?: string) => {
     if (!isAuthenticated) {
       toast({

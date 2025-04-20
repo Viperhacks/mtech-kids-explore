@@ -51,7 +51,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
         </div>
         <div className="text-left md:text-right">
           <Button 
-            onClick={() => navigate(`/grade/${getRecommendedGrade()}`)}
+            onClick={() => navigate(`/grade/grade${getRecommendedGrade()}`)}
             className="bg-mtech-primary hover:bg-mtech-dark text-white"
           >
             Continue Learning
@@ -63,8 +63,8 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
       <Tabs defaultValue="progress">
         <TabsList className="w-full md:w-auto">
           <TabsTrigger value="progress">My Progress</TabsTrigger>
-          <TabsTrigger value="achievements">Achievements</TabsTrigger>
-          <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+          <TabsTrigger value="achievements">Achievements</TabsTrigger>{/*
+          <TabsTrigger value="activity">Recent Activity</TabsTrigger>*/}
         </TabsList>
         
         <TabsContent value="progress" className="space-y-6">
@@ -92,7 +92,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
                 <Button
                   variant="outline" 
                   className="w-full" 
-                  onClick={() => navigate(`/grade/${getRecommendedGrade()}/subject/math`)}
+                  onClick={() => navigate(`/grade/grade${getRecommendedGrade()}/subject/mathematics`)}
                 >
                   Continue <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -122,7 +122,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
                 <Button
                   variant="outline" 
                   className="w-full" 
-                  onClick={() => navigate(`/grade/${getRecommendedGrade()}/subject/english`)}
+                  onClick={() => navigate(`/grade/grade${getRecommendedGrade()}/subject/english`)}
                 >
                   Continue <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -152,7 +152,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
                 <Button
                   variant="outline" 
                   className="w-full" 
-                  onClick={() => navigate(`/grade/${getRecommendedGrade()}/subject/science`)}
+                  onClick={() => navigate(`/grade/grade${getRecommendedGrade()}/subject/science`)}
                 >
                   Continue <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -256,9 +256,9 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
           </Card>
         </TabsContent>
         
-        <TabsContent value="activity">
+       {/*} <TabsContent value="activity">
           {user?.id && <UserActivity/>}
-        </TabsContent>
+        </TabsContent>*/}
       </Tabs>
     </div>
   );

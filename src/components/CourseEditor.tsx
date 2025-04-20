@@ -68,14 +68,14 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
     
     
     try {
-      const formDataToSend = new FormData();
+      let formDataToSend = new FormData();
       formDataToSend.append("title", formData.title);
       formDataToSend.append("description", formData.description);
       formDataToSend.append("grade", formData.grade);
       formDataToSend.append("subject", formData.subject);
       formDataToSend.append("type", formData.type);
       formDataToSend.append("content", formData.content);
-      formDataToSend.append("thumbnail" , formData.thumbnail);
+      //formDataToSend.append("thumbnail" , formData.thumbnail);
       
       if (isNew) {
         await resourceService.uploadResource(formDataToSend);
@@ -222,7 +222,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
             </div>
           </div>
           
-          <div className="space-y-2">
+         {/*} <div className="space-y-2">
             <Label htmlFor="content">Content URL</Label>
             <Input
               id="content"
@@ -242,7 +242,79 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
               onChange={handleChange}
               placeholder="URL to thumbnail image"
             />
-          </div>
+          </div>*/}
+          <div className="space-y-2">
+  <Label>Upload Content (Video or Document)</Label>
+  <div
+    className="border border-dashed border-gray-400 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50"
+    onDragOver={(e) => e.preventDefault()}
+    onDrop={(e) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        setFormData((prev) => ({ ...prev, content: file }));
+      }
+    }}
+    onClick={() => document.getElementById('contentUpload')?.click()}
+  >
+    {formData.content ? (
+      <p className="text-sm text-green-600">Selected: {formData.content.name}</p>
+    ) : (
+      <p className="text-sm text-gray-500">
+        Drag and drop a video/document here or click to browse
+      </p>
+    )}
+  </div>
+  <input
+    id="contentUpload"
+    type="file"
+    accept="video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    onChange={(e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setFormData((prev) => ({ ...prev, content: file }));
+      }
+    }}
+    className="hidden"
+  />
+</div>
+{/*
+<div className="space-y-2">
+  <Label>Upload Thumbnail Image</Label>
+  <div
+    className="border border-dashed border-gray-400 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50"
+    onDragOver={(e) => e.preventDefault()}
+    onDrop={(e) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        setFormData((prev) => ({ ...prev, thumbnail: file }));
+      }
+    }}
+    onClick={() => document.getElementById('thumbnailUpload')?.click()}
+  >
+    {formData.thumbnail ? (
+      <p className="text-sm text-green-600">Selected: {formData.thumbnail.name}</p>
+    ) : (
+      <p className="text-sm text-gray-500">
+        Drag and drop an image here or click to upload thumbnail
+      </p>
+    )}
+  </div>
+  <input
+    id="thumbnailUpload"
+    type="file"
+    accept="image/*"
+    onChange={(e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setFormData((prev) => ({ ...prev, thumbnail: file }));
+      }
+    }}
+    className="hidden"
+  />
+</div>*/}
+
         </CardContent>
         
         <CardFooter className="flex justify-between">

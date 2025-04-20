@@ -471,7 +471,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                 <SelectContent>
                   <SelectItem value="STUDENT">Student</SelectItem>
                   <SelectItem value="TEACHER">Teacher</SelectItem>
-                  <SelectItem value="PARENT">Parent</SelectItem>
+                  
                 </SelectContent>
               </Select>
             </div>

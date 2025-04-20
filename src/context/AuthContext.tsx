@@ -101,7 +101,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       const response = await axios.post('/api/auth/login', { username, password });
   
       if (response.data.success) {
-        const { token, refreshToken, role, status, fullName } = response.data.data;
+        const { token, refreshToken, role, status, fullName,gradeLevel,id } = response.data.data;
   
         localStorage.setItem('auth_token', token);
         localStorage.setItem('refresh_token', refreshToken);
@@ -110,6 +110,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           fullName,
           name: fullName, // you can tweak this if you wanna shorten/display first name only
           username,
+          grade: gradeLevel,
+          id :id,
           role,
           status,
           earnedBadges: [],

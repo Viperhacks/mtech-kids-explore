@@ -47,7 +47,7 @@ const Footer: React.FC = () => {
               <li><Link to="/contacts" className="text-gray-300 hover:text-white">Contact Us</Link></li>
               <li><Link to="/faq" className="text-gray-300 hover:text-white">FAQ</Link></li>
               <li><Link to="/privacy" className="text-gray-300 hover:text-white">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="text-gray-300 hover:text-white">Terms of Service</Link></li>
+             
             </ul>
           </div>
 
@@ -59,7 +59,7 @@ const Footer: React.FC = () => {
               <li><Link to="/exercises" className="text-gray-300 hover:text-white">Practice Exercises</Link></li>
               <li><Link to="/quizzes" className="text-gray-300 hover:text-white">Interactive Quizzes</Link></li>
               <li><Link to="/subjects" className="text-gray-300 hover:text-white">Subject Materials</Link></li>
-              <li><Link to="/faq" className="text-gray-300 hover:text-white">FAQ</Link></li>
+              
             </ul>
           </div>
 

@@ -37,12 +37,12 @@ const FAQ = () => {
               answer:
                 'Not yet, but the site works great on all devices. A mobile app is on the way!',
             },
-            {
+            /*{
               value: 'item-4',
               question: "How do parents monitor their child's progress?",
               answer:
                 'Link a parent account to the child profile. View reports, lessons done, scores, and more.',
-            },
+            },*/
             {
               value: 'item-5',
               question: 'Are there offline learning options?',
@@ -61,13 +61,13 @@ const FAQ = () => {
               answer:
                 'Students earn badges for streaks, quizzes, and activities. Teachers earn them too for contributing.',
             },
-            {
+            /*{
               value: 'item-8',
               question:
                 'Can I track how much time my child spends on the platform?',
               answer:
                 'Yup. Time, usage, accessed content, and subject progress — all logged and reportable.',
-            },
+            },*/
           ].map(({ value, question, answer }) => (
             <AccordionItem key={value} value={value}>
               <AccordionTrigger
