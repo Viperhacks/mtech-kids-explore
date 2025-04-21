@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,13 +39,40 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
   
   // Get user's display name
   const displayName = user?.name || user?.fullName || (user?.email ? user.email.split('@')[0] : 'Student');
+  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+  const suggestedResources = [
+    {
+      id: 1,
+      title: 'Basic Fractions',
+      description: 'Learn how to identify and work with basic fractions',
+      duration: '15 minutes',
+      path: '/lessons/fractions'
+    },
+    {
+      id: 2,
+      title: 'Reading Comprehension',
+      description: 'Practice understanding story elements',
+      duration: '10 minutes',
+      path: '/lessons/reading-comprehension'
+    },
+    {
+      id: 3,
+      title: 'Animal Habitats',
+      description: 'Learn about different animal homes and environments',
+      duration: '20 minutes',
+      path: '/lessons/animal-habitats'
+    }
+  ];
+  
+
   
   return (
     <div className="space-y-8">
       <div className="px-4 pt-6 md:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-left md:mb-0 mb-2">
           <h1 className="text-3xl font-bold tracking-tight">
-            Hello, {displayName.split(' ')[0] || 'Student'}!
+          Hello, {capitalize(displayName.split(' ')[0] || 'Student')}!
           </h1>
         </div>
         <div className="text-left md:text-right">
@@ -63,8 +89,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
       <Tabs defaultValue="progress">
         <TabsList className="w-full md:w-auto">
           <TabsTrigger value="progress">My Progress</TabsTrigger>
-          <TabsTrigger value="achievements">Achievements</TabsTrigger>{/*
-          <TabsTrigger value="activity">Recent Activity</TabsTrigger>*/}
+          <TabsTrigger value="achievements">Achievements</TabsTrigger>
         </TabsList>
         
         <TabsContent value="progress" className="space-y-6">
@@ -168,46 +193,30 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Button variant="outline" className="justify-start p-6 h-auto">
-                  <div className="flex flex-col items-start gap-2">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">15 minutes</span>
-                    </div>
-                    <h3 className="text-lg font-medium">Basic Fractions</h3>
-                    <p className="text-sm text-muted-foreground text-left">
-                      Learn how to identify and work with basic fractions
-                    </p>
-                  </div>
-                </Button>
-                
-                <Button variant="outline" className="justify-start p-6 h-auto">
-                  <div className="flex flex-col items-start gap-2">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">10 minutes</span>
-                    </div>
-                    <h3 className="text-lg font-medium">Reading Comprehension</h3>
-                    <p className="text-sm text-muted-foreground text-left">
-                      Practice understanding story elements
-                    </p>
-                  </div>
-                </Button>
-                
-                <Button variant="outline" className="justify-start p-6 h-auto">
-                  <div className="flex flex-col items-start gap-2">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">20 minutes</span>
-                    </div>
-                    <h3 className="text-lg font-medium">Animal Habitats</h3>
-                    <p className="text-sm text-muted-foreground text-left">
-                      Learn about different animal homes and environments
-                    </p>
-                  </div>
-                </Button>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {suggestedResources.map(resource => (
+    <Button
+      key={resource.id}
+      variant="outline"
+      onClick={() => navigate(resource.path)}
+      className="justify-start p-6 h-auto transition-all border hover:bg-muted hover:border-mtech-primary hover:shadow-md group"
+    >
+      <div className="flex flex-col items-start gap-2 w-full text-left">
+        <div className="flex items-center gap-2 text-muted-foreground group-hover:text-mtech-primary">
+          <Clock className="h-4 w-4" />
+          <span className="text-xs">{resource.duration}</span>
+        </div>
+        <h3 className="text-lg font-semibold text-foreground group-hover:text-mtech-primary">
+          {resource.title}
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {resource.description}
+        </p>
+      </div>
+    </Button>
+  ))}
+</div>
+
             </CardContent>
           </Card>
         </TabsContent>
@@ -220,45 +229,19 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                <div className={`p-4 rounded-lg flex flex-col items-center justify-center text-center border ${badges.includes('welcome') ? 'bg-amber-50 border-amber-200' : 'bg-gray-100 border-gray-200 opacity-50'}`}>
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${badges.includes('welcome') ? 'bg-amber-100 text-amber-700' : 'bg-gray-200 text-gray-400'}`}>
-                    <Award className="h-6 w-6" />
+                {badges.map(badge => (
+                  <div key={badge} className={`p-4 rounded-lg flex flex-col items-center justify-center text-center border ${badge === 'welcome' ? 'bg-amber-50 border-amber-200' : 'bg-gray-100 border-gray-200 opacity-50'}`}>
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${badge === 'welcome' ? 'bg-amber-100 text-amber-700' : 'bg-gray-200 text-gray-400'}`}>
+                      <Award className="h-6 w-6" />
+                    </div>
+                    <h3 className="font-medium text-sm">{badge}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{badge === 'welcome' ? 'Joined the platform' : 'Completed lessons'}</p>
                   </div>
-                  <h3 className="font-medium text-sm">Welcome</h3>
-                  <p className="text-xs text-muted-foreground mt-1">Joined the platform</p>
-                </div>
-                
-                <div className={`p-4 rounded-lg flex flex-col items-center justify-center text-center border ${badges.includes('eager_learner') ? 'bg-blue-50 border-blue-200' : 'bg-gray-100 border-gray-200 opacity-50'}`}>
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${badges.includes('eager_learner') ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-400'}`}>
-                    <BookOpen className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-medium text-sm">Eager Learner</h3>
-                  <p className="text-xs text-muted-foreground mt-1">Completed 5 lessons</p>
-                </div>
-                
-                <div className={`p-4 rounded-lg flex flex-col items-center justify-center text-center border ${badges.includes('math_whiz') ? 'bg-green-50 border-green-200' : 'bg-gray-100 border-gray-200 opacity-50'}`}>
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${badges.includes('math_whiz') ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-400'}`}>
-                    <Check className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-medium text-sm">Math Whiz</h3>
-                  <p className="text-xs text-muted-foreground mt-1">Mastered math basics</p>
-                </div>
-                
-                <div className={`p-4 rounded-lg flex flex-col items-center justify-center text-center border ${badges.includes('reading_star') ? 'bg-purple-50 border-purple-200' : 'bg-gray-100 border-gray-200 opacity-50'}`}>
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${badges.includes('reading_star') ? 'bg-purple-100 text-purple-700' : 'bg-gray-200 text-gray-400'}`}>
-                    <Check className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-medium text-sm">Reading Star</h3>
-                  <p className="text-xs text-muted-foreground mt-1">Completed all reading lessons</p>
-                </div>
+                ))}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-        
-       {/*} <TabsContent value="activity">
-          {user?.id && <UserActivity/>}
-        </TabsContent>*/}
       </Tabs>
     </div>
   );
