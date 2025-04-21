@@ -90,7 +90,7 @@ const TeacherDashboard: React.FC = () => {
   const fetchStudents = async () => {
     setIsStudentsLoading(true);
     try {
-      const paginated = await teacherService.getAllStudents();
+      const paginated = await api.get("/teacher/students")
       console.log("fetched students paginated response", paginated);
   
       if (!Array.isArray(paginated.content)) {
