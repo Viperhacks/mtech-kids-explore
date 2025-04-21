@@ -20,7 +20,7 @@ interface User {
     [key: string]: {
       completed: number;
       total: number;
-      watched:number;
+      watched: number;
     };
   };
   parentOf?: { id: string; name: string }[];
@@ -30,6 +30,8 @@ interface User {
   school?: string;
   earnedBadges?: string[];
   completedLessons?: string[];
+  email?: string;
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -229,6 +231,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       const userData: User = {
         fullName: name,
         name: name,
+        username: email, // Use email as username for Google login
         email,
         role: 'STUDENT',
         avatar: picture,
@@ -365,7 +368,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         updatedUser.progress = {};
       }
       
-      updatedUser.progress[subjectId] = { completed, total };
+      updatedUser.progress[subjectId] = { completed, total, watched: 0 };
       setUser(updatedUser);
       localStorage.setItem('user_data', JSON.stringify(updatedUser));
     }

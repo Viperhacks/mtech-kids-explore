@@ -1,16 +1,20 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/context/AuthContext';
 import { BarChart3, Users, Settings, Shield, Book, FileText } from 'lucide-react';
 import DefaultLoginInfo from '../DefaultLoginInfo';
+import CourseCreation from './CourseCreation';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   
   // Mock data for admin dashboard
   const recentUsers = [
@@ -53,36 +57,44 @@ const AdminDashboard: React.FC = () => {
             <CardDescription>Recently added users</CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Joined</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentUsers.map(user => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <span 
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          user.role === "Teacher" 
-                            ? "bg-blue-100 text-blue-800" 
-                            : "bg-green-100 text-green-800"
-                        }`}
-                      >
-                        {user.role}
-                      </span>
-                    </TableCell>
-                    <TableCell>{user.date}</TableCell>
+            {isLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Joined</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {recentUsers.map(user => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <span 
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            user.role === "Teacher" 
+                              ? "bg-blue-100 text-blue-800" 
+                              : "bg-green-100 text-green-800"
+                          }`}
+                        >
+                          {user.role}
+                        </span>
+                      </TableCell>
+                      <TableCell>{user.date}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
           <CardFooter>
             <Button variant="outline">View All Users</Button>
@@ -110,12 +122,62 @@ const AdminDashboard: React.FC = () => {
         </Card>
       </div>
       
-      <Tabs defaultValue="analytics" className="w-full mb-8">
+      <Tabs defaultValue="courses" className="w-full mb-8">
         <TabsList>
+          <TabsTrigger value="courses">Course Management</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="logs">System Logs</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="courses" className="pt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <CourseCreation />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Active Courses</CardTitle>
+                <CardDescription>Currently active courses in the system</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="space-y-3">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex justify-between p-3 border rounded-md">
+                      <div>
+                        <p className="font-medium">Mathematics Fundamentals</p>
+                        <p className="text-sm text-muted-foreground">Grade 4 • 12 weeks</p>
+                      </div>
+                      <Badge variant="outline">Active</Badge>
+                    </div>
+                    <div className="flex justify-between p-3 border rounded-md">
+                      <div>
+                        <p className="font-medium">Science Exploration</p>
+                        <p className="text-sm text-muted-foreground">Grade 5 • 10 weeks</p>
+                      </div>
+                      <Badge variant="outline">Active</Badge>
+                    </div>
+                    <div className="flex justify-between p-3 border rounded-md">
+                      <div>
+                        <p className="font-medium">English Literature</p>
+                        <p className="text-sm text-muted-foreground">Grade 6 • 16 weeks</p>
+                      </div>
+                      <Badge variant="outline">Active</Badge>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full">View All Courses</Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </TabsContent>
         
         <TabsContent value="analytics" className="pt-4">
           <Card>
@@ -165,8 +227,6 @@ const AdminDashboard: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-      
-     
     </div>
   );
 };
