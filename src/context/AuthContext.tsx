@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { authService } from '@/lib/api';
@@ -230,6 +231,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       const userData: User = {
         fullName: name,
         name: name,
+        username: email, // Use email as username for Google login
         email,
         role: 'STUDENT',
         avatar: picture,
