@@ -19,7 +19,16 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				kids: ['Fredoka', 'sans-serif'], // <-- playful font for the little legends
+			},
 			colors: {
+				season: {
+					spring: '#00B37E',  // Light Green for Spring
+					summer: '#FBBF24',  // Yellow for Summer
+					fall: '#F87171',    // Orange for Fall
+					winter: '#3B82F6',  // Light Blue for Winter
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

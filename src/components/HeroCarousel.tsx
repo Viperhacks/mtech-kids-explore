@@ -28,7 +28,7 @@ const carouselItems = [
   },
   {
     id: 4,
-    image: 'https://images.unsplash.com/photo-1610493739141-bbcbe05cce35?q=80&w=1404&auto=format&fit=crop',
+    image: '/science-fair.jpg',
     alt: 'Science fair',
     title: 'Science & Innovation Fair',
     description: 'Young inventors showcasing their creative science projects'

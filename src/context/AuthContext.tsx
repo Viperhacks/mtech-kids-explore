@@ -8,10 +8,9 @@ import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:8080';
 
 interface User {
-  createdAt: ReactNode;
   id?: string;
   fullName: string;
-  email: string;
+  username: string;
   role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN';
   status?: 'PENDING' | 'APPROVED';
   gradeLevel?: string;
@@ -21,6 +20,7 @@ interface User {
     [key: string]: {
       completed: number;
       total: number;
+      watched:number;
     };
   };
   parentOf?: { id: string; name: string }[];
@@ -36,8 +36,8 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN', grade?: string) => Promise<any>;
+  login: (username: string, password: string) => Promise<void>;
+  register: (name: string, username: string, password: string, role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN', grade?: string) => Promise<any>;
   logout: () => void;
   confirmOtp: (email: string, otp: string) => Promise<any>;
   requestOtp: (email: string) => Promise<void>;
@@ -95,13 +95,13 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
       setIsLoading(true);
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await axios.post('/api/auth/login', { username, password });
   
       if (response.data.success) {
-        const { token, refreshToken, role, status, fullName } = response.data.data;
+        const { token, refreshToken, role, status, fullName,gradeLevel,id } = response.data.data;
   
         localStorage.setItem('auth_token', token);
         localStorage.setItem('refresh_token', refreshToken);
@@ -109,7 +109,9 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         const userData: User = {
           fullName,
           name: fullName, // you can tweak this if you wanna shorten/display first name only
-          email,
+          username,
+          grade: gradeLevel,
+          id :id,
           role,
           status,
           earnedBadges: [],
@@ -129,7 +131,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       console.error('Login failed', error);
       toast({
         title: "Login Failed",
-        description: error.response?.data?.message || "Invalid email or password",
+        description: error.response?.data?.message || "Invalid username or password",
         variant: "destructive"
       });
       throw error;
@@ -139,30 +141,31 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   };
   
 
-  const register = async (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN', grade?: string) => {
+  const register = async (name: string, username: string, password: string, role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN', grade?: string) => {
     try {
       setIsLoading(true);
       const requestData = {
         fullName: name,
-        email,
+        username : username,
         password,
         confirmPassword: password,
         gradeLevel: grade
       };
       
       const response = await axios.post(`/api/auth/register?role=${role}`, requestData);
+     // console.log("registration response",response);
       
       if (response.data.success) {
         toast({
           title: "Registration Successful",
-          description: "Please check your email for verification"
+          description: "You can now log in with your credentials"
         });
         return response.data;
       }
-      
+      //console.log("trying to register ",response.data)
       return response.data;
     } catch (error: any) {
-      console.error('Registration failed', error);
+      console.error('Registration failed', error.response.data);
       toast({
         title: "Registration Failed",
         description: error.response?.data?.message || "Could not create your account",

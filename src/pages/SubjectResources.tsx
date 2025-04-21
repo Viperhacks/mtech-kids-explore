@@ -12,8 +12,10 @@ import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import ResourcesData from '@/data/resources';
-import { getResources, deleteResource } from '@/services/apiService';
+import { getResources, deleteResource, getResourcesForAnyOne } from '@/services/apiService';
 import CourseEditor from '@/components/CourseEditor';
+import VideoThumbnail from './VideoThumbnail';
+import { resolve } from 'path';
 
 const SubjectResources = () => {
   const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
@@ -47,8 +49,33 @@ const SubjectResources = () => {
   const fetchResources = async () => {
     setIsLoading(true);
     try {
-      const response = await getResources(gradeId, subjectId);
-      setResources(response.data || []);
+      let response;
+       if(user?.role == "TEACHER"){
+        
+        response = await getResources(grade.name, subject.name);
+       } else{
+        //console.log("grade name is+",grade.name)
+        response = await getResourcesForAnyOne(grade.name, subject.name);
+       }
+
+       const resourcesWithThumbnails = await Promise.all(response.resources.map(async (resource) => {
+        if (resource.response.type === "video") {
+          //const thumbnail = await generateThumbnail(`http://localhost:8080/uploads/${resource.response.content}`);
+          const videoUrl = `http://localhost:8080/uploads/${resource.response.content}`;
+          const video = document.createElement("video");
+          video.src = videoUrl;
+          await new Promise((resolve)=>{
+            video.addEventListener("loadedmetadata",resolve);
+          });
+           const thumbnail = await generateThumbnail(videoUrl);
+          const duration = formatDuration(video.duration)
+          return { ...resource, thumbnail,duration };
+        }
+        return resource;
+      }));
+      setResources(resourcesWithThumbnails);
+     // console.log("-----",response.resources)
+      //setResources(response.resources || []);
     } catch (error) {
       console.error('Error fetching resources:', error);
       toast({
@@ -60,6 +87,33 @@ const SubjectResources = () => {
       setIsLoading(false);
     }
   };
+  const generateThumbnail = async (videoUrl: string) => {
+    if(videoUrl.startsWith(window.location.origin)){
+      return null;
+    }
+    const video = document.createElement('video');
+    video.crossOrigin = "anonymous";
+    video.src = videoUrl;
+    await new Promise((resolve) => {
+      video.addEventListener('loadedmetadata', resolve);
+    });
+    video.currentTime =15;
+    await new Promise((resolve) => {
+      video.addEventListener('seeked', resolve);
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = 640;
+    canvas.height = 480;
+    const ctx = canvas.getContext('2d');
+    ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL();
+  };
+
+  const formatDuration = (duration: number) => {
+    const mins = Math.floor(duration/60);
+    const secs = Math.floor(duration%60);
+    return `${mins}:${secs.toString().padStart(2,'0')}`;
+  }
   
   if (!grade || !subject) {
     return (
@@ -81,19 +135,19 @@ const SubjectResources = () => {
     // Track the activity
     if (user) {
       trackActivity({
-        userId: user.id,
+        userId: user.id || "user",
         type: 'video_started',
-        videoId: video.id,
-        subjectId,
-        gradeId,
+        videoId: video.response.id,
+        subjectId : grade.id,
+        gradeId: subject.id,
         timestamp: new Date().toISOString()
       });
     }
     
     // In a real app, this would track that the user started the video
     // For demo purposes, we'll mark it as completed
-    if (user && video.id) {
-      updateUserProgress(subjectId as string, video.id);
+    if (user && video.response.id) {
+      updateUserProgress(subjectId as string, video.response.id,resources.filter(r=> r.response.type === "video").length);
     }
   };
   
@@ -154,7 +208,7 @@ const SubjectResources = () => {
         });
         
         // Mark quiz as completed
-        updateUserProgress(subjectId as string, selectedQuiz.id);
+        updateUserProgress(subjectId as string, selectedQuiz.id,10);
       }
     }
   };
@@ -169,7 +223,7 @@ const SubjectResources = () => {
   };
   
   const handleEditResource = (resource: any) => {
-    setEditingResource(resource);
+    setEditingResource(resource.response);
     setIsEditDialogOpen(true);
   };
   
@@ -273,7 +327,7 @@ const SubjectResources = () => {
               You've watched {progress.watched} videos and completed {progress.completed} out of {progress.total} items
             </p>
           </div>
-          {user?.role === 'teacher' && (
+          {user?.role === 'TEACHER' && (
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('document')}>
                 <FileText className="mr-2 h-4 w-4" />
@@ -307,19 +361,15 @@ const SubjectResources = () => {
         
         <TabsContent value="videos" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {subject.videos.map((video) => {
-              const isCompleted = user?.completedLessons?.includes(video.id);
+            { resources.filter(resource => resource.response.type === "video").map((video) => {
+              const isCompleted = user?.completedLessons?.includes(video.response.id);
               return (
-                <Card key={video.id} className="overflow-hidden">
+                <Card key={video.response.id} className="overflow-hidden">
                   <div 
                     className="relative aspect-video bg-gray-100 cursor-pointer"
                     onClick={() => handleWatchVideo(video)}
                   >
-                    <img 
-                      src={video.thumbnail || 'https://placehold.co/600x400?text=Video+Thumbnail'} 
-                      alt={video.title}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={video.thumbnail} alt="Thumbnail" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="bg-mtech-primary text-white rounded-full p-3 opacity-90 hover:opacity-100 transition-opacity">
                         <Play className="h-6 w-6" />
@@ -332,9 +382,9 @@ const SubjectResources = () => {
                     )}
                   </div>
                   <CardHeader className="py-3">
-                    <CardTitle className="text-base">{video.title}</CardTitle>
+                    <CardTitle className="text-base">{video.response.title}</CardTitle>
                     <CardDescription className="text-xs">
-                      {video.duration} • {video.teacher}
+                      {video.duration || "10:00"} • {video.response.teacher.split(' ')[0]}
                     </CardDescription>
                   </CardHeader>
                   <CardFooter className="pt-0 flex justify-between">
@@ -346,7 +396,7 @@ const SubjectResources = () => {
                       {isCompleted ? 'Watch Again' : 'Watch Now'}
                     </Button>
                     
-                    {user?.role === 'teacher' && (
+                    {user?.role === 'TEACHER' && (
                       <div className="flex gap-1 ml-2">
                         <Button 
                           size="sm" 
@@ -375,7 +425,7 @@ const SubjectResources = () => {
               );
             })}
             
-            {user?.role === 'teacher' && (
+            {user?.role === 'TEACHER' &&  resources.filter(resource => resource.type === "video").length === 0 && (
               <Card className="flex flex-col items-center justify-center h-full min-h-[250px] border-dashed">
                 <Button 
                   variant="ghost" 
@@ -389,6 +439,7 @@ const SubjectResources = () => {
             )}
           </div>
         </TabsContent>
+        
         
         <TabsContent value="quizzes" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -419,7 +470,7 @@ const SubjectResources = () => {
                       {isCompleted ? 'Retry Quiz' : 'Start Quiz'}
                     </Button>
                     
-                    {user?.role === 'teacher' && (
+                    {user?.role === 'TEACHER' && (
                       <div className="flex gap-1 ml-2">
                         <Button 
                           size="sm" 
@@ -442,7 +493,7 @@ const SubjectResources = () => {
               );
             })}
             
-            {user?.role === 'teacher' && (
+            {user?.role === 'TEACHER' && (
               <Card className="flex flex-col items-center justify-center h-full min-h-[200px] border-dashed">
                 <Button 
                   variant="ghost" 
@@ -462,18 +513,28 @@ const SubjectResources = () => {
       <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
         <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{selectedVideo?.title}</DialogTitle>
+            <DialogTitle>{selectedVideo?.response.title}</DialogTitle>
             <DialogDescription>
-              By {selectedVideo?.teacher} • {selectedVideo?.duration}
+              By {selectedVideo?.response.teacher.split(' ')[0]} • {selectedVideo?.duration}
             </DialogDescription>
           </DialogHeader>
           <div className="aspect-video bg-black rounded-md overflow-hidden">
             {/* In a real app, this would be a video player */}
             <div className="flex items-center justify-center h-full text-white">
-              <p className="p-4 text-center">
+            <video controls autoPlay  className='p-4 text-center' onError={(e)=>
+              console.error("video error",e)
+            } onEnded={()=>{
+              setIsVideoOpen(false)
+            }}>
+              <source src={`http://localhost:8080/uploads/${selectedVideo?.response.content}` || "/Holy_Ten_-_Kepele_ne_Close__Official_Video__ft.__MrCandy(720p).mp4"} type='video/mp4'   />
+              
+              </video>
+            
+             {/*} <p className="p-4 text-center"  >
                 Video player would be embedded here. For demo purposes, 
                 this video is automatically marked as watched.
-              </p>
+                
+              </p>*/}
             </div>
           </div>
           <DialogFooter>

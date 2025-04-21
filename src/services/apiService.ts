@@ -7,7 +7,7 @@ import api, {
   parentService, 
   adminService 
 } from '@/lib/api';
-
+/*
 // Authentication services
 export const login = async (email: string, password: string) => {
   try {
@@ -57,12 +57,22 @@ export const confirmOtp = async (email: string, otp: string) => {
     console.error('OTP confirmation error:', error);
     throw error;
   }
-};
+};*/
 
 // Resource services
-export const getResources = async (gradeId?: string, subjectId?: string) => {
+export const getResources = async (grade?: string, subject?: string) => {
   try {
-    const response = await resourceService.getResources(gradeId, subjectId);
+    const response = await resourceService.getResources(grade, subject);
+    return response.data;
+  } catch (error) {
+    console.error('Get resources error:', error);
+    throw error;
+  }
+};
+
+export const getResourcesForAnyOne = async (grade?: string, subject?: string) => {
+  try {
+    const response = await resourceService.getResourcesForStudent(grade, subject);
     return response.data;
   } catch (error) {
     console.error('Get resources error:', error);

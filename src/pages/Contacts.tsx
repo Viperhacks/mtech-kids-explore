@@ -13,8 +13,8 @@ const contactItems = [
     bg: 'bg-mtech-primary/10',
     color: 'text-mtech-primary',
     content: [
-      'support@mtechkidsexplore.com',
-      'info@mtechkidsexplore.com',
+      'support@mtechkidzexplore.com',
+      'info@mtechkidzexplore.com',
     ],
   },
   {
@@ -32,7 +32,7 @@ const contactItems = [
     bg: 'bg-mtech-accent/10',
     color: 'text-mtech-accent',
     content: [
-      'MTech Explore Hub',
+      'MTech-Kidz-Explore',
       '15900 Sunningdale 2, Harare',
     ],
   },

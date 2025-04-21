@@ -32,13 +32,13 @@ api.interceptors.response.use(
 
 // Auth services
 export const authService = {
-  login: (email: string, password: string) => 
-    api.post('/auth/login', { email, password }),
+  login: (username: string, password: string) => 
+    api.post('/auth/login', { username, password }),
 
-  register: (fullName: string, email: string, password: string, confirmPassword: string, role: 'STUDENT' | 'TEACHER' | 'PARENT', gradeLevel?: string) => 
+  register: (fullName: string, username: string, password: string, confirmPassword: string, role: 'STUDENT' | 'TEACHER' | 'PARENT', gradeLevel?: string) => 
     api.post(`/auth/register?role=${role}`, { 
       fullName, 
-      email, 
+      username, 
       password,
       confirmPassword,
       gradeLevel 
@@ -62,11 +62,13 @@ export const authService = {
 
 // Resource services
 export const resourceService = {
-  getResources: (gradeId?: string, subjectId?: string) => 
-    api.get('/resources', { params: { gradeId, subjectId } }),
+  getResources: (grade?: string, subject?: string) => 
+    api.get('/resources/my-resources', { params: { grade, subject } }),
+  getResourcesForStudent: (grade?: string, subject?: string) => 
+    api.get('/resources', { params: { grade, subject } }),
   uploadResource: (resourceData: FormData | any) => {
     if (resourceData instanceof FormData) {
-      return api.post('/resources/upload', resourceData, {
+      return api.post('/resources', resourceData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
     } else {
@@ -75,7 +77,15 @@ export const resourceService = {
   },
   getResourceById: (id: string) => api.get(`/resources/${id}`),
   deleteResource: (id: string) => api.delete(`/resources/${id}`),
-  updateResource: (id: string, data: any) => api.put(`/resources/${id}`, data),
+  updateResource: (id: string, data: any) => {
+    if(data instanceof FormData){
+      return api.put(`/resources/${id}`, data,{
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }else {
+      return api.put(`/resources/${id}`, data);
+    }
+  }
 };
 
 // Quiz services

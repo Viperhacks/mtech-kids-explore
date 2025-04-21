@@ -40,8 +40,9 @@ const TeacherDashboard: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await getResources();
+     // console.log(response.resources)
       // Filter to only show resources created by this teacher (in a real app)
-      setResources(response.data || []);
+      setResources(response.resources || []);
     } catch (error) {
       console.error('Error fetching resources:', error);
       toast({
@@ -88,9 +89,9 @@ const TeacherDashboard: React.FC = () => {
       });
       // Fallback data for students
       setStudents([
-        { id: 's1', name: 'John Doe', email: 'john@example.com', grade: '6', lastActive: '2 hours ago' },
-        { id: 's2', name: 'Jane Smith', email: 'jane@example.com', grade: '6', lastActive: '1 day ago' },
-        { id: 's3', name: 'Alex Johnson', email: 'alex@example.com', grade: '6', lastActive: '3 days ago' }
+        { id: 's1', name: 'Austine  Bro', email: 'austine@example.com', grade: '6', lastActive: '2 hours ago' },
+        { id: 's2', name: 'Lavet  Mbewe', email: 'lavet@example.com', grade: '6', lastActive: '1 day ago' },
+        { id: 's3', name: 'Loui Bro', email: 'loui@example.com', grade: '6', lastActive: '3 days ago' }
       ]);
     } finally {
       setIsStudentsLoading(false);
@@ -104,8 +105,8 @@ const TeacherDashboard: React.FC = () => {
   };
   
   const handleEditResource = (resource: any) => {
-    setSelectedResource(resource);
-    setResourceType(resource.type || 'document');
+    setSelectedResource(resource.response);
+    setResourceType(resource.response.type || 'document');
     setIsEditing(true);
   };
   
@@ -147,10 +148,10 @@ const TeacherDashboard: React.FC = () => {
   
   // Mock data for recent uploads - in a real app, this would come from the API
   const recentUploads = resources.slice(0, 3).map(resource => ({
-    id: resource.id,
-    title: resource.title,
-    type: resource.type?.charAt(0).toUpperCase() + resource.type?.slice(1) || 'Document',
-    date: new Date(resource.createdAt || Date.now()).toLocaleDateString(),
+    id: resource.response.id,
+    title: resource.response.title,
+    type: resource.response.type?.charAt(0).toUpperCase() + resource.response.type?.slice(1) || 'Document',
+    date: new Date(resource.response.createdAt || Date.now()).toLocaleDateString(),
     status: "Published"
   }));
   
@@ -244,35 +245,35 @@ const TeacherDashboard: React.FC = () => {
           
           <h2 className="text-xl font-semibold mb-4">Manage Grade Resources</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <Link to="/grade/1" className="block">
-              <Card className="transition-all hover:shadow-md">
-                <CardHeader>
-                  <CardTitle>Grade 1</CardTitle>
-                  <CardDescription>Manage Grade 1 resources</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button variant="outline" size="sm">View Resources</Button>
-                </CardFooter>
-              </Card>
-            </Link>
-            
-            <Link to="/grade/2" className="block">
-              <Card className="transition-all hover:shadow-md">
-                <CardHeader>
-                  <CardTitle>Grade 2</CardTitle>
-                  <CardDescription>Manage Grade 2 resources</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button variant="outline" size="sm">View Resources</Button>
-                </CardFooter>
-              </Card>
-            </Link>
-            
-            <Link to="/grade/3" className="block">
+            <Link to="/grade/grade3" className="block">
               <Card className="transition-all hover:shadow-md">
                 <CardHeader>
                   <CardTitle>Grade 3</CardTitle>
                   <CardDescription>Manage Grade 3 resources</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                  <Button variant="outline" size="sm">View Resources</Button>
+                </CardFooter>
+              </Card>
+            </Link>
+            
+            <Link to="/grade/grade4" className="block">
+              <Card className="transition-all hover:shadow-md">
+                <CardHeader>
+                  <CardTitle>Grade 4</CardTitle>
+                  <CardDescription>Manage Grade 4 resources</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                  <Button variant="outline" size="sm">View Resources</Button>
+                </CardFooter>
+              </Card>
+            </Link>
+            
+            <Link to="/grade/grade5" className="block">
+              <Card className="transition-all hover:shadow-md">
+                <CardHeader>
+                  <CardTitle>Grade 5</CardTitle>
+                  <CardDescription>Manage Grade 5 resources</CardDescription>
                 </CardHeader>
                 <CardFooter>
                   <Button variant="outline" size="sm">View Resources</Button>
@@ -319,22 +320,22 @@ const TeacherDashboard: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       {resources.map(resource => (
-                        <TableRow key={resource.id}>
-                          <TableCell className="font-medium">{resource.title}</TableCell>
+                        <TableRow key={resource.response.id}>
+                          <TableCell className="font-medium">{resource.response.title}</TableCell>
                           <TableCell>
                             <div className="flex items-center">
-                              {getResourceTypeIcon(resource.type)}
-                              {resource.type?.charAt(0).toUpperCase() + resource.type?.slice(1) || 'Document'}
+                              {getResourceTypeIcon(resource.response.type)}
+                              {resource.response.type?.charAt(0).toUpperCase() + resource.response.type?.slice(1) || 'Document'}
                             </div>
                           </TableCell>
-                          {!isMobile && <TableCell>Grade {resource.grade}</TableCell>}
-                          {!isMobile && <TableCell>{resource.subject}</TableCell>}
+                          {!isMobile && <TableCell>Grade {resource.response.grade}</TableCell>}
+                          {!isMobile && <TableCell>{resource.response.subject}</TableCell>}
                           <TableCell className="text-right space-x-2">
                             <Button variant="ghost" size="sm" onClick={() => handleEditResource(resource)}>
                               Edit
                             </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleDeleteResource(resource.id)}>
-                              Delete
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteResource(resource.response.id)}>
+                              Delete 
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -451,7 +452,7 @@ const TeacherDashboard: React.FC = () => {
         </DialogContent>
       </Dialog>
       
-      <DefaultLoginInfo />
+      
     </div>
   );
 };

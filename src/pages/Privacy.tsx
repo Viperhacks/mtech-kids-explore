@@ -25,7 +25,7 @@ const Privacy = () => {
             We collect information you provide directly to us when you:
           </p>
           <ul className="list-disc pl-5 text-gray-700 space-y-1">
-            <li>Create an account and register as a student, parent, or teacher</li>
+            <li>Create an account and register as a student  or teacher</li>
             <li>Complete your profile information and preferences</li>
             <li>Participate in learning activities, quizzes, and exercises</li>
             <li>Communicate with us through the platform</li>
@@ -44,7 +44,7 @@ const Privacy = () => {
             <li>Provide, maintain, and improve our educational Services</li>
             <li>Track and personalize your learning experience</li>
             <li>Process and fulfill your requests for specific content</li>
-            <li>Generate progress reports for students, parents, and teachers</li>
+            <li>Generate progress reports for students and teachers</li>
             <li>Communicate with you about your account and our Services</li>
             <li>Monitor and analyze trends, usage, and activities in connection with our Services</li>
             <li>Comply with applicable laws, legal processes, and regulations</li>

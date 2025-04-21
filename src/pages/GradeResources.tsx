@@ -67,12 +67,12 @@ const GradeResources = () => {
       let formData;
       if (uploadForm.file) {
         formData = new FormData();
-        formData.append('file', uploadForm.file);
+        formData.append('content', uploadForm.file);
         formData.append('title', uploadForm.title);
         formData.append('description', uploadForm.description);
         formData.append('subject', uploadForm.subject);
         formData.append('type', uploadForm.type);
-        formData.append('grade', gradeId || '');
+        formData.append('grade', gradeData.name || '');
       } else {
         // If no file, just send the JSON data
         formData = {
@@ -157,8 +157,8 @@ const GradeResources = () => {
     );
   }
   
-  // Only show grade-appropriate content for students
-  const filteredSubjects = user?.role === 'student' && user?.grade 
+  // Only show grade-appropriate content for STUDENTs
+  const filteredSubjects = user?.role === 'STUDENT' && user?.grade 
     ? gradeData.subjects.filter(s => parseInt(user.grade || '0') >= parseInt(gradeData.name))
     : gradeData.subjects;
   
@@ -170,7 +170,7 @@ const GradeResources = () => {
           <p className="text-gray-600 mt-2">Explore learning materials for Grade {gradeData.name}</p>
         </div>
         
-        {user?.role === 'teacher' && (
+        {user?.role === 'TEACHER' && (
           <Button 
             className="mt-4 md:mt-0"
             onClick={() => setIsUploadDialogOpen(true)}
@@ -252,7 +252,7 @@ const GradeResources = () => {
             <div className="mb-8">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">{subject.name} Videos</h2>
-                {user?.role === 'teacher' && (
+                {user?.role === 'TEACHER' && (
                   <Button 
                     size="sm" 
                     variant="outline"
@@ -315,7 +315,7 @@ const GradeResources = () => {
             <div>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">{subject.name} Exercises</h2>
-                {user?.role === 'teacher' && (
+                {user?.role === 'TEACHER' && (
                   <Button 
                     size="sm" 
                     variant="outline"
@@ -375,7 +375,7 @@ const GradeResources = () => {
             </DialogTitle>
             <DialogDescription>
               {uploadForm.type === 'quiz' 
-                ? `Create a new quiz for Grade ${gradeData.name} students.`
+                ? `Create a new quiz for Grade ${gradeData.name} STUDENTs.`
                 : `Upload videos, documents, or quizzes for Grade ${gradeData.name}.`}
             </DialogDescription>
           </DialogHeader>
