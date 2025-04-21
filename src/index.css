@@ -122,3 +122,13 @@
     @apply text-2xl md:text-3xl font-bold text-mtech-dark mb-6 text-center;
   }
 }
+
+
+.loader-spin {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

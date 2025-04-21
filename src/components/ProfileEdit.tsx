@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -70,24 +69,28 @@ const ProfileEdit = ({ onCancel }: { onCancel: () => void }) => {
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Your email address"
-              type="email"
-              disabled={user?.provider !== 'email'}
-            />
-            {user?.provider !== 'email' && (
-              <p className="text-xs text-muted-foreground">
-                Email cannot be changed for accounts linked to external providers.
-              </p>
-            )}
-          </div>
+          {/* Conditionally render email section only if user.email exists */}
+          {user?.email && (
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Your email address"
+                type="email"
+                disabled={user?.provider !== 'email'}
+              />
+              {user?.provider !== 'email' && (
+                <p className="text-xs text-muted-foreground">
+                  Email cannot be changed for accounts linked to external providers.
+                </p>
+              )}
+            </div>
+          )}
           
+          {/* Conditionally render the grade field only for students */}
           {user?.role === 'STUDENT' && (
             <div className="space-y-2">
               <Label htmlFor="grade">Grade</Label>
@@ -110,28 +113,34 @@ const ProfileEdit = ({ onCancel }: { onCancel: () => void }) => {
               </Select>
             </div>
           )}
+
+          {/* Conditionally render the school field only for admins */}
+          {user?.role === 'ADMIN' && (
+            <div className="space-y-2">
+              <Label htmlFor="school">School</Label>
+              <Input
+                id="school"
+                name="school"
+                value={formData.school}
+                onChange={handleChange}
+                placeholder="Your school name"
+              />
+            </div>
+          )}
           
-          <div className="space-y-2">
-            <Label htmlFor="school">School</Label>
-            <Input
-              id="school"
-              name="school"
-              value={formData.school}
-              onChange={handleChange}
-              placeholder="Your school name"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="avatar">Profile Picture URL</Label>
-            <Input
-              id="avatar"
-              name="avatar"
-              value={formData.avatar}
-              onChange={handleChange}
-              placeholder="URL to your profile picture"
-            />
-          </div>
+          {/* Conditionally render profile picture URL for email users */}
+          {user?.provider === 'email' && (
+            <div className="space-y-2">
+              <Label htmlFor="avatar">Profile Picture URL</Label>
+              <Input
+                id="avatar"
+                name="avatar"
+                value={formData.avatar}
+                onChange={handleChange}
+                placeholder="URL to your profile picture"
+              />
+            </div>
+          )}
         </CardContent>
         
         <CardFooter className="flex justify-between">

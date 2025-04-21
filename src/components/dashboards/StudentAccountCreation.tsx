@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,11 +15,12 @@ const StudentAccountCreation = () => {
     fullName: '',
     username: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    gradeLevel: '' // New field for grade level
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -47,7 +47,8 @@ const StudentAccountCreation = () => {
         formData.username,
         formData.password,
         formData.confirmPassword,
-        'STUDENT'
+        'STUDENT',
+        formData.gradeLevel // Pass grade level to the API
       );
 
       toast({
@@ -60,7 +61,8 @@ const StudentAccountCreation = () => {
         fullName: '',
         username: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        gradeLevel: '' // Reset grade level as well
       });
     } catch (error) {
       console.error('Registration error:', error);
@@ -76,7 +78,8 @@ const StudentAccountCreation = () => {
         fullName: '',
         username: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        gradeLevel: '' // Reset grade level as well
       });
     } finally {
       setIsLoading(false);
@@ -101,19 +104,19 @@ const StudentAccountCreation = () => {
             <Input 
               id="fullName" 
               name="fullName" 
-              placeholder="Student's full name" 
+              placeholder="Enter student's full name" 
               value={formData.fullName} 
               onChange={handleChange}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="username">Username/Email</Label>
+            <Label htmlFor="username">Username</Label>
             <Input 
               id="username" 
               name="username" 
-              type="email" 
-              placeholder="student@example.com" 
+              type="text" 
+              placeholder="Choose a unique username for the student" 
               value={formData.username} 
               onChange={handleChange}
               required
@@ -125,6 +128,7 @@ const StudentAccountCreation = () => {
               id="password" 
               name="password" 
               type="password" 
+              placeholder="Enter a secure password" 
               value={formData.password} 
               onChange={handleChange}
               required
@@ -135,11 +139,33 @@ const StudentAccountCreation = () => {
             <Input 
               id="confirmPassword" 
               name="confirmPassword" 
+              placeholder="Re-enter password to confirm" 
               type="password" 
               value={formData.confirmPassword} 
               onChange={handleChange}
               required
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="gradeLevel">Grade Level</Label>
+            <select 
+              id="gradeLevel" 
+              name="gradeLevel" 
+              value={formData.gradeLevel} 
+              onChange={handleChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded-md"
+            >
+              <option value="">Select Grade Level</option>
+              <option value="1">Grade 1</option>
+              <option value="2">Grade 2</option>
+              <option value="3">Grade 3</option>
+              <option value="4">Grade 4</option>
+              <option value="5">Grade 5</option>
+              <option value="6">Grade 6</option>
+              <option value="7">Grade 7</option>
+             
+            </select>
           </div>
         </CardContent>
         <CardFooter>

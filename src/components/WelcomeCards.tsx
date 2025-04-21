@@ -1,8 +1,20 @@
-
 import React from 'react';
 import { BookOpen, Video, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
+const iconVariants = {
+  rest: { scale: 1 },
+  hover: {
+    scale: 1.2,
+    transition: {
+      type: 'spring',
+      stiffness: 300,
+      damping: 10
+    }
+  }
+};
 
 const WelcomeCards: React.FC = () => {
   const cards = [
@@ -37,15 +49,21 @@ const WelcomeCards: React.FC = () => {
       <div className="mtech-container">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {cards.map((card) => (
-            <div 
-              key={card.id} 
-              className="mtech-card p-6 flex flex-col h-full"
-            >
-              <div className="mb-4">
-                <div className="inline-flex items-center justify-center p-3 bg-mtech-primary/10 rounded-lg">
+            <div key={card.id} className="mtech-card p-6 flex flex-col h-full bg-white shadow-sm rounded-lg">
+              <motion.div
+                className="mb-4"
+                initial="rest"
+                whileHover="hover"
+                animate="rest"
+              >
+                <motion.div
+                  variants={iconVariants}
+                  className="inline-flex items-center justify-center p-3 bg-mtech-primary/10 rounded-lg"
+                >
                   <card.icon className="h-6 w-6 text-mtech-primary" />
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
+
               <h3 className="text-xl font-semibold mb-3 text-mtech-dark">{card.title}</h3>
               <p className="text-gray-600 flex-grow mb-6">{card.description}</p>
               <div>

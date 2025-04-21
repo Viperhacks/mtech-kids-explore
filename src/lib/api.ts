@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { PaginatedResponse, Student } from '@/components/types/apiTypes';
 
 // Create an axios instance with the base URL
 const api = axios.create({
@@ -130,6 +131,39 @@ export const adminService = {
   getAllUsers: (page: number = 1, limit: number = 10, filters?: any) => 
     api.get('/admin/users', { params: { page, limit, ...filters } }),
   getUsageMetrics: (period: string = 'week') => api.get(`/admin/metrics/usage`, { params: { period } }),
+};
+
+// Teacher services
+export const teacherService = {
+  getAllStudents: async (): Promise<PaginatedResponse<Student>> => {
+    try {
+      const { data } = await api.get('/teacher/students');
+  
+      // Log the response for inspection
+      console.log('API Raw Response:', data);
+  
+      if (!data || !Array.isArray(data.content)) {
+        throw new Error('Invalid API response structure');
+      }
+  
+      return data;
+    } catch (error) {
+      console.error('Get all students error:', error);
+      throw error;
+    }
+  },  
+
+  getStudentProgress: async (studentId: string) => {
+    try {
+      const response = await api.get(`/teacher/students/${studentId}/progress`);
+      return response.data;
+    } catch (error) {
+      console.error('Get student progress error:', error);
+      throw error;
+    }
+  },
+
+  // Add other teacher-specific endpoints as needed
 };
 
 export default api;

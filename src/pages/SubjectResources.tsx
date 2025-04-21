@@ -4,7 +4,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Video, FileText, CheckCircle, ArrowLeft, Play, PlusCircle, Edit, Trash } from 'lucide-react';
+import { Video, FileText, CheckCircle, ArrowLeft, Play, PlusCircle, Edit, Trash, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -34,6 +34,8 @@ const SubjectResources = () => {
   const [score, setScore] = useState(0);
   const [resources, setResources] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
 
   const { toast } = useToast();
   const { user, updateUserProgress, trackActivity } = useAuth();
@@ -259,9 +261,31 @@ const SubjectResources = () => {
     fetchResources();
   };
   
-  // Calculate progress for this subject
   const progress = user?.progress?.[subjectId as string] || { watched: 0, completed: 0, total: 10 };
-  const completionPercent = Math.round((progress.completed / progress.total) * 100);
+
+// Ensure completionPercent doesn't throw errors in case of 0 total
+const completionPercent = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
+
+
+  if (isLoading) {
+    return (
+      <div className="mtech-container py-20 flex flex-col items-center justify-center">
+        {/* Fun spinning loader */}
+        <div className="loader-spin">
+          <Loader2 className="h-16 w-16 text-mtech-primary" />
+        </div>
+  
+        {/* Kid-friendly message */}
+        <p className="mt-6 text-mtech-dark text-xl font-semibold text-center">
+          Hang tight! We're gathering some fun learning resources just for you!
+        </p>
+  
+        {/* Fun encouragement */}
+        <p className="mt-4 text-mtech-dark text-lg text-center">Almost there... Let's get ready to explore! 🚀</p>
+      </div>
+    );
+  }
+  
   
   // Mock quiz questions
   const quizQuestions = [
@@ -300,6 +324,8 @@ const SubjectResources = () => {
     }
   ];
   
+ 
+
   return (
     <div className="mtech-container py-8">
       <div className="flex items-center mb-6">
@@ -321,12 +347,13 @@ const SubjectResources = () => {
       
       <div className="bg-mtech-primary/10 rounded-lg p-4 mb-6">
         <div className="flex flex-col md:flex-row justify-between md:items-center">
-          <div className="mb-4 md:mb-0">
-            <h2 className="font-medium">Your Progress</h2>
-            <p className="text-sm text-mtech-dark">
-              You've watched {progress.watched} videos and completed {progress.completed} out of {progress.total} items
-            </p>
-          </div>
+        <div className="mb-4 md:mb-0">
+  <h2 className="font-medium">Your Progress</h2>
+  <p className="text-sm text-mtech-dark">
+    You've watched {progress.watched} videos and completed {progress.completed} out of {progress.total} items
+  </p>
+</div>
+
           {user?.role === 'TEACHER' && (
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('document')}>
@@ -360,85 +387,126 @@ const SubjectResources = () => {
         </TabsList>
         
         <TabsContent value="videos" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            { resources.filter(resource => resource.response.type === "video").map((video) => {
-              const isCompleted = user?.completedLessons?.includes(video.response.id);
-              return (
-                <Card key={video.response.id} className="overflow-hidden">
-                  <div 
-                    className="relative aspect-video bg-gray-100 cursor-pointer"
-                    onClick={() => handleWatchVideo(video)}
-                  >
-                    <img src={video.thumbnail} alt="Thumbnail" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-mtech-primary text-white rounded-full p-3 opacity-90 hover:opacity-100 transition-opacity">
-                        <Play className="h-6 w-6" />
-                      </div>
-                    </div>
-                    {isCompleted && (
-                      <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full">
-                        <CheckCircle className="h-4 w-4" />
-                      </div>
-                    )}
-                  </div>
-                  <CardHeader className="py-3">
-                    <CardTitle className="text-base">{video.response.title}</CardTitle>
-                    <CardDescription className="text-xs">
-                      {video.duration || "10:00"} • {video.response.teacher.split(' ')[0]}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardFooter className="pt-0 flex justify-between">
-                    <Button 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => handleWatchVideo(video)}
-                    >
-                      {isCompleted ? 'Watch Again' : 'Watch Now'}
-                    </Button>
-                    
-                    {user?.role === 'TEACHER' && (
-                      <div className="flex gap-1 ml-2">
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditResource(video);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteResource(video.id);
-                          }}
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                  </CardFooter>
-                </Card>
-              );
-            })}
-            
-            {user?.role === 'TEACHER' &&  resources.filter(resource => resource.type === "video").length === 0 && (
-              <Card className="flex flex-col items-center justify-center h-full min-h-[250px] border-dashed">
-                <Button 
-                  variant="ghost" 
-                  className="flex flex-col h-full w-full p-6"
-                  onClick={() => handleCreateNewResource('video')}
-                >
-                  <PlusCircle className="h-8 w-8 mb-2" />
-                  <p>Upload New Video</p>
-                </Button>
-              </Card>
-            )}
+  {isLoading ? (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[...Array(3)].map((_, index) => (
+        <Card key={index} className="overflow-hidden animate-pulse">
+          <div className="relative aspect-video bg-gray-200">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+            </div>
           </div>
-        </TabsContent>
+          <CardHeader className="py-3">
+            <CardTitle className="text-base">
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            </CardTitle>
+            <CardDescription className="text-xs">
+              <div className="h-3 bg-gray-200 rounded w-1/2 mt-2"></div>
+            </CardDescription>
+          </CardHeader>
+          <CardFooter className="pt-0">
+            <Button size="sm" className="flex-1" disabled>
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+            </Button>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  ) : resources.filter(resource => resource.response.type === "video").length > 0 ? (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {resources.filter(resource => resource.response.type === "video").map((video) => {
+        const isCompleted = user?.completedLessons?.includes(video.response.id);
+        return (
+          <Card key={video.response.id} className="overflow-hidden">
+            <div 
+              className="relative aspect-video bg-gray-100 cursor-pointer"
+              onClick={() => handleWatchVideo(video)}
+            >
+              {video.thumbnail ? (
+                <img 
+                  src={video.thumbnail} 
+                  alt="Thumbnail" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder-video-thumbnail.jpg';
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                  <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                </div>
+              )}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="bg-mtech-primary text-white rounded-full p-3 opacity-90 hover:opacity-100 transition-opacity">
+                  <Play className="h-6 w-6" />
+                </div>
+              </div>
+              {isCompleted && (
+                <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full">
+                  <CheckCircle className="h-4 w-4" />
+                </div>
+              )}
+            </div>
+            <CardHeader className="py-3">
+              <CardTitle className="text-base">{video.response.title}</CardTitle>
+              <CardDescription className="text-xs">
+                {video.duration || "10:00"} • {video.response.teacher.split(' ')[0]}
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="pt-0 flex justify-between">
+              <Button 
+                size="sm" 
+                className="flex-1"
+                onClick={() => handleWatchVideo(video)}
+              >
+                {isCompleted ? 'Watch Again' : 'Watch Now'}
+              </Button>
+              
+              {user?.role === 'TEACHER' && (
+                <div className="flex gap-1 ml-2">
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditResource(video);
+                    }}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteResource(video.id);
+                    }}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </CardFooter>
+          </Card>
+        );
+      })}
+    </div>
+  ) : (
+    <div className="flex flex-col items-center justify-center py-12 border rounded-lg">
+      <Video className="h-10 w-10 text-gray-400 mb-4" />
+      <p className="text-gray-500 mb-4">No videos available yet</p>
+      {user?.role === 'TEACHER' && (
+        <Button 
+          variant="default"
+          onClick={() => handleCreateNewResource('video')}
+        >
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Upload New Video
+        </Button>
+      )}
+    </div>
+  )}
+</TabsContent>
         
         
         <TabsContent value="quizzes" className="mt-6">
@@ -510,38 +578,108 @@ const SubjectResources = () => {
       </Tabs>
       
       {/* Video Dialog */}
+     
       <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
-        <DialogContent className="sm:max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{selectedVideo?.response.title}</DialogTitle>
-            <DialogDescription>
-              By {selectedVideo?.response.teacher.split(' ')[0]} • {selectedVideo?.duration}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="aspect-video bg-black rounded-md overflow-hidden">
-            {/* In a real app, this would be a video player */}
-            <div className="flex items-center justify-center h-full text-white">
-            <video controls autoPlay  className='p-4 text-center' onError={(e)=>
-              console.error("video error",e)
-            } onEnded={()=>{
-              setIsVideoOpen(false)
-            }}>
-              <source src={`http://localhost:8080/uploads/${selectedVideo?.response.content}` || "/Holy_Ten_-_Kepele_ne_Close__Official_Video__ft.__MrCandy(720p).mp4"} type='video/mp4'   />
-              
-              </video>
-            
-             {/*} <p className="p-4 text-center"  >
-                Video player would be embedded here. For demo purposes, 
-                this video is automatically marked as watched.
-                
-              </p>*/}
+  <DialogContent className="sm:max-w-3xl">
+    <DialogHeader>
+      <DialogTitle>{selectedVideo?.response.title}</DialogTitle>
+      <DialogDescription>
+        By {selectedVideo?.response.teacher.split(' ')[0]} • {selectedVideo?.duration}
+      </DialogDescription>
+    </DialogHeader>
+
+    <div className="aspect-video bg-black rounded-md overflow-hidden relative">
+      {selectedVideo ? (
+        <>
+          {/* Video Player with Loading State */}
+          <video
+            key={selectedVideo.response.id} // Important for re-rendering when video changes
+            controls
+            autoPlay
+            className="w-full h-full"
+            onWaiting={() => setIsVideoLoading(true)}  // Show spinner while waiting
+            onCanPlay={() => setIsVideoLoading(false)}  // Hide spinner when video is ready to play
+            onError={(e) => {
+              console.error("Video error:", e);
+              const video = e.target as HTMLVideoElement;
+              video.controls = false;
+              setHasError(true); // Trigger the error state
+            }}
+          >
+            <source
+              src={`http://localhost:8080/uploads/${selectedVideo.response.content}`}
+              type="video/mp4"
+            />
+            Your browser does not support the video tag.
+          </video>
+
+          {/* Loading Overlay */}
+          {isVideoLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <Loader2 className="h-8 w-8 animate-spin text-white" />
+              <span className="sr-only">Loading video...</span>
             </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setIsVideoOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          )}
+
+          {/* Error State */}
+          {hasError && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 text-white p-4">
+              <AlertCircle className="h-10 w-10 text-red-500 mb-2" />
+              <h3 className="font-medium text-lg">Video Failed to Load</h3>
+              <p className="text-sm text-center mt-1">
+                We couldn't load this video. Please try again later.
+              </p>
+              <Button
+                variant="ghost"
+                className="mt-4 text-white"
+                onClick={() => {
+                  // Retry logic if needed
+                  setHasError(false); // Reset error state
+                  const video = document.querySelector('video');
+                  if (video) {
+                    video.load();
+                  }
+                }}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Retry
+              </Button>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center bg-black">
+          <Loader2 className="h-12 w-12 animate-spin text-white" />
+        </div>
+      )}
+    </div>
+
+    <DialogFooter className="flex justify-between items-center">
+      <div className="text-sm text-gray-500">
+        {selectedVideo?.response.description}
+      </div>
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={() => setIsVideoOpen(false)}>
+          Close
+        </Button>
+        {user?.role === 'TEACHER' && selectedVideo && (
+          <Button
+            variant="default"
+            onClick={() => {
+              setIsVideoOpen(false);
+              handleEditResource(selectedVideo);
+            }}
+          >
+            <Edit className="mr-2 h-4 w-4" />
+            Edit
+          </Button>
+        )}
+      </div>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+
+
       
       {/* Quiz Dialog */}
       <Dialog open={isQuizOpen} onOpenChange={handleCloseQuiz}>
