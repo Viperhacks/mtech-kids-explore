@@ -16,7 +16,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
   const { user } = useAuth();
   const navigate = useNavigate();
   
-  // Helper function to safely calculate progress
   const calculateProgress = (subject: string): { progress: number, completed: number, total: number } => {
     if (!user?.progress || !user.progress[subject]) {
       return { progress: 0, completed: 0, total: 10 };
@@ -34,10 +33,8 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
     return user?.grade || user?.gradeLevel || '1';
   };
   
-  // Badges earned by student
   const badges = user?.earnedBadges || [];
   
-  // Get user's display name
   const displayName = user?.name || user?.fullName || (user?.email ? user.email.split('@')[0] : 'Student');
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 

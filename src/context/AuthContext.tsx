@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { authService } from '@/lib/api';
@@ -20,7 +19,7 @@ interface User {
     [key: string]: {
       completed: number;
       total: number;
-      watched:number;
+      watched: number;
     };
   };
   parentOf?: { id: string; name: string }[];
@@ -30,6 +29,8 @@ interface User {
   school?: string;
   earnedBadges?: string[];
   completedLessons?: string[];
+  email?: string;
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -365,7 +366,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
         updatedUser.progress = {};
       }
       
-      updatedUser.progress[subjectId] = { completed, total };
+      updatedUser.progress[subjectId] = { completed, total, watched: 0 };
       setUser(updatedUser);
       localStorage.setItem('user_data', JSON.stringify(updatedUser));
     }
