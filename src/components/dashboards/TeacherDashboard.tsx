@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Upload, Users, FileText, Book, PlusCircle, Video, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +14,7 @@ import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseEditor from '../CourseEditor';
 import { getResources, deleteResource, getAllUsers } from '@/services/apiService';
 import { useIsMobile } from '@/hooks/use-mobile';
+import StudentAccountCreation from './StudentAccountCreation';
 
 const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -40,8 +41,6 @@ const TeacherDashboard: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await getResources();
-     // console.log(response.resources)
-      // Filter to only show resources created by this teacher (in a real app)
       setResources(response.resources || []);
     } catch (error) {
       console.error('Error fetching resources:', error);
@@ -50,7 +49,6 @@ const TeacherDashboard: React.FC = () => {
         description: "Could not load your learning materials. Please try again.",
         variant: "destructive"
       });
-      // Fallback data if API fails
       setResources([
         {
           id: 'fallback-1',
@@ -77,7 +75,6 @@ const TeacherDashboard: React.FC = () => {
   const fetchStudents = async () => {
     setIsStudentsLoading(true);
     try {
-      // Use a filter to only get students
       const response = await getAllUsers(1, 50, { role: 'student' });
       setStudents(response.data || []);
     } catch (error) {
@@ -87,7 +84,6 @@ const TeacherDashboard: React.FC = () => {
         description: "Could not load student data. Please try again.",
         variant: "destructive"
       });
-      // Fallback data for students
       setStudents([
         { id: 's1', name: 'Austine  Bro', email: 'austine@example.com', grade: '6', lastActive: '2 hours ago' },
         { id: 's2', name: 'Lavet  Mbewe', email: 'lavet@example.com', grade: '6', lastActive: '1 day ago' },
@@ -146,7 +142,6 @@ const TeacherDashboard: React.FC = () => {
     }
   };
   
-  // Mock data for recent uploads - in a real app, this would come from the API
   const recentUploads = resources.slice(0, 3).map(resource => ({
     id: resource.response.id,
     title: resource.response.title,
@@ -164,6 +159,7 @@ const TeacherDashboard: React.FC = () => {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="materials">My Materials</TabsTrigger>
           <TabsTrigger value="students">Students</TabsTrigger>
+          <TabsTrigger value="accounts">Student Accounts</TabsTrigger>
           {!isMobile && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
         </TabsList>
       
@@ -195,6 +191,13 @@ const TeacherDashboard: React.FC = () => {
                 >
                   <Users className="mr-2 h-4 w-4" /> View Students
                 </Button>
+                <Button 
+                  className="w-full flex items-center justify-start" 
+                  variant="outline"
+                  onClick={() => setActiveTab('accounts')}
+                >
+                  <PlusCircle className="mr-2 h-4 w-4" /> Create Student Account
+                </Button>
               </CardContent>
             </Card>
             
@@ -204,41 +207,49 @@ const TeacherDashboard: React.FC = () => {
                 <CardDescription>Your recently uploaded materials</CardDescription>
               </CardHeader>
               <CardContent className={isMobile ? "px-2" : ""}>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Type</TableHead>
-                      {!isMobile && <TableHead>Date</TableHead>}
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentUploads.length > 0 ? (
-                      recentUploads.map(upload => (
-                        <TableRow key={upload.id}>
-                          <TableCell className="font-medium">{upload.title}</TableCell>
-                          <TableCell>{upload.type}</TableCell>
-                          {!isMobile && <TableCell>{upload.date}</TableCell>}
-                          <TableCell>
-                            <Badge 
-                              variant={upload.status === "Published" ? "default" : "secondary"}
-                              className={`px-2 py-1 text-xs`}
-                            >
-                              {upload.status}
-                            </Badge>
+                {isLoading ? (
+                  <div className="space-y-3">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Type</TableHead>
+                        {!isMobile && <TableHead>Date</TableHead>}
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {recentUploads.length > 0 ? (
+                        recentUploads.map(upload => (
+                          <TableRow key={upload.id}>
+                            <TableCell className="font-medium">{upload.title}</TableCell>
+                            <TableCell>{upload.type}</TableCell>
+                            {!isMobile && <TableCell>{upload.date}</TableCell>}
+                            <TableCell>
+                              <Badge 
+                                variant={upload.status === "Published" ? "default" : "secondary"}
+                                className={`px-2 py-1 text-xs`}
+                              >
+                                {upload.status}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={isMobile ? 3 : 4} className="text-center py-4 text-muted-foreground">
+                            No uploads yet. Create your first resource!
                           </TableCell>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={isMobile ? 3 : 4} className="text-center py-4 text-muted-foreground">
-                          No uploads yet. Create your first resource!
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -303,8 +314,11 @@ const TeacherDashboard: React.FC = () => {
             </CardHeader>
             <CardContent className={isMobile ? "px-2" : ""}>
               {isLoading ? (
-                <div className="text-center py-10">
-                  <p>Loading resources...</p>
+                <div className="space-y-4">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
                 </div>
               ) : resources.length > 0 ? (
                 <div className="overflow-x-auto">
@@ -370,8 +384,10 @@ const TeacherDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               {isStudentsLoading ? (
-                <div className="text-center py-10">
-                  <p>Loading students...</p>
+                <div className="space-y-4">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
                 </div>
               ) : students.length > 0 ? (
                 <div className="overflow-x-auto">
@@ -411,6 +427,10 @@ const TeacherDashboard: React.FC = () => {
           </Card>
         </TabsContent>
         
+        <TabsContent value="accounts">
+          <StudentAccountCreation />
+        </TabsContent>
+        
         <TabsContent value="analytics">
           <Card>
             <CardHeader>
@@ -428,7 +448,6 @@ const TeacherDashboard: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Course Editor Dialog - Fixed accessibility warning by adding DialogTitle */}
       <Dialog open={isEditing} onOpenChange={(open) => !open && setIsEditing(false)}>
         <DialogContent className="sm:max-w-[800px] h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -451,8 +470,6 @@ const TeacherDashboard: React.FC = () => {
           />
         </DialogContent>
       </Dialog>
-      
-      
     </div>
   );
 };
