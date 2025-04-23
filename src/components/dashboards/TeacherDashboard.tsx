@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -90,20 +91,21 @@ const TeacherDashboard: React.FC = () => {
   const fetchStudents = async () => {
     setIsStudentsLoading(true);
     try {
-      const paginated = await api.get("/teacher/students")
-      console.log("fetched students paginated response", paginated);
+      const response = await api.get("/teacher/students");
+      console.log("fetched students paginated response", response);
   
-      if (!Array.isArray(paginated.content)) {
+      // Fix: Access data correctly based on your API response structure
+      if (!Array.isArray(response?.content)) {
         throw new Error('Missing or invalid content in response');
       }
   
-      if (paginated.content.length === 0) {
+      if (response.content.length === 0) {
         console.warn('No students found in response');
         setStudents([]);
         return;
       }
   
-      const formattedStudents = paginated.content.map((student, i) => ({
+      const formattedStudents = response.content.map((student, i) => ({
         id: student.id ?? `student-${i}`,
         fullName: student.fullName || 'Unnamed Student',
         username: student.username || '',
