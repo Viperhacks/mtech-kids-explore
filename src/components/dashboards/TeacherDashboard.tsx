@@ -3,7 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { BarChart, PieChart, LineChart } from '@/components/ui/chart';
+import { BarChart } from '@/components/ui/charts/BarChart';
+import { PieChart } from '@/components/ui/charts/PieChart';
+import { LineChart } from '@/components/ui/charts/LineChart';
 import { Link } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
@@ -11,10 +13,17 @@ import { getAllStudents, getSystemStats, getResourceStats } from '@/services/api
 import { PaginatedResponse, Student } from '@/components/types/apiTypes';
 import { Loader2 } from 'lucide-react';
 
+// Extended Student interface to include the missing properties
+interface ExtendedStudent extends Student {
+  name?: string;
+  progress?: number;
+  lastActive?: string;
+}
+
 const TeacherDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
-  const [students, setStudents] = useState<Student[]>([]);
+  const [students, setStudents] = useState<ExtendedStudent[]>([]);
   const [resourceStats, setResourceStats] = useState<any>(null);
   const [systemStats, setSystemStats] = useState<any>(null);
   const { user } = useAuth();
@@ -304,7 +313,7 @@ const TeacherDashboard = () => {
                   <div className="divide-y">
                     {students.map((student) => (
                       <div key={student.id} className="grid grid-cols-4 p-4 hover:bg-muted/50">
-                        <div className="font-medium">{student.name || student.username}</div>
+                        <div className="font-medium">{student.name || student.username || student.fullName}</div>
                         <div>Grade {student.gradeLevel || "N/A"}</div>
                         <div>
                           <div className="flex items-center">
