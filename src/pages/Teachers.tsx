@@ -1,65 +1,102 @@
-
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage
+} from '@/components/ui/avatar';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@/components/ui/tabs';
 import { Book, Award, UserPlus } from 'lucide-react';
+import { UserIcon } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
 
 const TeachersPage = () => {
-  // Sample data for teachers
   const teachers = [
     {
       id: 1,
-      name: "Mrs. Jane Smith",
+      name: "Mrs. Praise Tips",
       subject: "Mathematics",
       bio: "Passionate math teacher with 10+ years of experience making numbers fun for young learners.",
-      avatar: "https://i.pravatar.cc/150?img=32",
+      avatar: "",
       experience: "10+ years",
       grade: "Grade 3-5",
       credentials: "B.Ed Mathematics, M.Ed Educational Technology"
     },
     {
       id: 2,
-      name: "Mr. Robert Johnson",
+      name: "Mr. Tadiwa Blessed",
       subject: "Science",
       bio: "Bringing science to life through experiments and exploration. Teaching children to question and discover.",
-      avatar: "https://i.pravatar.cc/150?img=65",
+      avatar: "",
       experience: "8 years",
       grade: "Grade 4-6",
       credentials: "B.Sc Biology, Teaching Certification"
     },
     {
       id: 3,
-      name: "Ms. Sarah Williams",
+      name: "Ms. Pauline Tips",
       subject: "English Literature",
       bio: "Fostering a love of reading and writing in children. Creating future authors and poets!",
-      avatar: "https://i.pravatar.cc/150?img=29",
+      avatar: "",
       experience: "12 years",
       grade: "Grade 4-7",
       credentials: "M.A. English Literature, B.Ed"
     },
     {
       id: 4,
-      name: "Mr. David Lee",
+      name: "Mr. Austine Mukomi",
       subject: "Social Studies",
       bio: "Making history and geography come alive through stories and interactive learning.",
-      avatar: "https://i.pravatar.cc/150?img=68",
+      avatar: "",
       experience: "7 years",
       grade: "Grade 5-7",
       credentials: "B.A. History, Teaching Certification"
     }
   ];
-  
+
+  const renderTeachers = (filter) => {
+    const filtered = filter === "all" ? teachers : teachers.filter(t => {
+      if (filter === "english") return t.subject === "English Literature";
+      return t.subject.toLowerCase() === filter;
+    });
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
+        {filtered.map(teacher => (
+          <TeacherCard key={teacher.id} teacher={teacher} />
+        ))}
+      </motion.div>
+    );
+  };
+
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold text-mtech-dark mb-4">Meet Our Dedicated Teachers</h1>
+        <h1 className="text-3xl font-bold text-mtech-dark mb-4">
+          Meet Our Dedicated Teachers
+        </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Our experienced educators are passionate about nurturing the next generation of learners through engaging and interactive education.
         </p>
       </div>
-      
+
       <Tabs defaultValue="all" className="w-full mb-8">
         <div className="flex justify-center mb-8">
           <TabsList>
@@ -69,40 +106,13 @@ const TeachersPage = () => {
             <TabsTrigger value="english">English</TabsTrigger>
           </TabsList>
         </div>
-        
-        <TabsContent value="all">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teachers.map(teacher => (
-              <TeacherCard key={teacher.id} teacher={teacher} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="math">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teachers.filter(t => t.subject === "Mathematics").map(teacher => (
-              <TeacherCard key={teacher.id} teacher={teacher} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="science">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teachers.filter(t => t.subject === "Science").map(teacher => (
-              <TeacherCard key={teacher.id} teacher={teacher} />
-            ))}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="english">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teachers.filter(t => t.subject === "English Literature").map(teacher => (
-              <TeacherCard key={teacher.id} teacher={teacher} />
-            ))}
-          </div>
-        </TabsContent>
+
+        <TabsContent value="all">{renderTeachers("all")}</TabsContent>
+        <TabsContent value="math">{renderTeachers("mathematics")}</TabsContent>
+        <TabsContent value="science">{renderTeachers("science")}</TabsContent>
+        <TabsContent value="english">{renderTeachers("english")}</TabsContent>
       </Tabs>
-      
+
       <div className="mt-16 bg-muted rounded-lg p-8 text-center">
         <div className="max-w-3xl mx-auto">
           <UserPlus className="mx-auto h-12 w-12 text-mtech-primary mb-4" />
@@ -127,35 +137,54 @@ const TeachersPage = () => {
 };
 
 const TeacherCard = ({ teacher }) => {
+  const getInitials = (name) =>
+    name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <div className="h-32 bg-gradient-to-r from-mtech-primary to-mtech-secondary"></div>
-      <div className="flex justify-center -mt-12">
-        <Avatar className="h-24 w-24 border-4 border-white">
-          <AvatarImage src={teacher.avatar} alt={teacher.name} />
-          <AvatarFallback>{teacher.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-        </Avatar>
-      </div>
-      <CardHeader className="text-center pt-4">
-        <CardTitle>{teacher.name}</CardTitle>
-        <Badge variant="outline" className="mx-auto">{teacher.subject}</Badge>
-      </CardHeader>
-      <CardContent className="text-center space-y-4">
-        <CardDescription className="text-center">
-          {teacher.bio}
-        </CardDescription>
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="bg-muted p-2 rounded">
-            <p className="text-muted-foreground">Experience</p>
-            <p className="font-medium">{teacher.experience}</p>
-          </div>
-          <div className="bg-muted p-2 rounded">
-            <p className="text-muted-foreground">Grades</p>
-            <p className="font-medium">{teacher.grade}</p>
-          </div>
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 300 }}
+    >
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 ease-in-out">
+        <div className="h-32 bg-gradient-to-r from-mtech-primary to-mtech-secondary"></div>
+        <div className="flex justify-center -mt-12">
+          <Avatar className="h-24 w-24 border-4 border-white bg-white">
+            {teacher.avatar ? (
+              <AvatarImage src={teacher.avatar} alt={teacher.name} />
+            ) : (
+              <AvatarFallback className="flex items-center justify-center text-muted-foreground">
+                <UserIcon className="h-8 w-8" />
+              </AvatarFallback>
+            )}
+          </Avatar>
         </div>
-      </CardContent>
-    </Card>
+        <CardHeader className="text-center pt-4">
+          <CardTitle>{teacher.name}</CardTitle>
+          <Badge variant="outline" className="mx-auto">
+            {teacher.subject}
+          </Badge>
+        </CardHeader>
+        <CardContent className="text-center space-y-4">
+          <CardDescription>{teacher.bio}</CardDescription>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="bg-muted p-2 rounded">
+              <p className="text-muted-foreground">Experience</p>
+              <p className="font-medium">{teacher.experience}</p>
+            </div>
+            <div className="bg-muted p-2 rounded">
+              <p className="text-muted-foreground">Grades</p>
+              <p className="font-medium">{teacher.grade}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

@@ -119,6 +119,9 @@ const Profile = () => {
       roles: ['teacher']
     },
   ];
+
+ 
+  
   
   // Filter badges by user role
   const filteredBadges = badges.filter(badge => badge.roles.includes(user.role));
@@ -130,6 +133,28 @@ const Profile = () => {
       </div>
     );
   }
+
+  const formatDate = (dateInput: number[] | string | undefined): string => {
+    if (!dateInput) return '';
+    
+    // Case 1: If dateInput is an array [year, month, day]
+    if (Array.isArray(dateInput)) {
+      const [year, month, day] = dateInput;
+      const date = new Date(year, month - 1, day); // months are 0-indexed
+      const options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric', year: 'numeric' };
+      return date.toLocaleDateString('en-US', options);
+    }
+  
+    // Case 2: If dateInput is a string (ISO format or any valid date string)
+    if (typeof dateInput === 'string') {
+      const date = new Date(dateInput); // Parse the string into a Date object
+      const options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric', year: 'numeric' };
+      return date.toLocaleDateString('en-US', options);
+    }
+  
+    return '';
+  };
+  
   
   return (
     <div className="mtech-container py-8">
@@ -141,10 +166,10 @@ const Profile = () => {
               <Avatar className="h-24 w-24">
                 <AvatarImage src={user.avatar} />
                 <AvatarFallback className="bg-mtech-primary text-white text-xl">
-                  {user.name.split(' ').map(n => n[0]).join('')}
+                  {user.fullName.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
-              <CardTitle className="mt-4 text-xl">{user.name}</CardTitle>
+              <CardTitle className="mt-4 text-xl">{user.fullName}</CardTitle>
               <CardDescription className="flex items-center justify-center mt-1">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs">
                   {user.role === 'ADMIN' ? 'Admin' : user.role === 'TEACHER' ? 'Teacher' : 'Student'}
@@ -237,10 +262,13 @@ const Profile = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Email</p>
-                  <p>{user.email}</p>
-                </div>
+                {user.email && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Email</p>
+                    <p>{user.email}</p>
+                  </div>
+                )}
+                
                 {user.grade && (
                   <div>
                     <p className="text-sm font-medium text-gray-500">Grade</p>
@@ -253,11 +281,12 @@ const Profile = () => {
                     <p>{user.school}</p>
                   </div>
                 )}
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Member Since</p>
-                  <p>{user.createdAt || "April 2025"} </p>
-                </div>
-              </div>
+               <div>
+  <p className="text-sm font-medium text-gray-500">Member Since</p>
+  <p>{formatDate(user.createdAt) || "April 2025"}</p>
+</div>
+</div>
+
             </CardContent>
           </Card>
         </div>

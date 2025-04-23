@@ -12,9 +12,11 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseEditor from '../CourseEditor';
-import { getResources, deleteResource, getAllUsers } from '@/services/apiService';
+import { getResources, deleteResource, getAllUsers, getAllStudents } from '@/services/apiService';
 import { useIsMobile } from '@/hooks/use-mobile';
 import StudentAccountCreation from './StudentAccountCreation';
+import api, { teacherService } from '@/lib/api';
+import { Student } from '../types/apiTypes';
 
 const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -23,12 +25,13 @@ const TeacherDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [resources, setResources] = useState<any[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [selectedResource, setSelectedResource] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isStudentsLoading, setIsStudentsLoading] = useState(true);
   const [resourceType, setResourceType] = useState('document');
+  const [groupedResources, setGroupedResources] = useState({});
   
   useEffect(() => {
     fetchResources();
@@ -42,6 +45,18 @@ const TeacherDashboard: React.FC = () => {
     try {
       const response = await getResources();
       setResources(response.resources || []);
+      const fetchedResources = response?.resources || [];
+
+      const grouped = fetchedResources.reduce((acc, resource) => {
+        const grade = resource.response.grade;
+        if (!acc[grade]) {
+          acc[grade] = [];
+        }
+        acc[grade].push(resource);
+        return acc;
+      }, {});
+      //console.log('Grouped Resources:', grouped);
+      setGroupedResources(grouped);
     } catch (error) {
       console.error('Error fetching resources:', error);
       toast({
@@ -75,24 +90,54 @@ const TeacherDashboard: React.FC = () => {
   const fetchStudents = async () => {
     setIsStudentsLoading(true);
     try {
-      const response = await getAllUsers(1, 50, { role: 'student' });
-      setStudents(response.data || []);
+      const paginated = await api.get("/teacher/students")
+      console.log("fetched students paginated response", paginated);
+  
+      if (!Array.isArray(paginated.content)) {
+        throw new Error('Missing or invalid content in response');
+      }
+  
+      if (paginated.content.length === 0) {
+        console.warn('No students found in response');
+        setStudents([]);
+        return;
+      }
+  
+      const formattedStudents = paginated.content.map((student, i) => ({
+        id: student.id ?? `student-${i}`,
+        fullName: student.fullName || 'Unnamed Student',
+        username: student.username || '',
+        email: student.email || '',
+        gradeLevel: student.gradeLevel || 'N/A',
+        role: student.role || 'STUDENT'
+      }));
+  
+      setStudents(formattedStudents);
     } catch (error) {
       console.error('Error fetching students:', error);
+  
       toast({
         title: "Failed to load students",
-        description: "Could not load student data. Please try again.",
+        description: error instanceof Error 
+          ? error.message 
+          : "Could not load student data. Please try again.",
         variant: "destructive"
       });
-      setStudents([
-        { id: 's1', name: 'Austine  Bro', email: 'austine@example.com', grade: '6', lastActive: '2 hours ago' },
-        { id: 's2', name: 'Lavet  Mbewe', email: 'lavet@example.com', grade: '6', lastActive: '1 day ago' },
-        { id: 's3', name: 'Loui Bro', email: 'loui@example.com', grade: '6', lastActive: '3 days ago' }
-      ]);
+  
+      setStudents([]);
     } finally {
       setIsStudentsLoading(false);
     }
   };
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   const handleCreateNew = (type: string = 'document') => {
     setSelectedResource(null);
@@ -256,42 +301,32 @@ const TeacherDashboard: React.FC = () => {
           
           <h2 className="text-xl font-semibold mb-4">Manage Grade Resources</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <Link to="/grade/grade3" className="block">
-              <Card className="transition-all hover:shadow-md">
-                <CardHeader>
-                  <CardTitle>Grade 3</CardTitle>
-                  <CardDescription>Manage Grade 3 resources</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button variant="outline" size="sm">View Resources</Button>
-                </CardFooter>
-              </Card>
-            </Link>
-            
-            <Link to="/grade/grade4" className="block">
-              <Card className="transition-all hover:shadow-md">
-                <CardHeader>
-                  <CardTitle>Grade 4</CardTitle>
-                  <CardDescription>Manage Grade 4 resources</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button variant="outline" size="sm">View Resources</Button>
-                </CardFooter>
-              </Card>
-            </Link>
-            
-            <Link to="/grade/grade5" className="block">
-              <Card className="transition-all hover:shadow-md">
-                <CardHeader>
-                  <CardTitle>Grade 5</CardTitle>
-                  <CardDescription>Manage Grade 5 resources</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button variant="outline" size="sm">View Resources</Button>
-                </CardFooter>
-              </Card>
-            </Link>
-          </div>
+  {Object.keys(groupedResources).length > 0 ? (
+    Object.keys(groupedResources).map((grade) => {
+      const gradeResources = groupedResources[grade];
+      return (
+        <Link key={grade} to={`/grade/grade${grade}`} className="block">
+          <Card className="transition-all hover:shadow-md">
+            <CardHeader>
+              <CardTitle>Grade {grade}</CardTitle>
+              <CardDescription>
+                {gradeResources.length} Resources Available
+              </CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <Button variant="outline" size="sm">
+                View Resources
+              </Button>
+            </CardFooter>
+          </Card>
+        </Link>
+      );
+    })
+  ) : (
+    <div>No resources available</div> // Fallback message if no resources are loaded
+  )}
+</div>
+
         </TabsContent>
         
         <TabsContent value="materials">
@@ -397,23 +432,36 @@ const TeacherDashboard: React.FC = () => {
                         <TableHead>Name</TableHead>
                         <TableHead>Email</TableHead>
                         {!isMobile && <TableHead>Grade</TableHead>}
-                        <TableHead>Last Active</TableHead>
+                        {/*<TableHead>Last Active</TableHead>*/}
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {students.map(student => (
-                        <TableRow key={student.id}>
-                          <TableCell className="font-medium">{student.name || `${student.firstName || ''} ${student.lastName || ''}`}</TableCell>
-                          <TableCell>{student.email}</TableCell>
-                          {!isMobile && <TableCell>Grade {student.grade || 'N/A'}</TableCell>}
-                          <TableCell>{student.lastActive || 'N/A'}</TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="sm">View Progress</Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
+  {students.map((student, index) => (
+    <TableRow key={index}>
+      <TableCell className="font-medium">
+        {student.fullName || 'Unnamed'}
+      </TableCell>
+
+      <TableCell>
+        {student.username || 'No username'}
+      </TableCell>
+
+      {!isMobile && (
+        <TableCell>
+          Grade {student.gradeLevel || 'N/A'}
+        </TableCell>
+      )}
+
+      
+
+      <TableCell className="text-right">
+        <Button variant="ghost" size="sm">View Progress</Button>
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
+
                   </Table>
                 </div>
               ) : (

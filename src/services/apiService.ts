@@ -5,8 +5,12 @@ import api, {
   quizService, 
   trackingService, 
   parentService, 
-  adminService 
+  adminService, 
+  teacherService
 } from '@/lib/api';
+
+
+import { PaginatedResponse, Student } from '@/components/types/apiTypes';
 /*
 // Authentication services
 export const login = async (email: string, password: string) => {
@@ -254,6 +258,25 @@ export const getAllUsers = async (page: number = 1, limit: number = 10, filters?
     throw error;
   }
 };
+
+export const getAllStudents = async (): Promise<PaginatedResponse<Student>> => {
+  try {
+    const response = await api.get('/teacher/students');
+
+    // Check if 'content' exists in the response
+    if (!response.data || !response.data.content) {
+      throw new Error('Missing content in API response');
+    }
+
+    // Now safely return the response
+    return response.data; // This will return the entire data including 'content'
+  } catch (error) {
+    console.error('Get all students error:', error);
+    throw error;
+  }
+};
+
+
 
 export const getUsageMetrics = async (period: string = 'week') => {
   try {
