@@ -120,9 +120,8 @@ const Index = () => {
                       <div ref={ref} className="text-4xl font-bold mb-2">
                         {inView && (
                           <CountUp 
-                            start={0} 
-                            end={stat.number} 
-                            separator="," 
+                            end={stat.number}
+                            formattingFn={(num) => num.toLocaleString()}
                           />
                         )}
                         <span className="text-xl">+</span>
