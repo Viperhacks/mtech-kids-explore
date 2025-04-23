@@ -78,10 +78,9 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         viewedDocuments[documentId].pageNumber = pageNumber;
         
         // Check if document is completed (reached the last page)
-        if (pageNumber === numPages) {
+        if (pageNumber === numPages && !viewedDocuments[documentId].completed) {
           viewedDocuments[documentId].completed = true;
-          
-          // Track completion
+        
           if (user && documentId && onComplete) {
             trackActivity({
               userId: user.id || "user",
@@ -91,9 +90,10 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
             });
             onComplete();
           }
-          
+        
           toast.success("Document completed!");
         }
+        
         
         localStorage.setItem("viewedDocuments", JSON.stringify(viewedDocuments));
       }
