@@ -121,7 +121,8 @@ const Index = () => {
                         {inView && (
                           <CountUp 
                             end={stat.number}
-                            formattingFn={(num) => num.toLocaleString()}
+                            preserveValue={true}
+                            formattingFn={(value) => value.toLocaleString()}
                           />
                         )}
                         <span className="text-xl">+</span>
