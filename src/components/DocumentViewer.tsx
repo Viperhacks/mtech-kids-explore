@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { Loader2, ChevronLeft, ChevronRight, Download, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { userTrackingService } from "@/lib/userTracking";
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
@@ -49,15 +50,23 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
       });
     }
 
-    // Save to local storage that this document has been viewed
-    const viewedDocuments = JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
+    // Save to user-specific localStorage that this document has been viewed
+    const viewedDocuments = user ? 
+      userTrackingService.getUserData(`viewedDocuments`, {}) : 
+      JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
+    
     viewedDocuments[documentId] = {
       lastViewed: new Date().toISOString(),
       progress: viewedDocuments[documentId]?.progress || 0,
       pageNumber: viewedDocuments[documentId]?.pageNumber || 1,
       completed: viewedDocuments[documentId]?.completed || false,
     };
-    localStorage.setItem("viewedDocuments", JSON.stringify(viewedDocuments));
+    
+    if (user) {
+      userTrackingService.storeUserData(`viewedDocuments`, viewedDocuments);
+    } else {
+      localStorage.setItem("viewedDocuments", JSON.stringify(viewedDocuments));
+    }
 
     // If there's a saved page number, go to it
     if (viewedDocuments[documentId]?.pageNumber) {
@@ -71,8 +80,11 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
       const newProgress = Math.floor((pageNumber / numPages) * 100);
       setProgress(newProgress);
 
-      // Save progress to local storage
-      const viewedDocuments = JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
+      // Save progress to user-specific localStorage
+      const viewedDocuments = user ? 
+        userTrackingService.getUserData(`viewedDocuments`, {}) : 
+        JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
+        
       if (viewedDocuments[documentId]) {
         viewedDocuments[documentId].progress = newProgress;
         viewedDocuments[documentId].pageNumber = pageNumber;
@@ -94,8 +106,11 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
           toast.success("Document completed!");
         }
         
-        
-        localStorage.setItem("viewedDocuments", JSON.stringify(viewedDocuments));
+        if (user) {
+          userTrackingService.storeUserData(`viewedDocuments`, viewedDocuments);
+        } else {
+          localStorage.setItem("viewedDocuments", JSON.stringify(viewedDocuments));
+        }
       }
     }
   }, [pageNumber, numPages, documentId, user, trackActivity, onComplete]);
@@ -144,8 +159,10 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     toast.success("Download started");
   }
 
-  // Get previously viewed indicator
-  const viewedDocuments = JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
+  // Get previously viewed indicator from user-specific storage
+  const viewedDocuments = user ? 
+    userTrackingService.getUserData(`viewedDocuments`, {}) : 
+    JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
   const isCompleted = viewedDocuments[documentId]?.completed || false;
 
   return (

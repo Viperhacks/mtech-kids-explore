@@ -111,6 +111,25 @@ class UserTrackingService {
     }
   }
 
+  // Get user-specific storage key
+  getUserStorageKey(key: string): string {
+    if (!this.userId) return key;
+    return `${key}_${this.userId}`;
+  }
+
+  // Store user-specific data
+  storeUserData(key: string, data: any): void {
+    const userKey = this.getUserStorageKey(key);
+    localStorage.setItem(userKey, JSON.stringify(data));
+  }
+
+  // Get user-specific data
+  getUserData<T>(key: string, defaultValue: T): T {
+    const userKey = this.getUserStorageKey(key);
+    const data = localStorage.getItem(userKey);
+    return data ? JSON.parse(data) : defaultValue;
+  }
+
   cleanup() {
     this.stopTracking();
     this.sendSessionData();

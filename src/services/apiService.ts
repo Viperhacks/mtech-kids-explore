@@ -167,6 +167,24 @@ export const trackActivity = async (activityData: any) => {
   }
 };
 
+export const trackMediaProgress = async (userId: string, resourceId: string | number, mediaType: string, progress: number, completed: boolean) => {
+  try {
+    const response = await trackingService.trackActivity({
+      userId,
+      type: `${mediaType}_progress`,
+      resourceId: resourceId.toString(),
+      progress,
+      completed,
+      timestamp: new Date().toISOString()
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Track ${mediaType} progress error:`, error);
+    // Silently fail for tracking
+    return null;
+  }
+};
+
 export const getUserProgress = async (userId: string) => {
   try {
     const response = await trackingService.getUserProgress(userId);

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { FileText, Eye, Loader2 } from "lucide-react";
 import DocumentViewer from "./DocumentViewer";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { userTrackingService } from "@/lib/userTracking";
 
 interface DocumentResourcesViewerProps {
   grade?: string;
@@ -108,8 +110,10 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
 
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
-  // Get viewed documents from localStorage for tracking
-  const viewedDocuments = JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
+  // Get viewed documents from user-specific localStorage
+  const viewedDocuments = user ? 
+    userTrackingService.getUserData(`viewedDocuments`, {}) : 
+    JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
 
   return (
     <div>
@@ -121,14 +125,14 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
             Please log in to access the document resources.
           </p>
           <Button
-      variant="default"
-      className="mt-4"
-      onClick={() =>
-        navigate("/", { state: { showLogin: true } })
-      }
-    >
-      Log in
-    </Button>
+            variant="default"
+            className="mt-4"
+            onClick={() =>
+              navigate("/", { state: { showLogin: true } })
+            }
+          >
+            Log in
+          </Button>
         </div>
       ) : (
         <div>
