@@ -94,7 +94,7 @@ const TeacherDashboard: React.FC = () => {
       const response = await api.get("/teacher/students");
       console.log("fetched students paginated response", response);
   
-      // Fix: Access data correctly based on your API response structure
+      // Fix: The response is already unwrapped by the axios interceptor in api.ts
       if (!Array.isArray(response?.content)) {
         throw new Error('Missing or invalid content in response');
       }
