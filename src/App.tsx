@@ -23,6 +23,7 @@ import Dashboard from "./pages/Dashboard";
 import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
+import ScrollToTop from "./components/SrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +37,9 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          
           <BrowserRouter>
+          <ScrollToTop />
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<Index />} />

@@ -1,16 +1,14 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';  // Import Sonner for toast notifications
 
 const Revision = () => {
   const [activeTab, setActiveTab] = useState("mathematics");
-  const { isAuthenticated, user } = useAuth();
-  const navigate = useNavigate();
-  
+  const { isAuthenticated } = useAuth();
+
   const subjectTopics = {
     mathematics: [
       { id: 'math-1', title: 'Numbers and Operations', description: 'Learn about addition, subtraction, multiplication, and division.', level: 'Beginner' },
@@ -38,12 +36,9 @@ const Revision = () => {
     ]
   };
 
-  const handleStartRevision = (topicId: string) => {
-    if (isAuthenticated) {
-      navigate(`/revision/${topicId}`);
-    } else {
-      navigate("/", { state: { showLogin: true } });
-    }
+  // Handle the revision start
+  const handleStartRevision = () => {
+    toast('Revision content is coming soon!');  // Show toast notification with Sonner
   };
 
   return (
@@ -53,7 +48,7 @@ const Revision = () => {
         <p className="text-gray-600 mb-6">
           Select a subject below to explore revision materials designed to help you practice and master key concepts.
         </p>
-        
+
         <Tabs defaultValue="mathematics" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-4 mb-8">
             <TabsTrigger value="mathematics">Mathematics</TabsTrigger>
@@ -61,7 +56,7 @@ const Revision = () => {
             <TabsTrigger value="science">Science</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
-          
+
           {Object.entries(subjectTopics).map(([subject, topics]) => (
             <TabsContent key={subject} value={subject} className="mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -73,11 +68,7 @@ const Revision = () => {
                           <CardTitle>{topic.title}</CardTitle>
                           <CardDescription>{topic.description}</CardDescription>
                         </div>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          topic.level === 'Beginner' ? 'bg-green-100 text-green-800' :
-                          topic.level === 'Intermediate' ? 'bg-blue-100 text-blue-800' :
-                          'bg-purple-100 text-purple-800'
-                        }`}>
+                        <span className={`px-2 py-1 text-xs rounded-full ${topic.level === 'Beginner' ? 'bg-green-100 text-green-800' : topic.level === 'Intermediate' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}>
                           {topic.level}
                         </span>
                       </div>
@@ -91,7 +82,7 @@ const Revision = () => {
                            '9 practice exercises'}
                         </div>
                         <Button 
-                          onClick={() => handleStartRevision(topic.id)}
+                          onClick={handleStartRevision}  // Show toast instead of redirecting
                           variant="outline" 
                           className="text-mtech-primary border-mtech-primary"
                         >
