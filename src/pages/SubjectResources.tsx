@@ -47,6 +47,13 @@ const SubjectResources = () => {
   useEffect(() => {
     fetchResources();
   }, [gradeId, subjectId]);
+
+  useEffect(() => {
+    const container = document.getElementById('content-container');
+    if (container) {
+      container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [activeTab]);  // This will trigger the scroll when `activeTab` changes
   
   const fetchResources = async () => {
     setIsLoading(true);
@@ -324,10 +331,11 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
     }
   ];
   
+  
  
 
   return (
-    <div className="mtech-container py-8">
+    <div id='content-container' className="mtech-container py-8">
       <div className="flex items-center mb-6">
         <Button variant="ghost" size="sm" asChild className="mr-2">
           <Link to={`/grade/${gradeId}`}>
