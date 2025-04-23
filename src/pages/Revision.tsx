@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';  // Import Sonner for toast notifications
+import DocumentResourcesViewer from '@/components/DocumentResourcesViewer';
 
 const Revision = () => {
   const [activeTab, setActiveTab] = useState("mathematics");
@@ -58,8 +60,9 @@ const Revision = () => {
           </TabsList>
 
           {Object.entries(subjectTopics).map(([subject, topics]) => (
-            <TabsContent key={subject} value={subject} className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <TabsContent key={subject} value={subject} className="mt-0 min-h-[200px]">
+              {/* Topics grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {topics.map((topic) => (
                   <Card key={topic.id} className="overflow-hidden transition-all hover:shadow-md">
                     <CardHeader className="pb-2">
@@ -92,6 +95,12 @@ const Revision = () => {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+              
+              {/* Document Resources Section */}
+              <div className="mt-8 mb-4">
+                <h2 className="text-xl font-semibold mb-4">Document Resources - {subject.charAt(0).toUpperCase() + subject.slice(1)}</h2>
+                <DocumentResourcesViewer subject={subject} limit={3} />
               </div>
             </TabsContent>
           ))}
