@@ -121,7 +121,6 @@ const Index = () => {
                         {inView && (
                           <CountUp 
                             end={stat.number}
-                            preserveValue={true}
                             formattingFn={(value) => value.toLocaleString()}
                           />
                         )}
