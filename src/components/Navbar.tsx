@@ -202,7 +202,7 @@ const Navbar: React.FC = () => {
                 onClick={handleAuthOpen}
                 className="bg-pink-400 text-white hover:bg-pink-500 w-full mt-2"
               >
-                🚀 Let's Go!
+                🚀 Let's Go! Rocke
               </Button>
             )}
           </div>

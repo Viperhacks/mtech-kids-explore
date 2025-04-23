@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, User, ArrowRight, User2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, User2, UserCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import ResetPasswordForm from './ResetPasswordForm';
@@ -57,6 +57,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [registeredUsername, setRegisteredUsername] = useState('');
   const [showOtpForm, setShowOtpForm] = useState(false);
   const [otp, setOtp] = useState('');
+  const [teacherPhrase, setTeacherPhrase] = useState("");
+
+  const currYear = new Date().getFullYear();
+  const TEACHER_PASSPHRASE = `MTECHTeacher@${currYear}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +74,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
             description: "The passwords you entered do not match",
             variant: "destructive"
           });
+          setIsSubmitting(false);
+          return;
+        }
+
+        if(role === "TEACHER" && teacherPhrase !== TEACHER_PASSPHRASE){
+          toast({title: "Invalid Passphrase", description: "The passphrase you entered is incorrect", variant: "destructive" });
           setIsSubmitting(false);
           return;
         }
@@ -107,6 +117,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
       setIsSubmitting(false);
     }
   };
+
+  
 
  /* const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -390,6 +402,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   className="pl-10"
                   value={name}
                   onChange={e => setName(e.target.value)}
+                  autoCapitalize='words'
                   required
                 />
               </div>
@@ -493,6 +506,30 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                 </Select>
               </div>
             )}
+
+
+            { role == "TEACHER" && (
+              <div className="space-y-2">
+              <Label htmlFor="confirm-teacher">Secret Code Please</Label>
+              <div className="relative">
+                <UserCheck className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="confirm-teacher"
+                  type="password"
+                  placeholder="Shh .. Enter the secret code"
+                  className="pl-10"
+                  value={teacherPhrase}
+                  onChange={e => setTeacherPhrase(e.target.value)}
+                  required
+                />
+              </div>
+              <p className="text-sm text-muted-foreground italic">
+                (It's the special phrase for teacher-eyes only )
+              </p>
+            </div>
+            )
+
+            }
 
             <Button type="submit" className="w-full bg-mtech-primary" disabled={isSubmitting}>
               {isSubmitting ? 'Creating Account...' : 'Create Account'}

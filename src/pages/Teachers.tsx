@@ -108,7 +108,7 @@ const TeachersPage = () => {
         </div>
 
         <TabsContent value="all">{renderTeachers("all")}</TabsContent>
-        <TabsContent value="math">{renderTeachers("math")}</TabsContent>
+        <TabsContent value="math">{renderTeachers("mathematics")}</TabsContent>
         <TabsContent value="science">{renderTeachers("science")}</TabsContent>
         <TabsContent value="english">{renderTeachers("english")}</TabsContent>
       </Tabs>

@@ -1,5 +1,6 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React ,{useEffect, useState } from 'react';
+import {  useNavigate, useParams, useSearchParams, Link } from 'react-router-dom';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -7,14 +8,21 @@ import { ChevronRight, BookOpen, Award, Clock, Check } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UserActivity from './UserActivity';
+import { getResourcesForAnyOne } from '@/services/apiService';
+import { toast } from '@/hooks/use-toast';
+
 
 interface StudentDashboardProps {
   isParent?: boolean;
 }
 
 const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false }) => {
+   const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+   const [isLoading, setIsLoading] = useState(true);
+   const [resources, setResources] = useState<any[]>([]);
   
   const calculateProgress = (subject: string): { progress: number, completed: number, total: number } => {
     if (!user?.progress || !user.progress[subject]) {
@@ -61,6 +69,35 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
       path: '/lessons/animal-habitats'
     }
   ];
+
+  useEffect(() => {
+      fetchResources();
+    }, [gradeId, subjectId]);
+    
+    const fetchResources = async () => {
+      setIsLoading(true);
+      try {
+        
+          //console.log("grade name is+",grade.name)
+           let response  = await getResourcesForAnyOne(getRecommendedGrade());
+           //console.log(response.resources);
+         
+  
+         
+        setResources(response.resources || []);
+       // console.log("-----",response.resources)
+        //setResources(response.resources || []);
+      } catch (error) {
+        console.error('Error fetching resources:', error);
+        toast({
+          title: "Failed to load resources",
+          description: "Could not load learning materials. Using sample data instead.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
   
 
   
@@ -91,7 +128,39 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
         
         <TabsContent value="progress" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
+          {resources.map((resource)=> (
+            <Card key={resource.response.id}>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2">
+                <span className="bg-blue-100 text-blue-700 p-2 rounded-full">
+                  <BookOpen className="h-4 w-4" />
+                </span>
+                {capitalize(resource.response.subject)}
+              </CardTitle>
+              <CardDescription>Grade {getRecommendedGrade()} {capitalize(resource.response.subject)}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Progress</span>
+                  <span className="text-muted-foreground">
+                    {calculateProgress('math').completed}/{calculateProgress('math').total} lessons
+                  </span>
+                </div>
+                <Progress value={calculateProgress('math').progress} className="h-2" />
+              </div>
+              <Button
+                variant="outline" 
+                className="w-full" 
+                onClick={() => navigate(`/grade/grade${getRecommendedGrade()}/subject/${resource.response.subject}`)}
+              >
+                Continue <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+          ))}
+
+            {/*<Card>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2">
                   <span className="bg-blue-100 text-blue-700 p-2 rounded-full">
@@ -179,7 +248,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
                   Continue <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </CardContent>
-            </Card>
+            </Card>*/}
           </div>
           
           <Card>
