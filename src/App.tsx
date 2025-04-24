@@ -12,7 +12,7 @@ import Teachers from "./pages/Teachers";
 import Contacts from "./pages/Contacts";
 import About from "./pages/About";
 import Tutorials from "./pages/Tutorials";
-import Exercises from "./pages/Exercises";
+import Exercises from "./components/Exercises";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import FAQ from "./pages/FAQ";
@@ -23,6 +23,7 @@ import Dashboard from "./pages/Dashboard";
 import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
+import ScrollToTop from "./components/SrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+          <ScrollToTop/>
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<Index />} />

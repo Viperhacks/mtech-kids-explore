@@ -54,10 +54,10 @@ const SubjectResources = () => {
       let response;
        if(user?.role == "TEACHER"){
         
-        response = await getResources(grade.name, subject.name);
+        response = await getResources(grade.name, subject.id);
        } else{
         //console.log("grade name is+",grade.name)
-        response = await getResourcesForAnyOne(grade.name, subject.name);
+        response = await getResourcesForAnyOne(grade.name, subject.id);
        }
 
        const resourcesWithThumbnails = await Promise.all(response.resources.map(async (resource) => {
