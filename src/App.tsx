@@ -1,10 +1,11 @@
-
+// App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Revision from "./pages/Revision";
@@ -20,15 +21,23 @@ import Profile from "./pages/Profile";
 import GradeResources from "./pages/GradeResources";
 import SubjectResources from "./pages/SubjectResources";
 import Dashboard from "./pages/Dashboard";
+import { isElectron } from "./lib/Electron";
 import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import ScrollToTop from "./components/SrollToTop";
 
-const queryClient = new QueryClient();
-
-// You would need to replace this with your actual Google OAuth client ID
+// 🧠 Google OAuth Client ID (replace with yours if needed)
 const googleClientId = "102147016941-lcucaktk0sioga2o5irssqcuedih5l0p.apps.googleusercontent.com";
+
+
+
+const Router = window.location.protocol === 'file:' 
+  ? HashRouter 
+  : BrowserRouter;
+
+// 🧠 React Query setup
+const queryClient = new QueryClient();
 
 const App = () => (
   <GoogleOAuthProvider clientId={googleClientId}>
@@ -37,8 +46,8 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
-          <ScrollToTop/>
+          <Router>
+            <ScrollToTop />
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<Index />} />
@@ -51,14 +60,22 @@ const App = () => (
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/faq" element={<FAQ />} />
-                <Route path="/profile" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<Profile />} />} />
-                <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<Dashboard />} />} />
-                <Route path="/grade/:gradeId" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<GradeResources />} />} />
-                <Route path="/grade/:gradeId/subject/:subjectId" element={<ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<SubjectResources />} />} />
+                <Route path="/profile" element={
+                  <ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<Profile />} />
+                } />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<Dashboard />} />
+                } />
+                <Route path="/grade/:gradeId" element={
+                  <ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<GradeResources />} />
+                } />
+                <Route path="/grade/:gradeId/subject/:subjectId" element={
+                  <ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<SubjectResources />} />
+                } />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
-          </BrowserRouter>
+          </Router>
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>

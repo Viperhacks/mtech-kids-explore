@@ -1,26 +1,30 @@
 const path = require('path');
 const { app, BrowserWindow } = require('electron');
 
-const isDev = !app.isPackaged;
+const isDev = process.env.ELECTRON_IS_DEV === 'true' || !app.isPackaged;
 
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
     webPreferences: {
-      contextIsolation: true
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js') // Optional but recommended
     }
   });
 
   if (isDev) {
     win.loadURL('http://localhost:8081');
-    win.webContents.openDevTools(); // Optional: for debugging
+    win.webContents.openDevTools();
   } else {
     win.loadFile(path.join(__dirname, 'dist', 'index.html'));
   }
 
-  win.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-    console.error(`Failed to load ${validatedURL}: ${errorDescription} (${errorCode})`);
+  win.webContents.on('did-fail-load', (event, code, desc, validatedURL) => {
+    console.error(`Failed to load ${validatedURL}: ${desc} (${code})`);
+    if (isDev) {
+      setTimeout(() => win.loadURL('http://localhost:8081'), 1000);
+    }
   });
 }
 

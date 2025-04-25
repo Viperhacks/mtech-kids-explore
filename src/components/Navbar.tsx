@@ -7,6 +7,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import AuthForm from './AuthForm';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import logo from '@/components/assets/mtech-kidz-app-icon.svg';
+
 
 const getSeason = () => {
   const m = new Date().getMonth();
@@ -82,7 +84,7 @@ const Navbar: React.FC = () => {
           {/* Logo and MTECH */}
           <Link to="/" className="flex items-center space-x-2">
             <img
-              src="/mtech-kidz-app-icon.svg"  // Path to the SVG file in the public folder
+              src={logo}  
               alt="MTECH Logo"
               className="w-12 h-12"
             />
@@ -202,7 +204,7 @@ const Navbar: React.FC = () => {
                 onClick={handleAuthOpen}
                 className="bg-pink-400 text-white hover:bg-pink-500 w-full mt-2"
               >
-                🚀 Let's Go! Rocke
+                🚀 Let's Go!
               </Button>
             )}
           </div>
