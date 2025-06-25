@@ -152,7 +152,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
             Hello, {capitalize(displayName.split(' ')[0] || 'Student')}!
           </h1>
         </div>
-        <div className="text-left md:text-right">
+       {/* <div className="text-left md:text-right">
           <Button 
             onClick={() => navigate(`/grade/grade${getRecommendedGrade()}`)}
             className="bg-mtech-primary hover:bg-mtech-dark text-white"
@@ -160,7 +160,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
             Continue Learning
             <ChevronRight className="ml-1 h-4 w-4" />
           </Button>
-        </div>
+        </div>*/}
       </div>
 
       <Tabs defaultValue="progress">

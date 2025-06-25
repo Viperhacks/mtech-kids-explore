@@ -60,6 +60,7 @@ const SubjectResources = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
+   const [completedVideos, setCompletedVideos] = useState<Set<string>>(new Set());
 
   const { toast } = useToast();
   const { user, updateUserProgress, trackActivity } = useAuth();
@@ -155,6 +156,33 @@ const SubjectResources = () => {
       </div>
     );
   }*/
+
+    const handleVideoEnded = () => {
+    if (user && selectedVideo) {
+      // Track completion activity
+      trackActivity({
+        userId: user.id || "user",
+        type: 'video_completed',
+        videoId: selectedVideo.response.id,
+        subjectId: subjectId,
+        gradeId: gradeIdNumber,
+        timestamp: new Date().toISOString()
+      });
+
+      // Update user progress
+      updateUserProgress(subjectId as string, selectedVideo.response.id, totalVideos);
+      
+      // Add to local completed set
+      setCompletedVideos(prev => new Set(prev).add(selectedVideo.response.id));
+      
+      // Show success notification
+      toast({
+        title: "Video Completed!",
+        description: "Great job watching the entire video.",
+      });
+    }
+  };
+
   
   // Handle watching a video
   const handleWatchVideo = (video: any) => {
@@ -470,7 +498,8 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
   ) : resources.filter(resource => resource.response.type === "video").length > 0 ? (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {resources.filter(resource => resource.response.type === "video").map((video) => {
-        const isCompleted = user?.completedLessons?.includes(video.response.id);
+    const isCompleted = completedVideos.has(video.response.id) || 
+                         user?.completedLessons?.includes(video.response.id);
         return (
           <Card key={video.response.id} className="overflow-hidden">
             <div 
@@ -648,12 +677,13 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
         <>
           {/* Video Player with Loading State */}
           <video
-            key={selectedVideo.response.id} // Important for re-rendering when video changes
+            key={selectedVideo.response.id} 
             controls
             autoPlay
             className="w-full h-full"
-            onWaiting={() => setIsVideoLoading(true)}  // Show spinner while waiting
-            onCanPlay={() => setIsVideoLoading(false)}  // Hide spinner when video is ready to play
+            onWaiting={() => setIsVideoLoading(true)}  
+            onCanPlay={() => setIsVideoLoading(false)} 
+            onEnded={handleVideoEnded} 
             onError={(e) => {
               console.error("Video error:", e);
               const video = e.target as HTMLVideoElement;
