@@ -287,8 +287,17 @@ const SubjectResources = () => {
     setIsEditDialogOpen(false);
     fetchResources();
   };
+
+  const totalVideos = resources.filter(r => r.response.type === "video").length;
+
+const progress = user?.progress?.[subjectId as string] || {
+  watched: 0,
+  completed: 0,
+  total: totalVideos
+};
+
   
-  const progress = user?.progress?.[subjectId as string] || { watched: 0, completed: 0, total: 10 };
+
 
 // Ensure completionPercent doesn't throw errors in case of 0 total
 const completionPercent = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
