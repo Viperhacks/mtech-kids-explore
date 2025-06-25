@@ -30,6 +30,7 @@ interface User {
   school?: string;
   earnedBadges?: string[];
   completedLessons?: string[];
+  completedVideos?: { [subjectId: string]: string[] }; // <-- Add this line
   email?: string;
   createdAt?: string;
 }
@@ -360,20 +361,48 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     console.log('Activity tracked:', activity);
   };
 
-  const updateUserProgress = (subjectId: string, completed: number, total: number) => {
-    // Mock implementation - would be connected to a real API
-    if (user) {
-      const updatedUser = { ...user };
-      
-      if (!updatedUser.progress) {
-        updatedUser.progress = {};
+ const updateUserProgress = (subjectId: string, completed?: number, total?: number, videoId?: string) => {
+  if (user) {
+    const updatedUser = { ...user };
+    
+    if (!updatedUser.progress) {
+      updatedUser.progress = {};
+    }
+    
+    if (!updatedUser.progress[subjectId]) {
+      updatedUser.progress[subjectId] = { completed: 0, total: total || 0, watched: 0 };
+    }
+
+    // If marking a specific video as completed
+    if (videoId) {
+      if (!updatedUser.completedVideos) {
+        updatedUser.completedVideos = {};
       }
       
-      updatedUser.progress[subjectId] = { completed, total, watched: 0 };
-      setUser(updatedUser);
-      localStorage.setItem('user_data', JSON.stringify(updatedUser));
+      if (!updatedUser.completedVideos[subjectId]) {
+        updatedUser.completedVideos[subjectId] = [];
+      }
+
+      // Only add if not already completed
+      if (!updatedUser.completedVideos[subjectId].includes(videoId)) {
+        updatedUser.completedVideos[subjectId].push(videoId);
+        updatedUser.progress[subjectId].completed = updatedUser.completedVideos[subjectId].length;
+      }
     }
-  };
+    // For direct progress updates
+    else if (completed !== undefined && total !== undefined) {
+      updatedUser.progress[subjectId] = { completed, total, watched: 0 };
+    }
+
+    // Ensure total is up to date
+    if (total !== undefined) {
+      updatedUser.progress[subjectId].total = total;
+    }
+
+    setUser(updatedUser);
+    localStorage.setItem('user_data', JSON.stringify(updatedUser));
+  }
+};
 
   const logout = () => {
     setUser(null);

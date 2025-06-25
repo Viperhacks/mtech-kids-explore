@@ -158,30 +158,33 @@ const SubjectResources = () => {
   }*/
 
     const handleVideoEnded = () => {
-    if (user && selectedVideo) {
-      // Track completion activity
-      trackActivity({
-        userId: user.id || "user",
-        type: 'video_completed',
-        videoId: selectedVideo.response.id,
-        subjectId: subjectId,
-        gradeId: gradeIdNumber,
-        timestamp: new Date().toISOString()
-      });
+  if (user && selectedVideo) {
+    // Update progress by marking this specific video as completed
+    /*updateUserProgress(
+      subjectId as string, 
+      selectedVideo.response.id,
+      totalVideos
+    );*/
 
-      // Update user progress
-      updateUserProgress(subjectId as string, selectedVideo.response.id, totalVideos);
-      
-      // Add to local completed set
-      setCompletedVideos(prev => new Set(prev).add(selectedVideo.response.id));
-      
-      // Show success notification
-      toast({
-        title: "Video Completed!",
-        description: "Great job watching the entire video.",
-      });
-    }
-  };
+    // Track activity
+    trackActivity({
+      userId: user.id || "user",
+      type: 'video_completed',
+      videoId: selectedVideo.response.id,
+      subjectId: subjectId,
+      gradeId: gradeIdNumber,
+      timestamp: new Date().toISOString()
+    });
+
+    // Add to local completed set
+    setCompletedVideos(prev => new Set(prev).add(selectedVideo.response.id));
+    
+    toast({
+      title: "Video Completed!",
+      description: "Great job watching the entire video.",
+    });
+  }
+};
 
   
   // Handle watching a video
@@ -318,17 +321,33 @@ const SubjectResources = () => {
 
   const totalVideos = resources.filter(r => r.response.type === "video").length;
 
-const progress = user?.progress?.[subjectId as string] || {
-  watched: 0,
-  completed: 0,
-  total: totalVideos
+// Get completed count from user progress or completedVideos
+const getCompletedCount = () => {
+  if (user?.completedVideos?.[subjectId as string]) {
+    return user.completedVideos[subjectId as string].length;
+  }
+  if (user?.progress?.[subjectId as string]?.completed) {
+    return user.progress[subjectId as string].completed;
+  }
+  return completedVideos.size;
 };
+
+const completedCount = getCompletedCount();
+const progress = {
+  completed: completedCount,
+  total: totalVideos,
+  watched: user?.progress?.[subjectId as string]?.watched || 0
+};
+
+console.log("hey",user);
+
+const completionPercent = progress.total > 0 
+  ? Math.round((progress.completed / progress.total) * 100) 
+  : 0;
 
   
 
 
-// Ensure completionPercent doesn't throw errors in case of 0 total
-const completionPercent = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
 
 
   if (isLoading) {
@@ -415,7 +434,7 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
     <div>
       <h2 className="font-medium">Your Progress</h2>
       <p className="text-sm text-mtech-dark">
-        You've watched {progress.watched} videos and completed {progress.completed} out of {progress.total} items
+        You've watched {progress.watched || progress.completed /*mind we are currently recording watched vids */} videos and completed {progress.completed} out of {progress.total} items
       </p>
     </div>
 
