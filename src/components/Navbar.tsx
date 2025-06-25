@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import AuthForm from './AuthForm';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-import logo from '@/components/assets/mtech-kidz-app-icon.svg';
+import logo from '@/assets/mtech-kidz-app-icon.svg';
 
 
 const getSeason = () => {

@@ -85,9 +85,9 @@ const CurriculumSection: React.FC = () => {
     
     // If authenticated, navigate to the appropriate resource
     if (subjectId) {
-      navigate(`/grade/${gradeId}/subject/${subjectId}`);
+      navigate(`/dashboard`);
     } else {
-      navigate(`/grade/${gradeId}`);
+      navigate(`/dashboard`);
     }
   };
 
