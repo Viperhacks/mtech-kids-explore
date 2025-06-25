@@ -18,7 +18,31 @@ import VideoThumbnail from './VideoThumbnail';
 import { resolve } from 'path';
 
 const SubjectResources = () => {
-  const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
+  //const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
+  
+
+  const { gradeId: fullGradeId, subjectId } = useParams<{
+    gradeId: string;
+    subjectId: string;
+  }>();
+
+  // 2. Safety check for undefined params
+  if (typeof fullGradeId === 'undefined' || typeof subjectId === 'undefined') {
+    return (
+      <div className="p-4 text-red-500">
+        Error: Missing URL parameters. Expected format: /grade/:gradeId/subject/:subjectId
+      </div>
+    );
+  }
+
+  // 3. Clean the gradeId (extract just the number)
+  const gradeIdNumber = fullGradeId.replace(/\D/g, '');
+
+  console.log('URL Parameters:', {
+    originalGradeId: fullGradeId,  // "grade5"
+    cleanedGradeId: gradeIdNumber, // "5" 
+    subjectId      // "english"
+  });
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') === 'quizzes' ? 'quizzes' : 'videos';
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -41,12 +65,13 @@ const SubjectResources = () => {
   const { user, updateUserProgress, trackActivity } = useAuth();
   
   // Get the grade and subject data
-  const grade = ResourcesData.grades.find(g => g.id === gradeId);
+  const grade = ResourcesData.grades.find(g => g.id === gradeIdNumber);
   const subject = grade?.subjects.find(s => s.id === subjectId);
+  //console.log("subject",subject)
   
   useEffect(() => {
     fetchResources();
-  }, [gradeId, subjectId]);
+  }, [gradeIdNumber, subjectId]);
   
   const fetchResources = async () => {
     setIsLoading(true);
@@ -54,10 +79,12 @@ const SubjectResources = () => {
       let response;
        if(user?.role == "TEACHER"){
         
-        response = await getResources(grade.name, subject.id);
+        response = await getResources(`${gradeIdNumber}`, subjectId);
+        console.log("response",response)
        } else{
-        //console.log("grade name is+",grade.name)
-        response = await getResourcesForAnyOne(grade.name, subject.id);
+       
+        response = await getResourcesForAnyOne(`${gradeIdNumber}`, subjectId);
+        console.log("response",response)
        }
 
        const resourcesWithThumbnails = await Promise.all(response.resources.map(async (resource) => {
@@ -117,7 +144,7 @@ const SubjectResources = () => {
     return `${mins}:${secs.toString().padStart(2,'0')}`;
   }
   
-  if (!grade || !subject) {
+  /*if (!grade || !subjectId) {
     return (
       <div className="mtech-container py-20 text-center">
         <h1 className="text-3xl font-bold text-mtech-dark mb-4">Resource Not Found</h1>
@@ -127,7 +154,7 @@ const SubjectResources = () => {
         </Button>
       </div>
     );
-  }
+  }*/
   
   // Handle watching a video
   const handleWatchVideo = (video: any) => {
@@ -169,7 +196,7 @@ const SubjectResources = () => {
         type: 'quiz_started',
         quizId: quiz.id,
         subjectId,
-        gradeId,
+        gradeIdNumber,
         timestamp: new Date().toISOString()
       });
     }
@@ -204,7 +231,7 @@ const SubjectResources = () => {
           type: 'quiz_completed',
           quizId: selectedQuiz.id,
           subjectId,
-          gradeId,
+          gradeIdNumber,
           score: scorePercent,
           timestamp: new Date().toISOString()
         });
@@ -250,7 +277,7 @@ const SubjectResources = () => {
   const handleCreateNewResource = (type: string) => {
     setEditingResource({
       type,
-      grade: gradeId,
+      grade: gradeIdNumber,
       subject: subjectId
     });
     setIsEditDialogOpen(true);
@@ -330,49 +357,68 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
     <div className="mtech-container py-8">
       <div className="flex items-center mb-6">
         <Button variant="ghost" size="sm" asChild className="mr-2">
-          <Link to={`/grade/${gradeId}`}>
+          <Link to={`/dashboard`}>
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back
           </Link>
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-mtech-dark">
-            Grade {grade.name} - {subject.name}
+            Grade {gradeIdNumber} - {subject?.name || subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}
           </h1>
           <p className="text-sm text-gray-600">
-            Learn {subject.name} for Grade {grade.name}
+            Learn {subject?.name || subjectId.charAt(0).toUpperCase() + subjectId.slice(1)} for Grade {gradeIdNumber}
           </p>
         </div>
       </div>
       
       <div className="bg-mtech-primary/10 rounded-lg p-4 mb-6">
-        <div className="flex flex-col md:flex-row justify-between md:items-center">
-        <div className="mb-4 md:mb-0">
-  <h2 className="font-medium">Your Progress</h2>
-  <p className="text-sm text-mtech-dark">
-    You've watched {progress.watched} videos and completed {progress.completed} out of {progress.total} items
-  </p>
+  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    {/* Progress Summary */}
+    <div>
+      <h2 className="font-medium">Your Progress</h2>
+      <p className="text-sm text-mtech-dark">
+        You've watched {progress.watched} videos and completed {progress.completed} out of {progress.total} items
+      </p>
+    </div>
+
+    {/* Teacher Action Buttons */}
+    {user?.role === 'TEACHER' && (
+      <div className="flex flex-col sm:flex-row gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => handleCreateNewResource('document')}
+          className="w-full sm:w-auto"
+        >
+          <FileText className="mr-2 h-4 w-4" />
+          Upload Document
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => handleCreateNewResource('video')}
+          className="w-full sm:w-auto"
+        >
+          <Video className="mr-2 h-4 w-4" />
+          Upload Video
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => handleCreateNewResource('quiz')}
+          className="w-full sm:w-auto"
+        >
+          <CheckCircle className="mr-2 h-4 w-4" />
+          Create Quiz
+        </Button>
+      </div>
+    )}
+  </div>
+
+  <Progress value={completionPercent} className="h-2 mt-4" />
 </div>
 
-          {user?.role === 'TEACHER' && (
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('document')}>
-                <FileText className="mr-2 h-4 w-4" />
-                Upload Document
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('video')}>
-                <Video className="mr-2 h-4 w-4" />
-                Upload Video
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('quiz')}>
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Create Quiz
-              </Button>
-            </div>
-          )}
-        </div>
-        <Progress value={completionPercent} className="h-2 mt-3" />
-      </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
@@ -509,7 +555,7 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
 </TabsContent>
         
         
-        <TabsContent value="quizzes" className="mt-6">
+        {/*<TabsContent value="quizzes" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {subject.quizzes.map((quiz) => {
               const isCompleted = user?.completedLessons?.includes(quiz.id);
@@ -574,7 +620,7 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
               </Card>
             )}
           </div>
-        </TabsContent>
+        </TabsContent>*/}
       </Tabs>
       
       {/* Video Dialog */}

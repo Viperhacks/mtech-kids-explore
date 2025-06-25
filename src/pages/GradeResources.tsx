@@ -34,6 +34,7 @@ const GradeResources = () => {
   
   // Get the grade resources
   const gradeData = ResourcesData.grades.find(g => g.id === gradeId);
+  console.log(gradeData)
   
   useEffect(() => {
     // Track page view

@@ -18,6 +18,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import StudentAccountCreation from './StudentAccountCreation';
 import api, { teacherService } from '@/lib/api';
 import { Student } from '../types/apiTypes';
+import { capitalize } from '@/utils/stringUtils';
 
 const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -56,7 +57,7 @@ const TeacherDashboard: React.FC = () => {
         acc[grade].push(resource);
         return acc;
       }, {});
-      //console.log('Grouped Resources:', grouped);
+      console.log('Grouped Resources:', grouped);
       setGroupedResources(grouped);
     } catch (error) {
       console.error('Error fetching resources:', error);
@@ -87,6 +88,16 @@ const TeacherDashboard: React.FC = () => {
       setIsLoading(false);
     }
   };
+  
+  const itemsPerPage = 10;
+const [currentPage, setCurrentPage] = useState(1);
+
+const totalPages = Math.ceil(resources.length / itemsPerPage);
+const paginatedResources = resources.slice(
+  (currentPage - 1) * itemsPerPage,
+  currentPage * itemsPerPage
+);
+
   
   const fetchStudents = async () => {
     setIsStudentsLoading(true);
@@ -189,24 +200,31 @@ const TeacherDashboard: React.FC = () => {
     }
   };
   
-  const recentUploads = resources.slice(0, 3).map(resource => ({
+  const recentUploads = resources
+  .slice() 
+  .reverse()
+  .slice(0, 3)
+  .map(resource => ({
     id: resource.response.id,
     title: resource.response.title,
-    type: resource.response.type?.charAt(0).toUpperCase() + resource.response.type?.slice(1) || 'Document',
+    type:
+      resource.response.type?.charAt(0).toUpperCase() +
+        resource.response.type?.slice(1) || "Document",
     date: new Date(resource.response.createdAt || Date.now()).toLocaleDateString(),
-    status: "Published"
+    status: "Published",
   }));
+
   
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Teacher Dashboard</h1>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className={`mb-6 ${isMobile ? 'grid grid-cols-2 gap-2' : ''}`}>
+        <TabsList className={`mb-6 ${isMobile ? 'grid grid-cols-2 gap-2 ' : ''}`}>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="materials">My Materials</TabsTrigger>
-          <TabsTrigger value="students">Students</TabsTrigger>
-          <TabsTrigger value="accounts">Student Accounts</TabsTrigger>
+           {!isMobile &&<TabsTrigger value="students">Students</TabsTrigger>}
+           {!isMobile &&<TabsTrigger value="accounts">Student Accounts</TabsTrigger>}
           {!isMobile && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
         </TabsList>
       
@@ -231,6 +249,13 @@ const TeacherDashboard: React.FC = () => {
                 >
                   <FileText className="mr-2 h-4 w-4" /> Create Quiz
                 </Button>
+                <Button 
+    className="w-full flex items-center justify-start" 
+    variant="outline"
+    onClick={() => handleCreateNew('video')}
+  >
+    <Video className="mr-2 h-4 w-4" /> Upload Video
+  </Button>
                 <Button 
                   className="w-full flex items-center justify-start" 
                   variant="outline"
@@ -301,33 +326,82 @@ const TeacherDashboard: React.FC = () => {
             </Card>
           </div>
           
-          <h2 className="text-xl font-semibold mb-4">Manage Grade Resources</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-  {Object.keys(groupedResources).length > 0 ? (
-    Object.keys(groupedResources).map((grade) => {
-      const gradeResources = groupedResources[grade];
-      return (
-        <Link key={grade} to={`/grade/grade${grade}`} className="block">
-          <Card className="transition-all hover:shadow-md">
-            <CardHeader>
-              <CardTitle>Grade {grade}</CardTitle>
-              <CardDescription>
-                {gradeResources.length} Resources Available
-              </CardDescription>
-            </CardHeader>
-            <CardFooter>
-              <Button variant="outline" size="sm">
-                View Resources
-              </Button>
-            </CardFooter>
-          </Card>
-        </Link>
-      );
-    })
-  ) : (
-    <div>No resources available</div> // Fallback message if no resources are loaded
-  )}
+        <div className="mb-8">
+  <h2 className="text-xl font-semibold mb-4">Manage Grade Resources</h2>
+
+  {resources.length > 0 ? (
+  Object.entries(
+    resources.reduce<Record<string, typeof resources>>((acc, res) => {
+      const grade = res.response.grade;
+      if (!acc[grade]) acc[grade] = [];
+      acc[grade].push(res);
+      return acc;
+    }, {})
+  ).map(([grade, resArray]) => (
+
+    
+
+    <div key={grade} className="mb-6">
+      <h3 className="text-lg font-medium mb-2">Grade {grade}</h3>
+
+      <div className="flex space-x-4 overflow-x-auto pb-2">
+        {Array.from(
+          new Map(
+            resArray.map(res => [res.response.subject, res])
+          ).values()
+        ).map((subjectResource) => {
+          const subject = subjectResource.response.subject;
+
+          const subjectResources = resArray.filter(r => r.response.subject === subject);
+
+          const hasVideo = subjectResources.some(
+            r => r.response.type === "video"
+          );
+
+          const linkTo = hasVideo
+            ? `/grade/grade${grade}/subject/${subject}`
+            : `/revision`;
+
+          return (
+            <Link
+              key={subject}
+              to={linkTo}
+              className="min-w-[220px] flex-shrink-0"
+            >
+              <Card className="transition-all hover:shadow-md h-full">
+                <CardHeader>
+                  <CardTitle>{capitalize(subject)}</CardTitle>
+                  <CardDescription>
+                    {subjectResources.length} Resources
+                  </CardDescription>
+                </CardHeader>
+                <CardFooter>
+                  <Button variant="outline" size="sm">
+                    {hasVideo ? "View Resources" : "Revision Only"}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  ))
+) : (
+  <div className="text-center text-muted-foreground">
+    No resources available yet.
+  </div>
+
+
+)}
+
+
+
 </div>
+
+
+
+
 
         </TabsContent>
         
@@ -339,14 +413,36 @@ const TeacherDashboard: React.FC = () => {
                   <CardTitle>My Learning Materials</CardTitle>
                   <CardDescription>Manage all your teaching resources</CardDescription>
                 </div>
-                <div className="flex gap-2">
-                  <Button onClick={() => handleCreateNew('document')}>
-                    <FileText className="mr-2 h-4 w-4" /> Upload Document
-                  </Button>
-                  <Button onClick={() => handleCreateNew('quiz')} variant="outline">
-                    <CheckCircle className="mr-2 h-4 w-4" /> Create Quiz
-                  </Button>
-                </div>
+               
+
+<div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full">
+  <Button
+    className="flex-1 flex items-center justify-center"
+    onClick={() => handleCreateNew('document')}
+  >
+    <FileText className="mr-2 h-4 w-4" />
+    Upload Document
+  </Button>
+
+  <Button
+    className="flex-1 flex items-center justify-center"
+    onClick={() => handleCreateNew('quiz')}
+    variant="outline"
+  >
+    <CheckCircle className="mr-2 h-4 w-4" />
+    Create Quiz
+  </Button>
+
+  <Button
+    className="flex-1 flex items-center justify-center"
+    onClick={() => handleCreateNew('video')}
+    variant="outline"
+  >
+    <Video className="mr-2 h-4 w-4" />
+    Upload Video
+  </Button>
+</div>
+
               </div>
             </CardHeader>
             <CardContent className={isMobile ? "px-2" : ""}>
@@ -370,7 +466,7 @@ const TeacherDashboard: React.FC = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {resources.map(resource => (
+                      {paginatedResources.map(resource => (
                         <TableRow key={resource.response.id}>
                           <TableCell className="font-medium">{resource.response.title}</TableCell>
                           <TableCell>
@@ -393,6 +489,30 @@ const TeacherDashboard: React.FC = () => {
                       ))}
                     </TableBody>
                   </Table>
+                  {totalPages > 1 && (
+  <div className="flex justify-end items-center mt-4 gap-2">
+    <Button
+      variant="outline"
+      size="sm"
+      disabled={currentPage === 1}
+      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+    >
+      Previous
+    </Button>
+    <span className="text-sm text-muted-foreground">
+      Page {currentPage} of {totalPages}
+    </span>
+    <Button
+      variant="outline"
+      size="sm"
+      disabled={currentPage === totalPages}
+      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+    >
+      Next
+    </Button>
+  </div>
+)}
+
                 </div>
               ) : (
                 <div className="text-center py-10">
