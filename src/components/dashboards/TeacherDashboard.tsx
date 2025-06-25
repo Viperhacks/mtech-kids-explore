@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Upload, Users, FileText, Book, PlusCircle, Video, CheckCircle } from 'lucide-react';
+import { Upload, Users, FileText, Book, PlusCircle, Video, CheckCircle, Trophy } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import DefaultLoginInfo from '../DefaultLoginInfo';
@@ -278,7 +278,7 @@ const paginatedResources = resources.slice(
                 <CardTitle>Recent Uploads</CardTitle>
                 <CardDescription>Your recently uploaded materials</CardDescription>
               </CardHeader>
-              <CardContent className={isMobile ? "px-2" : ""}>
+              <CardContent className={isMobile ? "px-2 " : ""}>
                 {isLoading ? (
                   <div className="space-y-3">
                     <Skeleton className="h-12 w-full" />
@@ -329,8 +329,8 @@ const paginatedResources = resources.slice(
         <div className="mb-8">
   <h2 className="text-xl font-semibold mb-4">Manage Grade Resources</h2>
 
-  {resources.length > 0 ? (
-  Object.entries(
+ <div className="space-y-6">
+  {Object.entries(
     resources.reduce<Record<string, typeof resources>>((acc, res) => {
       const grade = res.response.grade;
       if (!acc[grade]) acc[grade] = [];
@@ -338,66 +338,86 @@ const paginatedResources = resources.slice(
       return acc;
     }, {})
   ).map(([grade, resArray]) => (
+    <Card key={grade} className="border p-4">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">Grade {grade}</CardTitle>
+        <CardDescription className="text-sm text-muted-foreground">
+          {resArray.length} total resources
+        </CardDescription>
+      </CardHeader>
 
-    
+      <CardContent className="overflow-x-auto">
+              <div className="flex flex-nowrap gap-4 py-2">
+                {Array.from(
+                  new Map(resArray.map(r => [r.response.subject, r])).values()
+                ).map(subjectResource => {
+                  const subject = subjectResource.response.subject;
+                  const subjectResources = resArray.filter(
+                    r => r.response.subject === subject
+                  );
+                  const hasVideo = subjectResources.some(
+                    r => r.response.type === "video"
+                  );
+                  const linkTo = hasVideo
+                    ? `/grade/grade${grade}/subject/${subject}`
+                    : `/revision`;
 
-    <div key={grade} className="mb-6">
-      <h3 className="text-lg font-medium mb-2">Grade {grade}</h3>
+                  const counts = subjectResources.reduce((acc, r) => {
+                    acc[r.response.type] = (acc[r.response.type] || 0) + 1;
+                    return acc;
+                  }, {});
 
-      <div className="flex space-x-4 overflow-x-auto pb-2">
-        {Array.from(
-          new Map(
-            resArray.map(res => [res.response.subject, res])
-          ).values()
-        ).map((subjectResource) => {
-          const subject = subjectResource.response.subject;
+                  return (
+                    <div
+                      key={subject}
+                      className="flex-shrink-0 border rounded-lg p-3 flex flex-col justify-between w-48"
+                    >
+                      <div>
+                        <h4 className="font-medium">{capitalize(subject)}</h4>
+                        <p className="text-xs text-muted-foreground">
+                          {subjectResources.length} resources
+                        </p>
 
-          const subjectResources = resArray.filter(r => r.response.subject === subject);
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {counts.video && (
+                            <span className="inline-flex items-center text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full">
+                              <Video className="mr-2 h-4 w-4" /> {counts.video}
+                            </span>
+                          )}
+                          {counts.document && (
+                            <span className="inline-flex items-center text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full">
+                              <FileText className="mr-2 h-4 w-4" /> {counts.document}
+                            </span>
+                          )}
+                          {counts.quiz && (
+                            <span className="inline-flex items-center text-xs bg-amber-50 text-amber-700 px-2 py-1 rounded-full">
+                              <Trophy className="mr-2 h-4 w-4" /> {counts.quiz}
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-          const hasVideo = subjectResources.some(
-            r => r.response.type === "video"
-          );
+                      <Button variant="outline" size="sm" className="mt-4" asChild>
+                        <Link to={linkTo}>{hasVideo ? "View" : "Revise"}</Link>
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
 
-          const linkTo = hasVideo
-            ? `/grade/grade${grade}/subject/${subject}`
-            : `/revision`;
+      
+     
+    </Card>
+  ))}
+</div>
 
-          return (
-            <Link
-              key={subject}
-              to={linkTo}
-              className="min-w-[220px] flex-shrink-0"
-            >
-              <Card className="transition-all hover:shadow-md h-full">
-                <CardHeader>
-                  <CardTitle>{capitalize(subject)}</CardTitle>
-                  <CardDescription>
-                    {subjectResources.length} Resources
-                  </CardDescription>
-                </CardHeader>
-                <CardFooter>
-                  <Button variant="outline" size="sm">
-                    {hasVideo ? "View Resources" : "Revision Only"}
-                  </Button>
-                </CardFooter>
-              </Card>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  ))
-) : (
-  <div className="text-center text-muted-foreground">
-    No resources available yet.
-  </div>
-
-
-)}
 
 
 
 </div>
+
+
 
 
 
