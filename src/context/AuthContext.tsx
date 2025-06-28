@@ -102,9 +102,10 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     try {
       setIsLoading(true);
       const response = await axios.post('/api/auth/login', { username, password });
+      console.log("hey",response)
   
       if (response.data.success) {
-        const { token, refreshToken, role, status, fullName,gradeLevel, createdAt, id } = response.data.data;
+        const { token, refreshToken, role, status, fullName,gradeLevel, createdAt, id ,earnedBadges} = response.data.data;
   
         localStorage.setItem('auth_token', token);
         localStorage.setItem('refresh_token', refreshToken);
@@ -118,7 +119,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           id :id,
           role,
           status,
-          earnedBadges: [],
+          earnedBadges: earnedBadges || [],
           completedLessons: [],
           progress: {}
         };
