@@ -13,8 +13,8 @@ const contactItems = [
     bg: 'bg-mtech-primary/10',
     color: 'text-mtech-primary',
     content: [
-      'support@mtechkidzexplore.com',
-      'info@mtechkidzexplore.com',
+      'support@mtechkidzexplore.co.zw',
+      'info@mtechkidzexplore.co.zw',
     ],
   },
   {
