@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,12 +9,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Settings, BookOpen, Award, BarChart3, CheckCircle, Users, PenTool } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import ProfileEdit from '@/components/ProfileEdit';
+import api, { teacherService } from '@/lib/api';
+import { Student } from '@/components/types/apiTypes';
+import { toast } from '@/components/ui/use-toast';
 
 const Profile = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('progress');
   const [isEditing, setIsEditing] = useState(false);
-  
+  const [isLoading, setIsLoading] = useState(true);
+    const [isStudentsLoading, setIsStudentsLoading] = useState(true);
+    const [students, setStudents] = useState<Student[]>([]);
+    const [total,setTotal] = useState("");
   if (!user) {
     return (
       <div className="mtech-container py-16 text-center">
@@ -23,6 +29,57 @@ const Profile = () => {
       </div>
     );
   }
+  useEffect(()=>{
+    fetchStudents();
+  },[])
+
+  const fetchStudents = async () => {
+    setIsStudentsLoading(true);
+    try {
+      const response = await api.get("/teacher/students");
+      console.log("fetched students paginated response", response);
+
+      
+  
+      // Fix: The response is already unwrapped by the axios interceptor in api.ts
+      if (!Array.isArray(response?.content)) {
+        throw new Error('Missing or invalid content in response');
+      }
+  
+      if (response.content.length === 0) {
+        console.warn('No students found in response');
+        setStudents([]);
+        return;
+      }
+  
+      const formattedStudents = response.content.map((student, i) => ({
+        id: student.id ?? `student-${i}`,
+        fullName: student.fullName || 'Unnamed Student',
+        username: student.username || '',
+        email: student.email || '',
+        gradeLevel: student.gradeLevel || 'N/A',
+        role: student.role || 'STUDENT'
+      }));
+     
+
+      setTotal(formattedStudents.length)
+      setStudents(formattedStudents);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+  
+      toast({
+        title: "Failed to load students",
+        description: error instanceof Error 
+          ? error.message 
+          : "Could not load student data. Please try again.",
+        variant: "destructive"
+      });
+  
+      setStudents([]);
+    } finally {
+      setIsStudentsLoading(false);
+    }
+  };
   
   // Calculate overall progress - only relevant for students
   const overallProgress = user.role === 'STUDENT' && user.progress ? 
@@ -217,7 +274,7 @@ const Profile = () => {
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-mtech-primary">
-                        0
+                        {total}
                       </p>
                       <p className="text-xs text-gray-500">Students</p>
                     </div>
