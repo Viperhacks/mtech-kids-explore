@@ -43,7 +43,7 @@ const Profile = () => {
       name: 'Welcome!', 
       description: 'Joined MTECH Kids Explore', 
       icon: '👋', 
-      earned: true,
+      earned: user.earnedBadges?.includes('welcome')||true,
       roles: ['STUDENT', 'TEACHER', 'ADMIN']
     },
     { 
@@ -59,7 +59,7 @@ const Profile = () => {
       name: 'Math Wizard', 
       description: 'Completed all math lessons', 
       icon: '🧮', 
-      earned: user.progress?.['mathematics']?.completed === user.progress?.['mathematics']?.total,
+      earned: false,
       roles: ['STUDENT']
     },
     { 
