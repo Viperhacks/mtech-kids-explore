@@ -44,7 +44,7 @@ const Profile = () => {
       description: 'Joined MTECH Kids Explore', 
       icon: '👋', 
       earned: true,
-      roles: ['student', 'teacher', 'admin']
+      roles: ['STUDENT', 'TEACHER', 'ADMIN']
     },
     { 
       id: 'eager_learner', 
@@ -52,7 +52,7 @@ const Profile = () => {
       description: 'Completed 5+ lessons', 
       icon: '📚', 
       earned: user.earnedBadges?.includes('eager_learner') || false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'math_wizard', 
@@ -60,7 +60,7 @@ const Profile = () => {
       description: 'Completed all math lessons', 
       icon: '🧮', 
       earned: user.progress?.['mathematics']?.completed === user.progress?.['mathematics']?.total,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'science_explorer', 
@@ -68,7 +68,7 @@ const Profile = () => {
       description: 'Completed 3+ science quizzes', 
       icon: '🔬', 
       earned: false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'perfect_score', 
@@ -76,7 +76,7 @@ const Profile = () => {
       description: 'Scored 100% on a quiz', 
       icon: '🏆', 
       earned: false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'reading_champion', 
@@ -84,7 +84,7 @@ const Profile = () => {
       description: 'Read 10+ lessons', 
       icon: '📖', 
       earned: false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'quiz_master', 
@@ -92,7 +92,7 @@ const Profile = () => {
       description: 'Completed 20+ quizzes', 
       icon: '✅', 
       earned: false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'consistent_learner', 
@@ -100,7 +100,7 @@ const Profile = () => {
       description: 'Logged in for 5 consecutive days', 
       icon: '📆', 
       earned: false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'helpful_teacher', 
@@ -108,7 +108,7 @@ const Profile = () => {
       description: 'Created content that helped many students', 
       icon: '🏆', 
       earned: false,
-      roles: ['teacher']
+      roles: ['TEACHER']
     },
     { 
       id: 'content_creator', 
@@ -116,7 +116,7 @@ const Profile = () => {
       description: 'Created multiple high-quality learning resources', 
       icon: '✏️', 
       earned: false,
-      roles: ['teacher']
+      roles: ['TEACHER']
     },
   ];
 
