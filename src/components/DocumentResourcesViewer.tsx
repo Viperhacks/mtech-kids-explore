@@ -66,24 +66,27 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
       // Ensure the response is typed correctly
       const resources = response.resources as { response: { type: string; subject: string } }[];
 
+      const documentResources = resources.filter(
+        (resource) => resource.response.type === "document"
+      );
+
       // Extract unique subjects
       const uniqueSubjects = [
-        ...new Set(resources.map((resource) => resource.response.subject)),
+        ...new Set(documentResources.map((resource) => resource.response.subject)),
       ];
 
       setSubjects(uniqueSubjects);
 
       // Filter for document type resources only
-      const documentResources = resources.filter(
-        (resource) => resource.response.type === "document"
-      );
-      console.log("lenghth",documentResources.length)
+      
+     
 
       const limitedResources = limit ? documentResources.slice(0, limit) : documentResources;
+       console.log("limited",limitedResources.length)
 
       setResources(limitedResources);
 
-      if (documentResources.length === 0) {
+      if (limitedResources.length === 0) {
         toast.info("No document resources found for this grade/subject");
       }
     } catch (error) {
@@ -137,7 +140,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
         </div>
       ) : (
         <div>
-          <div className="mb-4">
+          {/*<div className="mb-4">
             <label htmlFor="subject-select" className="text-sm font-medium text-gray-700">Select Subject</label>
             <select
               id="subject-select"
@@ -152,7 +155,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
                 </option>
               ))}
             </select>
-          </div>
+          </div>*/}
 
           {loading ? (
             <div className="flex items-center justify-center h-40">

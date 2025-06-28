@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import DocumentResourcesViewer from '@/components/DocumentResourcesViewer';
 
 const Revision = () => {
-  const [activeTab, setActiveTab] = useState("mathematics");
+  const [activeTab, setActiveTab] = useState("");
   const { isAuthenticated, user } = useAuth();
   
 
