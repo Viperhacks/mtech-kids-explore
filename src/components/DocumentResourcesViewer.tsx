@@ -77,6 +77,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
       const documentResources = resources.filter(
         (resource) => resource.response.type === "document"
       );
+      console.log("lenghth",documentResources.length)
 
       const limitedResources = limit ? documentResources.slice(0, limit) : documentResources;
 

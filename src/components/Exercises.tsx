@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DocumentResourcesViewer from '@/components/DocumentResourcesViewer';
 
 const Exercises = () => {
-  const { isAuthenticated } = useAuth();
+  const {user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<string>("documents");
   const [selectedGrade, setSelectedGrade] = useState<string>("");
 
@@ -15,6 +15,14 @@ const Exercises = () => {
     setSelectedGrade(e.target.value);
   };
 
+  const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
+
+  const gradesToRender = isAuthenticated ?
+    [getRecommendedGrade()]
+    : selectedGrade
+    ? [selectedGrade]
+    : ['1','2','3','4','5','6','7']
+  
   return (
     <div className="container mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold text-center text-mtech-primary mb-8">Practice Exercises</h1>
@@ -24,7 +32,9 @@ const Exercises = () => {
       </p>
 
       {/* Grade Filter */}
-      <div className="mb-6">
+      {
+        !isAuthenticated && (
+          <div className="mb-6">
         <label htmlFor="grade-select" className="text-sm font-medium text-gray-700">Select Grade</label>
         <select
           id="grade-select"
@@ -38,6 +48,8 @@ const Exercises = () => {
           ))}
         </select>
       </div>
+        )
+      }
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
         <TabsList className="w-full justify-start mb-6">
@@ -53,7 +65,18 @@ const Exercises = () => {
             </p>
 
             <div className="grid grid-cols-1 gap-6">
-              {/* Loop through grades 1 to 7 */}
+              {
+                gradesToRender.map((grade)=>(
+                  <div key={grade} className="bg-mtech-primary/5 p-6 rounded-lg mb-6">
+                      <h3 className="text-lg font-medium text-mtech-primary mb-3">{`Grade ${grade} Worksheets`}</h3>
+                      <DocumentResourcesViewer 
+                        grade={selectedGrade || String(grade)} // Filter based on selected grade
+                        limit={isAuthenticated ? 6 : undefined} 
+                      />
+                    </div>
+                ))
+              }
+              {/* Loop through grades 1 to 7 
               {[1, 2, 3, 4, 5, 6, 7].map((grade) => {
                 if (selectedGrade === "" || selectedGrade === String(grade)) {
                   return (
@@ -67,7 +90,7 @@ const Exercises = () => {
                   );
                 }
                 return null; // Do not render anything if the grade is not selected
-              })}
+              })}*/}
             </div>
           </div>
         </TabsContent>
