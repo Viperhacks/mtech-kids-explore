@@ -13,7 +13,7 @@ const About = () => {
         <div className="lg:col-span-2">
           <h2 className="text-2xl font-semibold mb-4 text-mtech-secondary">Our Mission</h2>
           <p className="text-gray-600 mb-6">
-            MTECH is dedicated to providing accessible, high-quality educational resources for primary school students. 
+            Mtech Academy is dedicated to providing accessible, high-quality educational resources for primary school students. 
             Our platform aims to empower young learners with the tools they need to succeed academically and develop a 
             lifelong love for learning.
           </p>
@@ -27,7 +27,7 @@ const About = () => {
           
           <h2 className="text-2xl font-semibold mb-4 text-mtech-secondary">Our Story</h2>
           <p className="text-gray-600">
-            MTECH began as a small initiative by a group of passionate educators who recognized the need for more 
+            Mtech Academy began as a small initiative by a group of passionate educators who recognized the need for more 
             engaging and accessible learning resources for primary school children. What started as a collection of 
             digital worksheets has grown into a comprehensive educational platform that serves thousands of students 
             across the country.
@@ -77,37 +77,7 @@ const About = () => {
             </CardContent>
           </Card>
           
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-xl font-semibold mb-3 text-mtech-secondary">Key Achievements</h3>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <div className="bg-mtech-primary/20 p-1 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-mtech-primary"><path d="M8 9l3 3l5-5"></path><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"></path></svg>
-                  </div>
-                  <span className="text-gray-700">Reached 10,000+ students</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="bg-mtech-primary/20 p-1 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-mtech-primary"><path d="M8 9l3 3l5-5"></path><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"></path></svg>
-                  </div>
-                  <span className="text-gray-700">Educational Excellence Award 2023</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="bg-mtech-primary/20 p-1 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-mtech-primary"><path d="M8 9l3 3l5-5"></path><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"></path></svg>
-                  </div>
-                  <span className="text-gray-700">Partnership with 50+ schools</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="bg-mtech-primary/20 p-1 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-mtech-primary"><path d="M8 9l3 3l5-5"></path><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"></path></svg>
-                  </div>
-                  <span className="text-gray-700">1,000+ educational resources</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
+         
         </div>
       </div>
     </div>
