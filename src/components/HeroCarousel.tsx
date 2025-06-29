@@ -2,33 +2,33 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
-import awardImg from '@/assets/award.jpeg';
-import gradImg from '@/assets/leavers.jpeg';
-import sportsImg from '@/assets/sports.jpeg';
+import mtechInfo from '@/assets/mtech_logo.svg';
+import firstImage from "@/assets/img2.jpg";
+import partyCelebrations from '@/assets/img3.jpg';
 import scienceImg from '@/assets/science-fair.jpg';
 
 
 const carouselItems = [
   {
     id: 1,
-    image: awardImg, 
-    alt: 'Student award ceremony',
-    title: 'End of Term Honours',
-    description: 'Recognising top performers with certificates and parents clapping loudest'
+    image: mtechInfo, 
+    alt: 'Mtech Academy Info',
+    title: 'Educational Excellence',
+    description: 'Stated in 2017 3373 Nehanda Cop. Dzivarasekwa Extension.'
   },
   {
     id: 2,
-    image: gradImg,
-    alt: 'School leavers in uniforms',
-    title: 'Leavers Celebration',
-    description: 'Grade 7 farewell with speeches, songs, and some sad moms'
+    image: firstImage,
+    alt: 'ECD  Student with certificate',
+    title: 'Charmine Makamba - E.C.D 2018',
+    description: 'Best Student-Keep on working hard'
   },
   {
     id: 3,
-    image: sportsImg,
-    alt: 'School sports day field',
-    title: 'Interhouse Sports Day',
-    description: 'Red, Blue, Yellow teams sweating it out on the dusty fields'
+    image: partyCelebrations,
+    alt: '2017 E.C.D Party Celebrations',
+    title: 'Party Celebrations',
+    description: 'Party Celebrations 2017 ECD'
   },
   {
     id: 4,
