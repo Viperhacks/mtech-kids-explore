@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import AuthForm from './AuthForm';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-import logo from '@/assets/mtech-kidz-app-icon.svg';
+import logo from '@/assets/mtech_test.svg';
 
 
 const getSeason = () => {
@@ -86,7 +86,7 @@ const Navbar: React.FC = () => {
             <img
               src={logo}  
               alt="MTECH Logo"
-              className="w-12 h-12"
+              className="w-20 h-20"
             />
             <span className="text-3xl font-bold text-pink-500">MTECH</span>
             <span className="hidden md:inline-block text-green-500 text-xl font-semibold">Kids Explore</span>
