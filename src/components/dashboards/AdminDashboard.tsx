@@ -10,12 +10,12 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/context/AuthContext';
 import { BarChart3, Users, Settings, Shield, Book, FileText, Building2 } from 'lucide-react';
 import DefaultLoginInfo from '../DefaultLoginInfo';
-import CourseCreation from './CourseCreation';
+import CourseCreation from '../CourseCreation';
 import { getAllUsers, getTotalStats } from '@/services/apiService';
 import { toast } from '../ui/use-toast';
 import { getDaysAgo } from '@/utils/calculateDays';
 import { capitalize } from '@/utils/stringUtils';
-import TeacherAccountCreation from '../StudentAccountCreation copy';
+import TeacherAccountCreation from '../TeacherAccountCreation';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();

@@ -43,8 +43,7 @@ const CourseCreation = () => {
     setIsLoading(true);
 
     try {
-      // Try to create the course via an API
-      // This is just a placeholder - in a real app, you'd use a proper API endpoint
+      
       await axios.post('http://localhost:8080/api/courses', formData);
       
       toast({

@@ -12,6 +12,8 @@ import ProfileEdit from '@/components/ProfileEdit';
 import api, { teacherService } from '@/lib/api';
 import { Student } from '@/components/types/apiTypes';
 import { toast } from '@/components/ui/use-toast';
+import { getTotalStats } from '@/services/apiService';
+
 
 const Profile = () => {
   const { user } = useAuth();
@@ -21,6 +23,22 @@ const Profile = () => {
     const [isStudentsLoading, setIsStudentsLoading] = useState(true);
     const [students, setStudents] = useState<Student[]>([]);
     const [total,setTotal] = useState("");
+  type Stats = {
+      totalUsers: number;
+      totalTeachers: number;
+      totalStudents: number;
+      totalResources: number;
+    };
+  
+   
+    
+    const [totalStats, setTotalStats] = useState<Stats>({
+      totalUsers: 0,
+      totalTeachers: 0,
+      totalStudents: 0,
+      totalResources: 0,
+    });
+
   if (!user) {
     return (
       <div className="mtech-container py-16 text-center">
@@ -31,7 +49,28 @@ const Profile = () => {
   }
   useEffect(()=>{
     fetchStudents();
+    fetchStats();
   },[])
+
+
+   const fetchStats = async ()=>{
+    setIsLoading(true);
+    try {
+      const response = await getTotalStats();
+      
+     
+      setTotalStats(response);
+    } catch (error) {
+       console.error('Error fetching stats:', error);
+      toast({
+        title: "Failed to load stats",
+        description: "Could not system statistics. Please try again.",
+        variant: "destructive"
+      });
+    } finally{
+      setIsLoading(false);
+    }
+  }
 
   const fetchStudents = async () => {
     setIsStudentsLoading(true);
@@ -285,19 +324,19 @@ const Profile = () => {
                   <>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-mtech-primary">
-                        0
+                        {totalStats.totalTeachers}
                       </p>
                       <p className="text-xs text-gray-500">Teachers</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-mtech-secondary">
-                        0
+                       {totalStats.totalStudents}
                       </p>
                       <p className="text-xs text-gray-500">Students</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-mtech-primary">
-                        0
+                        {totalStats.totalResources}
                       </p>
                       <p className="text-xs text-gray-500">Resources</p>
                     </div>
