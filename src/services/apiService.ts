@@ -4,7 +4,6 @@ import api, {
   resourceService, 
   quizService, 
   trackingService, 
-  parentService, 
   adminService, 
   teacherService
 } from '@/lib/api';
@@ -128,6 +127,7 @@ export const deleteResource = async (id: string) => {
 export const getQuizzes = async (gradeId?: string, subjectId?: string) => {
   try {
     const response = await quizService.getQuizzes(gradeId, subjectId);
+    console.log("response from api: ",response)
     return response.data;
   } catch (error) {
     console.error('Get quizzes error:', error);
@@ -217,42 +217,13 @@ export const getActiveUsers = async (period: string = 'day') => {
   }
 };
 
-// Parent services
-export const connectToStudent = async (parentId: string, studentEmail: string) => {
-  try {
-    const response = await parentService.connectToStudent(parentId, studentEmail);
-    return response.data;
-  } catch (error) {
-    console.error('Connect to student error:', error);
-    throw error;
-  }
-};
-
-export const getStudentData = async (studentId: string) => {
-  try {
-    const response = await parentService.getStudentData(studentId);
-    return response.data;
-  } catch (error) {
-    console.error('Get student data error:', error);
-    throw error;
-  }
-};
-
-export const getConnectedStudents = async (parentId: string) => {
-  try {
-    const response = await parentService.getConnectedStudents(parentId);
-    return response.data;
-  } catch (error) {
-    console.error('Get connected students error:', error);
-    throw error;
-  }
-};
 
 // Admin services
 export const getAllUsers = async (page: number = 1, limit: number = 10, filters?: any) => {
   try {
     const response = await adminService.getAllUsers(page, limit, filters);
-    return response.data;
+     console.log("response from api: ",response)
+    return response.data.content;
   } catch (error) {
     console.error('Get all users error:', error);
     throw error;
@@ -278,26 +249,17 @@ export const getAllStudents = async (): Promise<PaginatedResponse<Student>> => {
 
 
 
-export const getUsageMetrics = async (period: string = 'week') => {
+ export const getTotalStats = async()=>{
   try {
-    const response = await adminService.getUsageMetrics(period);
+    const response = await adminService.getTotalStats();
     return response.data;
   } catch (error) {
-    console.error('Get usage metrics error:', error);
+     console.error('Get total stats error:', error);
     throw error;
   }
-};
+ }
 
-// Renamed from getUserStats to getAdminUserStats to avoid duplicate declaration
-export const getAdminUserStats = async () => {
-  try {
-    const response = await adminService.getUserStats();
-    return response.data;
-  } catch (error) {
-    console.error('Get admin user stats error:', error);
-    throw error;
-  }
-};
+
 
 export const getResourceStats = async () => {
   try {

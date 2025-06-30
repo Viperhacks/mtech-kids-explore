@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,23 +11,62 @@ import { useAuth } from '@/context/AuthContext';
 import { BarChart3, Users, Settings, Shield, Book, FileText } from 'lucide-react';
 import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseCreation from './CourseCreation';
+import { getAllUsers, getTotalStats } from '@/services/apiService';
+import { toast } from '../ui/use-toast';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  type Stats = {
+    totalUsers: number;
+    totalTeachers: number;
+    totalStudents: number;
+    totalResources: number;
+  };
+  
+  const [totalStats, setTotalStats] = useState<Stats>({
+    totalUsers: 0,
+    totalTeachers: 0,
+    totalStudents: 0,
+    totalResources: 0,
+  });
+
+  useEffect(()=>{
+    fetchStats();
+  },[])
   
   // Mock data for admin dashboard
   const recentUsers = [
-    { id: 1, name: "John Doe", email: "john@example.com", role: "Student", date: "2 days ago" },
+      
     { id: 2, name: "Jane Smith", email: "jane@example.com", role: "Teacher", date: "3 days ago" },
     { id: 3, name: "Robert Johnson", email: "robert@example.com", role: "Student", date: "1 week ago" },
   ];
   
+  
+
+  const fetchStats = async ()=>{
+    setIsLoading(true);
+    try {
+      const response = await getTotalStats();
+      console.log(response);
+      setTotalStats(response);
+    } catch (error) {
+       console.error('Error fetching stats:', error);
+      toast({
+        title: "Failed to load stats",
+        description: "Could not system statistics. Please try again.",
+        variant: "destructive"
+      });
+    } finally{
+      setIsLoading(false);
+    }
+  }
+
   const stats = [
-    { label: "Total Users", value: "243", icon: Users },
-    { label: "Teachers", value: "18", icon: Shield },
-    { label: "Students", value: "225", icon: Book },
-    { label: "Resources", value: "142", icon: FileText },
+    { label: "Total Users", value: totalStats.totalUsers , icon: Users },
+    { label: "Teachers", value: totalStats.totalTeachers, icon: Shield },
+    { label: "Students", value: totalStats.totalStudents, icon: Book },
+    { label: "Resources", value: totalStats.totalResources, icon: FileText },
   ];
   
   return (

@@ -114,23 +114,17 @@ export const trackingService = {
   getActiveUsers: (period: string = 'day') => api.get(`/admin/active-users`, { params: { period } }),
 };
 
-// Parent-student connection services
-export const parentService = {
-  connectToStudent: (parentId: string, studentEmail: string) => 
-    api.post('/parents/connect', { parentId, studentEmail }),
-  getStudentData: (studentId: string) => api.get(`/parents/student/${studentId}`),
-  getConnectedStudents: (parentId: string) => api.get(`/parents/${parentId}/students`),
-};
+
 
 // Admin services
 export const adminService = {
-  getUserStats: () => api.get('/admin/stats/users'),
+  getTotalStats: () => api.get('/admin/users/stats'),
   getResourceStats: () => api.get('/admin/stats/resources'),
   getActivityLogs: (filters?: any) => api.get('/admin/logs', { params: filters }),
   updateUserRole: (userId: string, role: string) => api.put(`/admin/users/${userId}/role`, { role }),
   getAllUsers: (page: number = 1, limit: number = 10, filters?: any) => 
-    api.get('/admin/users', { params: { page, limit, ...filters } }),
-  getUsageMetrics: (period: string = 'week') => api.get(`/admin/metrics/usage`, { params: { period } }),
+    api.get('/admin/users', { params: { page, limit, ...filters } })
+
 };
 
 // Teacher services
