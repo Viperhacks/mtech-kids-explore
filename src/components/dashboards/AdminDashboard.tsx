@@ -13,6 +13,8 @@ import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseCreation from './CourseCreation';
 import { getAllUsers, getTotalStats } from '@/services/apiService';
 import { toast } from '../ui/use-toast';
+import { getDaysAgo } from '@/utils/calculateDays';
+import { capitalize } from '@/utils/stringUtils';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -23,6 +25,8 @@ const AdminDashboard: React.FC = () => {
     totalStudents: number;
     totalResources: number;
   };
+
+ 
   
   const [totalStats, setTotalStats] = useState<Stats>({
     totalUsers: 0,
@@ -31,16 +35,21 @@ const AdminDashboard: React.FC = () => {
     totalResources: 0,
   });
 
+type RecentUser = {
+    id: string;
+    name: string;
+    username: string;
+    role: string;
+    date: string;
+  };
+  const [joinedUsers, setRecentUsers] = useState<RecentUser[]>([]);
   useEffect(()=>{
     fetchStats();
+    fetchUsers();
   },[])
   
-  // Mock data for admin dashboard
-  const recentUsers = [
-      
-    { id: 2, name: "Jane Smith", email: "jane@example.com", role: "Teacher", date: "3 days ago" },
-    { id: 3, name: "Robert Johnson", email: "robert@example.com", role: "Student", date: "1 week ago" },
-  ];
+ 
+  
   
   
 
@@ -48,7 +57,8 @@ const AdminDashboard: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await getTotalStats();
-      console.log(response);
+      
+     
       setTotalStats(response);
     } catch (error) {
        console.error('Error fetching stats:', error);
@@ -62,12 +72,40 @@ const AdminDashboard: React.FC = () => {
     }
   }
 
+
+  const fetchUsers = async ()=>{
+    setIsLoading(true);
+    try {
+      const response =  await getAllUsers(0,10);
+
+      let content = response || [];
+      content = content.sort((a,b)=>
+      new Date(b.createdAt).getTime()- new Date(a.createdAt).getTime())
+
+      const formatted = content.map(u=> ({
+        id: u.id,
+        name: u.fullName,
+        username: u.username,
+        role: u.role,
+        date: getDaysAgo(u.createdAt),
+      }));
+
+      console.log(response);
+      console.log("sorted",formatted)
+      setRecentUsers(formatted)
+    } catch (error) {
+      
+    }
+  }
+
   const stats = [
     { label: "Total Users", value: totalStats.totalUsers , icon: Users },
     { label: "Teachers", value: totalStats.totalTeachers, icon: Shield },
     { label: "Students", value: totalStats.totalStudents, icon: Book },
     { label: "Resources", value: totalStats.totalResources, icon: FileText },
   ];
+
+  const recentUsers =joinedUsers;
   
   return (
     <div className="container mx-auto py-8 px-4">
@@ -107,7 +145,7 @@ const AdminDashboard: React.FC = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
+                    <TableHead>Username</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Joined</TableHead>
                   </TableRow>
@@ -115,8 +153,8 @@ const AdminDashboard: React.FC = () => {
                 <TableBody>
                   {recentUsers.map(user => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
+                      <TableCell className="font-medium">{capitalize(user.name)}</TableCell>
+                      <TableCell>{user.username}</TableCell>
                       <TableCell>
                         <span 
                           className={`px-2 py-1 rounded-full text-xs ${
@@ -162,7 +200,7 @@ const AdminDashboard: React.FC = () => {
       </div>
       
       <Tabs defaultValue="courses" className="w-full mb-8">
-        <TabsList>
+        <TabsList >
           <TabsTrigger value="courses">Course Management</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>

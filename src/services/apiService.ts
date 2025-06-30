@@ -222,8 +222,8 @@ export const getActiveUsers = async (period: string = 'day') => {
 export const getAllUsers = async (page: number = 1, limit: number = 10, filters?: any) => {
   try {
     const response = await adminService.getAllUsers(page, limit, filters);
-     console.log("response from api: ",response)
-    return response.data.content;
+     console.log("response from api: ",response?.content)
+    return response.content;
   } catch (error) {
     console.error('Get all users error:', error);
     throw error;
