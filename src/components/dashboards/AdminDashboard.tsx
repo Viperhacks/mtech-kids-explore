@@ -15,6 +15,7 @@ import { getAllUsers, getTotalStats } from '@/services/apiService';
 import { toast } from '../ui/use-toast';
 import { getDaysAgo } from '@/utils/calculateDays';
 import { capitalize } from '@/utils/stringUtils';
+import TeacherAccountCreation from '../StudentAccountCreation copy';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -206,12 +207,12 @@ type RecentUser = {
         
         <TabsContent value="courses" className="pt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <CourseCreation />
+            <TeacherAccountCreation />
             
             <Card>
               <CardHeader>
-                <CardTitle>Active Courses</CardTitle>
-                <CardDescription>Currently active courses in the system</CardDescription>
+                <CardTitle>Active Teachers</CardTitle>
+                <CardDescription>Currently active teachers in the system</CardDescription>
               </CardHeader>
               <CardContent>
                 {isLoading ? (
@@ -224,30 +225,24 @@ type RecentUser = {
                   <div className="space-y-3">
                     <div className="flex justify-between p-3 border rounded-md">
                       <div>
-                        <p className="font-medium">Mathematics Fundamentals</p>
-                        <p className="text-sm text-muted-foreground">Grade 4 • 12 weeks</p>
+                        <p className="font-medium">First Teacher</p>
+                        <p className="text-sm text-muted-foreground">Grade 4 </p>
                       </div>
                       <Badge variant="outline">Active</Badge>
                     </div>
                     <div className="flex justify-between p-3 border rounded-md">
                       <div>
-                        <p className="font-medium">Science Exploration</p>
-                        <p className="text-sm text-muted-foreground">Grade 5 • 10 weeks</p>
+                        <p className="font-medium">Second Teacher </p>
+                        <p className="text-sm text-muted-foreground">Grade 5 </p>
                       </div>
                       <Badge variant="outline">Active</Badge>
                     </div>
-                    <div className="flex justify-between p-3 border rounded-md">
-                      <div>
-                        <p className="font-medium">English Literature</p>
-                        <p className="text-sm text-muted-foreground">Grade 6 • 16 weeks</p>
-                      </div>
-                      <Badge variant="outline">Active</Badge>
-                    </div>
+                    
                   </div>
                 )}
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">View All Courses</Button>
+                <Button variant="outline" className="w-full">View All Teachers</Button>
               </CardFooter>
             </Card>
           </div>
