@@ -1,0 +1,136 @@
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d47a1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#42a5f5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="robotGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1565c0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#64b5f6;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glowGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:#e3f2fd;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#bbdefb;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Main Background -->
+  <circle cx="250" cy="250" r="240" fill="url(#bgGradient)" />
+  
+  <!-- Glow Effect -->
+  <circle cx="250" cy="250" r="210" fill="url(#glowGradient)" />
+  
+  <!-- Tech Pattern Background -->
+  <g opacity="0.2">
+    <path d="M50,50 L100,50 L100,55 L55,55 L55,100 L50,100 Z" fill="#e1f5fe" />
+    <path d="M400,50 L450,50 L450,100 L445,100 L445,55 L400,55 Z" fill="#e1f5fe" />
+    <path d="M50,400 L50,450 L100,450 L100,445 L55,445 L55,400 Z" fill="#e1f5fe" />
+    <path d="M450,400 L450,450 L400,450 L400,445 L445,445 L445,400 Z" fill="#e1f5fe" />
+    
+    <!-- Circuit Board Lines -->
+    <path d="M70,120 L180,120" stroke="#e1f5fe" stroke-width="2" />
+    <path d="M70,120 L70,200" stroke="#e1f5fe" stroke-width="2" />
+    <circle cx="70" cy="200" r="5" fill="#e1f5fe" />
+    
+    <path d="M430,120 L320,120" stroke="#e1f5fe" stroke-width="2" />
+    <path d="M430,120 L430,200" stroke="#e1f5fe" stroke-width="2" />
+    <circle cx="430" cy="200" r="5" fill="#e1f5fe" />
+    
+    <path d="M120,380 L380,380" stroke="#e1f5fe" stroke-width="2" />
+    <circle cx="120" cy="380" r="5" fill="#e1f5fe" />
+    <circle cx="250" cy="380" r="5" fill="#e1f5fe" />
+    <circle cx="380" cy="380" r="5" fill="#e1f5fe" />
+  </g>
+  
+  <!-- Learning Elements -->
+  <!-- Stylized Puzzle Piece -->
+  <path d="M390,160 C390,145 405,145 405,160 L420,160 C420,175 435,175 435,160 L435,190 C420,190 420,205 435,205 L405,205 C405,220 390,220 390,205 L375,205 C375,190 360,190 360,205 L360,160 L390,160 Z" fill="#bbdefb" opacity="0.7" />
+  <path d="M390,160 C390,145 405,145 405,160 L420,160 C420,175 435,175 435,160 L435,190 C420,190 420,205 435,205 L405,205 C405,220 390,220 390,205 L375,205 C375,190 360,190 360,205 L360,160 L390,160 Z" stroke="#0d47a1" stroke-width="2" fill="none" />
+  
+  <!-- Stylized Book -->
+  <g transform="translate(80, 170) rotate(-10)">
+    <path d="M0,0 L40,0 L40,60 L0,60 Z" fill="#90caf9" />
+    <path d="M0,0 L40,0 L40,60 L0,60 Z" stroke="#0d47a1" stroke-width="1" fill="none" />
+    <path d="M5,10 L35,10 M5,20 L35,20 M5,30 L25,30" stroke="#0d47a1" stroke-width="1" />
+  </g>
+  
+  <!-- Stars with Glow -->
+  <g opacity="0.9">
+    <path d="M110,90 L120,110 L100,110 Z" fill="#e1f5fe" transform="rotate(30, 110, 100)" />
+    <path d="M400,120 L410,140 L390,140 Z" fill="#e1f5fe" transform="rotate(45, 400, 130)" />
+    <path d="M160,370 L170,390 L150,390 Z" fill="#e1f5fe" transform="rotate(15, 160, 380)" />
+    <path d="M350,350 L360,370 L340,370 Z" fill="#e1f5fe" transform="rotate(60, 350, 360)" />
+    
+    <!-- Glowing Stars -->
+    <circle cx="110" cy="100" r="15" fill="white" opacity="0.3" />
+    <circle cx="400" cy="130" r="15" fill="white" opacity="0.3" />
+    <circle cx="160" cy="380" r="15" fill="white" opacity="0.3" />
+    <circle cx="350" cy="360" r="15" fill="white" opacity="0.3" />
+  </g>
+  
+  <!-- Robot Character -->
+  <!-- Robot Head -->
+  <g>
+    <circle cx="250" cy="150" r="65" fill="#0d47a1" />
+    <circle cx="250" cy="150" r="60" fill="url(#robotGradient)" />
+    
+    <!-- Robot Face -->
+    <g>
+      <!-- Eyes -->
+      <circle cx="230" cy="140" r="18" fill="white" />
+      <circle cx="270" cy="140" r="18" fill="white" />
+      
+      <!-- Pupils with Glint -->
+      <circle cx="230" cy="140" r="10" fill="#0d47a1" />
+      <circle cx="270" cy="140" r="10" fill="#0d47a1" />
+      <circle cx="226" cy="136" r="3" fill="white" />
+      <circle cx="266" cy="136" r="3" fill="white" />
+      
+      <!-- Smile -->
+      <path d="M225,170 Q250,190 275,170" stroke="white" stroke-width="6" stroke-linecap="round" fill="none" />
+      
+      <!-- Robot Antenna -->
+      <rect x="245" y="85" width="10" height="25" rx="2" ry="2" fill="#0d47a1" />
+      <circle cx="250" cy="80" r="12" fill="#64b5f6" />
+      <circle cx="250" cy="80" r="8" fill="#e1f5fe" />
+      <circle cx="250" cy="80" r="4" fill="#0d47a1" />
+    </g>
+  </g>
+  
+  <!-- Robot Body -->
+  <g>
+    <!-- Main Body -->
+    <rect x="180" y="190" rx="30" ry="30" width="140" height="160" fill="#0d47a1" />
+    <rect x="180" y="190" rx="30" ry="30" width="140" height="150" fill="url(#robotGradient)" />
+    
+    <!-- Tech Details on Body -->
+    <rect x="210" y="210" width="80" height="30" rx="5" ry="5" fill="#0d47a1" />
+    <rect x="215" y="215" width="70" height="20" rx="3" ry="3" fill="#bbdefb" />
+    
+    <!-- Control Buttons -->
+    <circle cx="230" cy="260" r="12" fill="#0d47a1" />
+    <circle cx="230" cy="260" r="8" fill="#e1f5fe" />
+    
+    <circle cx="250" cy="260" r="12" fill="#0d47a1" />
+    <circle cx="250" cy="260" r="8" fill="#e1f5fe" />
+    
+    <circle cx="270" cy="260" r="12" fill="#0d47a1" />
+    <circle cx="270" cy="260" r="8" fill="#e1f5fe" />
+    
+    <!-- Status Light -->
+    <circle cx="250" cy="290" r="15" fill="#0d47a1" />
+    <circle cx="250" cy="290" r="12" fill="#64b5f6" />
+    <circle cx="250" cy="290" r="8" fill="#e1f5fe" />
+    <circle cx="250" cy="290" r="15" stroke="#e1f5fe" stroke-width="1" fill="none" opacity="0.5" />
+    
+    <!-- Robot Arms -->
+    <path d="M180,220 L140,220 C130,220 130,240 140,240 L180,240" fill="#1565c0" />
+    <path d="M180,220 L140,220 C130,220 130,240 140,240 L180,240" stroke="#0d47a1" stroke-width="2" fill="none" />
+    <circle cx="145" cy="230" r="8" fill="#bbdefb" />
+    
+    <path d="M320,220 L360,220 C370,220 370,240 360,240 L320,240" fill="#1565c0" />
+    <path d="M320,220 L360,220 C370,220 370,240 360,240 L320,240" stroke="#0d47a1" stroke-width="2" fill="none" />
+    <circle cx="355" cy="230" r="8" fill="#bbdefb" />
+  </g>
+</svg>

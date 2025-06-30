@@ -1,73 +1,150 @@
-# Welcome to your Lovable project
+# MTech Kids Explore
 
-## Project info
+MTech Kids Explore is a modern, accessible educational platform built to empower primary school learners. It provides high-quality resources, interactive content, and tools for students, teachers, and parents.
 
-**URL**: https://lovable.dev/projects/d6e6da29-be96-4fd2-baa1-202039543235
+---
 
-## How can I edit this code?
+## Table of Contents
 
-There are several ways of editing your application.
+- [About](#about)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Deployment](#deployment)
+- [Key Achievements](#key-achievements)
+- [Contributing](#contributing)
+- [License](#license)
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d6e6da29-be96-4fd2-baa1-202039543235) and start prompting.
+## About
 
-Changes made via Lovable will be committed automatically to this repo.
+MTech Kids Explore is dedicated to providing accessible, high-quality educational resources for primary school students. Our mission is to empower young learners to succeed academically and develop a lifelong love for learning.
 
-**Use your preferred IDE**
+**Vision:**  
+A future where every child has equal access to educational opportunities, regardless of background or circumstances.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+**Our Story:**  
+Started by educators passionate about digital learning, the platform has grown from a set of digital worksheets into a comprehensive platform serving thousands of students.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+**Values:**
+- Excellence in Education
+- Innovation & Creativity
+- Inclusivity & Accessibility
+- Child-Centered Learning
+- Continuous Improvement
 
-Follow these steps:
+---
+
+## Features
+
+- **Student Dashboard:** Personalized learning and progress tracking.
+- **Revision & Tutorials:** Engaging, interactive content for different grades and subjects.
+- **Teacher Tools:** Resource management and content creation.
+- **Parent & Admin Support:** Secure profiles and access controls.
+- **Google OAuth:** Easy, secure login.
+- **Responsive UI:** Built with Tailwind CSS and shadcn-ui for a modern look.
+
+---
+
+## Tech Stack
+
+- **Frontend:** React, TypeScript, Vite
+- **UI:** shadcn-ui, Tailwind CSS, Lucide icons
+- **State/Data:** TanStack React Query, React Hook Form, Zod
+- **Authentication:** Google OAuth
+- **Utilities:** date-fns, axios, embla-carousel-react, recharts
+- **Packaging:** Electron (for desktop), electron-builder
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js & npm ([Install via nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
+
+### Installation
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+git clone https://github.com/VIPERtips/mtech-kids-explore.git
+cd mtech-kids-explore
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Running Locally
 
-# Step 3: Install the necessary dependencies.
-npm i
+Start the Vite development server:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+For the Electron app (desktop):
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+npm run dev:electron
+```
 
-**Use GitHub Codespaces**
+### Available Scripts
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- `npm run dev` - Start Vite dev server
+- `npm run dev:electron` - Start Electron with Vite
+- `npm run build` - Build for production
+- `npm run lint` - Run ESLint
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## Project Structure
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+src/
+  App.tsx              # Main application entry with routing
+  pages/               # Page components (Home, About, Dashboard, etc)
+  components/          # Reusable UI components
+  context/             # React context (AuthProvider, etc)
+  lib/                 # Utility libraries (e.g. Electron integration)
+public/
+  ...
+```
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/d6e6da29-be96-4fd2-baa1-202039543235) and click on Share -> Publish.
+## Deployment
 
-## Can I connect a custom domain to my Lovable project?
+1. **Web:**  
+   Build with `npm run build` and deploy `dist/` to your preferred host.
 
-Yes it is!
+2. **Desktop:**  
+   Use Electron & electron-builder:  
+   ```sh
+   npm run dist
+   ```
+   The appId is `com.mtechkids.app` and the bundled product is `MTechKidsExplore`.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Key Achievements
+
+- Reached 10,000+ students
+- Winner: Educational Excellence Award 2023
+- Partnered with 50+ schools
+- Over 1,000 educational resources
+
+---
+
+## Contributing
+
+Contributions are welcome! Please open issues or pull requests to suggest changes or report bugs.
+
+---
+
+## License
+
+MIT
+
+---
+
+**Author:**  
+Tadiwa Blessed  

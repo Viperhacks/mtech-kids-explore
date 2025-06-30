@@ -9,6 +9,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
+    "include": ["main.js", "preload.js"],
     "noImplicitAny": false,
     "noUnusedParameters": false,
     "skipLibCheck": true,

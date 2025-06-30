@@ -20,7 +20,7 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				kids: ['Fredoka', 'sans-serif'], // <-- playful font for the little legends
+				kids: ['Poppins Medium','Century Gothic','Fredoka', 'sans-serif'], // <-- playful font for the little legends
 			},
 			colors: {
 				season: {

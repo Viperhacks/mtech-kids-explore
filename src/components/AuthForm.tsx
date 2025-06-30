@@ -42,7 +42,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState<'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN'>('STUDENT');
   const [gradeLevel, setGradeLevel] = useState('');
   const [view, setView] = useState<'main' | 'forgot' | 'reset' | 'otp'>('main');
   const [resetToken, setResetToken] = useState('');
@@ -60,7 +59,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [teacherPhrase, setTeacherPhrase] = useState("");
 
   const currYear = new Date().getFullYear();
-  const TEACHER_PASSPHRASE = `MTECHTeacher@${currYear}`;
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,13 +77,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
           return;
         }
 
-        if(role === "TEACHER" && teacherPhrase !== TEACHER_PASSPHRASE){
-          toast({title: "Invalid Passphrase", description: "The passphrase you entered is incorrect", variant: "destructive" });
-          setIsSubmitting(false);
-          return;
-        }
+       
 
-        const response = await registerUser(name, username, password, role, gradeLevel);
+        const response = await registerUser(name, username, password, "STUDENT", gradeLevel);
         //console.log("registration response",response);
         if (response && response.success) {
           setRegisteredUsername(username);
@@ -99,7 +94,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   setPassword('');
   setConfirmPassword('');
   setGradeLevel('');
-  setRole('STUDENT');
         }
       } else {
         await login(username, password);
@@ -471,25 +465,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="role">I am a:</Label>
-              <Select 
-                value={role} 
-                onValueChange={(value) => setRole(value as 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN')} 
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="STUDENT">Student</SelectItem>
-                  <SelectItem value="TEACHER">Teacher</SelectItem>
-                  
-                </SelectContent>
-              </Select>
-            </div>
+           
 
-            {role === 'STUDENT' && (
+           
               <div className="space-y-2">
                 <Label htmlFor="grade-level">Grade Level</Label>
                 <Select value={gradeLevel} onValueChange={setGradeLevel} required>
@@ -505,31 +483,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   </SelectContent>
                 </Select>
               </div>
-            )}
+            
 
 
-            { role == "TEACHER" && (
-              <div className="space-y-2">
-              <Label htmlFor="confirm-teacher">Secret Code Please</Label>
-              <div className="relative">
-                <UserCheck className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="confirm-teacher"
-                  type="password"
-                  placeholder="Shh .. Enter the secret code"
-                  className="pl-10"
-                  value={teacherPhrase}
-                  onChange={e => setTeacherPhrase(e.target.value)}
-                  required
-                />
-              </div>
-              <p className="text-sm text-muted-foreground italic">
-                (It's the special phrase for teacher-eyes only )
-              </p>
-            </div>
-            )
-
-            }
+           
 
             <Button type="submit" className="w-full bg-mtech-primary" disabled={isSubmitting}>
               {isSubmitting ? 'Creating Account...' : 'Create Account'}

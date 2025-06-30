@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import mtechAcademyLogo from "@/assets/mtech_logo.svg"
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -52,13 +53,13 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Resources */}
-          <div>
+          <div >
             <h3 className="text-xl font-bold mb-4">Resources</h3>
             <ul className="space-y-2">
               <li><Link to="/tutorials" className="text-gray-300 hover:text-white">Video Tutorials</Link></li>
               <li><Link to="/exercises" className="text-gray-300 hover:text-white">Practice Exercises</Link></li>
               <li><Link to="/quizzes" className="text-gray-300 hover:text-white">Interactive Quizzes</Link></li>
-              <li><Link to="/subjects" className="text-gray-300 hover:text-white">Subject Materials</Link></li>
+              <li><Link to="/subjects" className="text-gray-300 hover:text-white hidden" >Subject Materials</Link></li>
               
             </ul>
           </div>
@@ -69,11 +70,12 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 mr-2 text-mtech-primary" />
-                <span className="text-gray-300">15900 Sunningdale 2, Harare, Zimbabwe</span>
+                <span className="text-gray-300">3373 Nehanda Cop.
+Dzivarasekwa Extension.</span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 mr-2 text-mtech-primary" />
-                <span className="text-gray-300">+263 787 778 679</span>
+                <span className="text-gray-300">+263 77 327 5834</span>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 mr-2 text-mtech-primary" />
@@ -83,12 +85,23 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-gray-700">
-          <p className="text-sm text-gray-400 text-center">
-            © {currentYear} MTECH Kids Explore. All rights reserved.
+        <div className="mt-10 pt-6 border-t border-gray-700 text-center">
+          <p className="text-sm text-gray-400">
+            © 2017-{currentYear} MTECH Kids Explore. All rights reserved.
           </p>
+          <div
+          className='mt-2 flex justify-center items-center gap-2'>
+            <span className="text-sm text-gray-400">Powered by</span>
+          <div className="bg-white rounded-md p-3"><img src={mtechAcademyLogo} alt="Mtech Academy Logo" 
+          className='h-16'/></div>
+          </div>
         </div>
       </div>
+      {
+        /* Developed by Blexta Technologies
+        website: www.tadiwa-blessed.tech
+        */
+      }
     </footer>
   );
 };

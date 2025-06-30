@@ -13,8 +13,8 @@ const contactItems = [
     bg: 'bg-mtech-primary/10',
     color: 'text-mtech-primary',
     content: [
-      'support@mtechkidzexplore.com',
-      'info@mtechkidzexplore.com',
+      'support@mtechacademy.co.zw',
+      'info@mtechacademy.co.zw',
     ],
   },
   {
@@ -23,7 +23,7 @@ const contactItems = [
     bg: 'bg-mtech-secondary/10',
     color: 'text-mtech-secondary',
     content: [
-      '0787778679',
+      '+263 77 327 5834',
     ],
   },
   {
@@ -32,8 +32,8 @@ const contactItems = [
     bg: 'bg-mtech-accent/10',
     color: 'text-mtech-accent',
     content: [
-      'MTech-Kidz-Explore',
-      '15900 Sunningdale 2, Harare',
+      'Mtech Academy',
+      '3373 Nehanda Cop. Dzivarasekwa Extension',
     ],
   },
   {
