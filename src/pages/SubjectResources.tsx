@@ -18,7 +18,31 @@ import VideoThumbnail from './VideoThumbnail';
 import { resolve } from 'path';
 
 const SubjectResources = () => {
-  const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
+  //const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
+  
+
+  const { gradeId: fullGradeId, subjectId } = useParams<{
+    gradeId: string;
+    subjectId: string;
+  }>();
+
+  // 2. Safety check for undefined params
+  if (typeof fullGradeId === 'undefined' || typeof subjectId === 'undefined') {
+    return (
+      <div className="p-4 text-red-500">
+        Error: Missing URL parameters. Expected format: /grade/:gradeId/subject/:subjectId
+      </div>
+    );
+  }
+
+  // 3. Clean the gradeId (extract just the number)
+  const gradeIdNumber = fullGradeId.replace(/\D/g, '');
+
+  console.log('URL Parameters:', {
+    originalGradeId: fullGradeId,  // "grade5"
+    cleanedGradeId: gradeIdNumber, // "5" 
+    subjectId      // "english"
+  });
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') === 'quizzes' ? 'quizzes' : 'videos';
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -36,24 +60,19 @@ const SubjectResources = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
+   const [completedVideos, setCompletedVideos] = useState<Set<string>>(new Set());
 
   const { toast } = useToast();
   const { user, updateUserProgress, trackActivity } = useAuth();
   
   // Get the grade and subject data
-  const grade = ResourcesData.grades.find(g => g.id === gradeId);
+  const grade = ResourcesData.grades.find(g => g.id === gradeIdNumber);
   const subject = grade?.subjects.find(s => s.id === subjectId);
+  //console.log("subject",subject)
   
   useEffect(() => {
     fetchResources();
-  }, [gradeId, subjectId]);
-
-  useEffect(() => {
-    const container = document.getElementById('content-container');
-    if (container) {
-      container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [activeTab]);  // This will trigger the scroll when `activeTab` changes
+  }, [gradeIdNumber, subjectId]);
   
   const fetchResources = async () => {
     setIsLoading(true);
@@ -61,10 +80,12 @@ const SubjectResources = () => {
       let response;
        if(user?.role == "TEACHER"){
         
-        response = await getResources(grade.name, subject.name);
+        response = await getResources(`${gradeIdNumber}`, subjectId);
+        console.log("response",response)
        } else{
-        //console.log("grade name is+",grade.name)
-        response = await getResourcesForAnyOne(grade.name, subject.name);
+       
+        response = await getResourcesForAnyOne(`${gradeIdNumber}`, subjectId);
+        console.log("response",response)
        }
 
        const resourcesWithThumbnails = await Promise.all(response.resources.map(async (resource) => {
@@ -124,7 +145,7 @@ const SubjectResources = () => {
     return `${mins}:${secs.toString().padStart(2,'0')}`;
   }
   
-  if (!grade || !subject) {
+  /*if (!grade || !subjectId) {
     return (
       <div className="mtech-container py-20 text-center">
         <h1 className="text-3xl font-bold text-mtech-dark mb-4">Resource Not Found</h1>
@@ -134,7 +155,37 @@ const SubjectResources = () => {
         </Button>
       </div>
     );
+  }*/
+
+    const handleVideoEnded = () => {
+  if (user && selectedVideo) {
+    // Update progress by marking this specific video as completed
+    /*updateUserProgress(
+      subjectId as string, 
+      selectedVideo.response.id,
+      totalVideos
+    );*/
+
+    // Track activity
+    trackActivity({
+      userId: user.id || "user",
+      type: 'video_completed',
+      videoId: selectedVideo.response.id,
+      subjectId: subjectId,
+      gradeId: gradeIdNumber,
+      timestamp: new Date().toISOString()
+    });
+
+    // Add to local completed set
+    setCompletedVideos(prev => new Set(prev).add(selectedVideo.response.id));
+    
+    toast({
+      title: "Video Completed!",
+      description: "Great job watching the entire video.",
+    });
   }
+};
+
   
   // Handle watching a video
   const handleWatchVideo = (video: any) => {
@@ -176,7 +227,7 @@ const SubjectResources = () => {
         type: 'quiz_started',
         quizId: quiz.id,
         subjectId,
-        gradeId,
+        gradeIdNumber,
         timestamp: new Date().toISOString()
       });
     }
@@ -211,7 +262,7 @@ const SubjectResources = () => {
           type: 'quiz_completed',
           quizId: selectedQuiz.id,
           subjectId,
-          gradeId,
+          gradeIdNumber,
           score: scorePercent,
           timestamp: new Date().toISOString()
         });
@@ -257,7 +308,7 @@ const SubjectResources = () => {
   const handleCreateNewResource = (type: string) => {
     setEditingResource({
       type,
-      grade: gradeId,
+      grade: gradeIdNumber,
       subject: subjectId
     });
     setIsEditDialogOpen(true);
@@ -267,11 +318,36 @@ const SubjectResources = () => {
     setIsEditDialogOpen(false);
     fetchResources();
   };
-  
-  const progress = user?.progress?.[subjectId as string] || { watched: 0, completed: 0, total: 10 };
 
-// Ensure completionPercent doesn't throw errors in case of 0 total
-const completionPercent = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
+  const totalVideos = resources.filter(r => r.response.type === "video").length;
+
+// Get completed count from user progress or completedVideos
+const getCompletedCount = () => {
+  if (user?.completedVideos?.[subjectId as string]) {
+    return user.completedVideos[subjectId as string].length;
+  }
+  if (user?.progress?.[subjectId as string]?.completed) {
+    return user.progress[subjectId as string].completed;
+  }
+  return completedVideos.size;
+};
+
+const completedCount = getCompletedCount();
+const progress = {
+  completed: completedCount,
+  total: totalVideos,
+  watched: user?.progress?.[subjectId as string]?.watched || 0
+};
+
+console.log("hey",user);
+
+const completionPercent = progress.total > 0 
+  ? Math.round((progress.completed / progress.total) * 100) 
+  : 0;
+
+  
+
+
 
 
   if (isLoading) {
@@ -338,49 +414,68 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
     <div id='content-container' className="mtech-container py-8">
       <div className="flex items-center mb-6">
         <Button variant="ghost" size="sm" asChild className="mr-2">
-          <Link to={`/grade/${gradeId}`}>
+          <Link to={`/dashboard`}>
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back
           </Link>
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-mtech-dark">
-            Grade {grade.name} - {subject.name}
+            Grade {gradeIdNumber} - {subject?.name || subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}
           </h1>
           <p className="text-sm text-gray-600">
-            Learn {subject.name} for Grade {grade.name}
+            Learn {subject?.name || subjectId.charAt(0).toUpperCase() + subjectId.slice(1)} for Grade {gradeIdNumber}
           </p>
         </div>
       </div>
       
       <div className="bg-mtech-primary/10 rounded-lg p-4 mb-6">
-        <div className="flex flex-col md:flex-row justify-between md:items-center">
-        <div className="mb-4 md:mb-0">
-  <h2 className="font-medium">Your Progress</h2>
-  <p className="text-sm text-mtech-dark">
-    You've watched {progress.watched} videos and completed {progress.completed} out of {progress.total} items
-  </p>
+  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    {/* Progress Summary */}
+    <div>
+      <h2 className="font-medium">Your Progress</h2>
+      <p className="text-sm text-mtech-dark">
+        You've watched {progress.watched || progress.completed /*mind we are currently recording watched vids */} videos and completed {progress.completed} out of {progress.total} items
+      </p>
+    </div>
+
+    {/* Teacher Action Buttons */}
+    {user?.role === 'TEACHER' && (
+      <div className="flex flex-col sm:flex-row gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => handleCreateNewResource('document')}
+          className="w-full sm:w-auto"
+        >
+          <FileText className="mr-2 h-4 w-4" />
+          Upload Document
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => handleCreateNewResource('video')}
+          className="w-full sm:w-auto"
+        >
+          <Video className="mr-2 h-4 w-4" />
+          Upload Video
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => handleCreateNewResource('quiz')}
+          className="w-full sm:w-auto"
+        >
+          <CheckCircle className="mr-2 h-4 w-4" />
+          Create Quiz
+        </Button>
+      </div>
+    )}
+  </div>
+
+  <Progress value={completionPercent} className="h-2 mt-4" />
 </div>
 
-          {user?.role === 'TEACHER' && (
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('document')}>
-                <FileText className="mr-2 h-4 w-4" />
-                Upload Document
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('video')}>
-                <Video className="mr-2 h-4 w-4" />
-                Upload Video
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => handleCreateNewResource('quiz')}>
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Create Quiz
-              </Button>
-            </div>
-          )}
-        </div>
-        <Progress value={completionPercent} className="h-2 mt-3" />
-      </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
@@ -423,7 +518,8 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
   ) : resources.filter(resource => resource.response.type === "video").length > 0 ? (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {resources.filter(resource => resource.response.type === "video").map((video) => {
-        const isCompleted = user?.completedLessons?.includes(video.response.id);
+    const isCompleted = completedVideos.has(video.response.id) || 
+                         user?.completedLessons?.includes(video.response.id);
         return (
           <Card key={video.response.id} className="overflow-hidden">
             <div 
@@ -517,7 +613,7 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
 </TabsContent>
         
         
-        <TabsContent value="quizzes" className="mt-6">
+        {/*<TabsContent value="quizzes" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {subject.quizzes.map((quiz) => {
               const isCompleted = user?.completedLessons?.includes(quiz.id);
@@ -582,7 +678,7 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
               </Card>
             )}
           </div>
-        </TabsContent>
+        </TabsContent>*/}
       </Tabs>
       
       {/* Video Dialog */}
@@ -601,12 +697,13 @@ const completionPercent = progress.total > 0 ? Math.round((progress.completed / 
         <>
           {/* Video Player with Loading State */}
           <video
-            key={selectedVideo.response.id} // Important for re-rendering when video changes
+            key={selectedVideo.response.id} 
             controls
             autoPlay
             className="w-full h-full"
-            onWaiting={() => setIsVideoLoading(true)}  // Show spinner while waiting
-            onCanPlay={() => setIsVideoLoading(false)}  // Hide spinner when video is ready to play
+            onWaiting={() => setIsVideoLoading(true)}  
+            onCanPlay={() => setIsVideoLoading(false)} 
+            onEnded={handleVideoEnded} 
             onError={(e) => {
               console.error("Video error:", e);
               const video = e.target as HTMLVideoElement;

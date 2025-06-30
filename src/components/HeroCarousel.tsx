@@ -2,38 +2,43 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
-// Sample images for the carousel
-// These would be replaced with actual images
+import mtechInfo from '@/assets/mtech_logo.svg';
+import firstImage from "@/assets/img2.jpg";
+import partyCelebrations from '@/assets/img3.jpg';
+import scienceImg from '@/assets/science-fair.jpg';
+
+
 const carouselItems = [
   {
     id: 1,
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1364&auto=format&fit=crop',
-    alt: 'Students receiving awards',
-    title: 'Academic Excellence Awards',
-    description: 'Celebrating our top achievers in the annual awards ceremony'
+    image: mtechInfo, 
+    alt: 'Mtech Academy Info',
+    title: 'Educational Excellence',
+    description: 'Stated in 2017 3373 Nehanda Cop. Dzivarasekwa Extension.'
   },
   {
     id: 2,
-    image: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?q=80&w=1471&auto=format&fit=crop',
-    alt: 'Student graduation',
-    title: 'Graduation Day',
-    description: 'Our Grade 7 students moving on to their next educational journey'
+    image: firstImage,
+    alt: 'ECD  Student with certificate',
+    title: 'Charmine Makamba - E.C.D 2018',
+    description: 'Best Student-Keep on working hard'
   },
   {
     id: 3,
-    image: 'https://images.unsplash.com/photo-1602631985686-1bb0e6a8696e?q=80&w=1470&auto=format&fit=crop',
-    alt: 'School sports day',
-    title: 'Annual Sports Festival',
-    description: 'Students enjoying our annual inter-school sports competition'
+    image: partyCelebrations,
+    alt: '2017 E.C.D Party Celebrations',
+    title: 'Party Celebrations',
+    description: 'Party Celebrations 2017 ECD'
   },
   {
     id: 4,
-    image: '/science-fair.jpg',
-    alt: 'Science fair',
-    title: 'Science & Innovation Fair',
-    description: 'Young inventors showcasing their creative science projects'
+    image: scienceImg,
+    alt: 'Science fair projects',
+    title: 'Science Projects Display',
+    description: 'Bottle rockets, potato-powered bulbs, and creative minds in action'
   },
 ];
+
 
 const HeroCarousel: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -73,7 +78,7 @@ const HeroCarousel: React.FC = () => {
             <img 
               src={item.image} 
               alt={item.alt}
-              className="w-full h-full object-cover" 
+              className="w-full h-full object-contain" 
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6 md:p-10">
               <h2 className="text-white text-2xl md:text-3xl lg:text-4xl font-bold mb-2">

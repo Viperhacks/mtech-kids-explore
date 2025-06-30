@@ -8,12 +8,12 @@ const Privacy = () => {
       <h1 className="text-3xl font-bold mb-6 text-center">Privacy Policy</h1>
       
       <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm">
-        <p className="text-sm text-gray-500 mb-4">Last Updated: April 5, 2025</p>
+        <p className="text-sm text-gray-500 mb-4">Last Updated: June 29, 2025</p>
         
         <section className="mb-6">
           <h2 className="text-xl font-semibold mb-3">Introduction</h2>
           <p className="text-gray-700">
-            MTECH Kids Explore ("we", "our", or "us") is committed to protecting the privacy of children and all users of our educational platform. This Privacy Policy explains how we collect, use, and share information about you when you use our website, mobile applications, and other online products and services (collectively, the "Services").
+            Mtech Academy ("we", "our", or "us") is committed to protecting the privacy of children and all users of our educational platform. This Privacy Policy explains how we collect, use, and share information about you when you use our website, mobile applications, and other online products and services (collectively, the "Services").
           </p>
         </section>
         
@@ -65,7 +65,7 @@ const Privacy = () => {
         <section className="mb-6">
           <h2 className="text-xl font-semibold mb-3">Contact Us</h2>
           <p className="text-gray-700">
-            If you have any questions about this Privacy Policy or our privacy practices, please contact us at privacy@mtechkidsexplore.com or through our Contact page.
+            If you have any questions about this Privacy Policy or our privacy practices, please contact us at info@mtechacademy.co.zw or through our Contact page.
           </p>
         </section>
       </div>

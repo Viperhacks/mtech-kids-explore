@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import DocumentResourcesViewer from '@/components/DocumentResourcesViewer';
 
 const Revision = () => {
-  const [activeTab, setActiveTab] = useState("mathematics");
+  const [activeTab, setActiveTab] = useState("");
   const { isAuthenticated, user } = useAuth();
   
 
@@ -16,8 +16,13 @@ const Revision = () => {
     english: "English",
     science: "Science",
     history: "History",
+    social: "Social Studies",
+    shona: "Shona",
+    ict: "ICT"
     // Add more subjects as needed
   };
+
+  const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -31,21 +36,21 @@ const Revision = () => {
         <div className="mb-12">
           <h2 className="text-xl font-semibold mb-4">All Document Resources</h2>
           <DocumentResourcesViewer 
-            grade={user?.grade || user?.gradeLevel} 
+            grade={getRecommendedGrade()} 
             limit={6}
           />
         </div>
 
         {/* Subject-specific Document Viewers */}
         <Tabs 
-          defaultValue="mathematics" 
           value={activeTab} 
           onValueChange={setActiveTab} 
           className="w-full"
         >
-          <TabsList className="grid grid-cols-4 mb-8">
+          <TabsList className="flex overflow-x-auto whitespace-nowrap no-scrollbar gap-2 mb-6 pb-1 border-b border-muted h-18">
             {Object.entries(subjectTopics).map(([key, subject]) => (
-              <TabsTrigger key={key} value={key}>
+              <TabsTrigger key={key} value={key}
+              className="shrink-0 px-4 py-2 rounded-md bg-muted text-muted-foreground hover:bg-primary hover:text-white transition-all">
                 {subject}
               </TabsTrigger>
             ))}
@@ -57,7 +62,7 @@ const Revision = () => {
                 <h2 className="text-xl font-semibold mb-4">{subject} Documents</h2>
                 <DocumentResourcesViewer 
                   subject={key} 
-                  grade={user?.grade || user?.gradeLevel}
+                  grade={getRecommendedGrade()}
                   limit={3} 
                 />
               </div>

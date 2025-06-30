@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,12 +9,36 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Settings, BookOpen, Award, BarChart3, CheckCircle, Users, PenTool } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import ProfileEdit from '@/components/ProfileEdit';
+import api, { teacherService } from '@/lib/api';
+import { PaginatedResponse, Student } from '@/components/types/apiTypes';
+import { toast } from '@/components/ui/use-toast';
+import { getTotalStats } from '@/services/apiService';
+
 
 const Profile = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('progress');
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+    const [isStudentsLoading, setIsStudentsLoading] = useState(true);
+    const [students, setStudents] = useState<Student[]>([]);
+    const [total,setTotal] = useState("");
+  type Stats = {
+      totalUsers: number;
+      totalTeachers: number;
+      totalStudents: number;
+      totalResources: number;
+    };
   
+   
+    
+    const [totalStats, setTotalStats] = useState<Stats>({
+      totalUsers: 0,
+      totalTeachers: 0,
+      totalStudents: 0,
+      totalResources: 0,
+    });
+
   if (!user) {
     return (
       <div className="mtech-container py-16 text-center">
@@ -23,6 +47,78 @@ const Profile = () => {
       </div>
     );
   }
+  useEffect(()=>{
+    fetchStudents();
+    fetchStats();
+  },[])
+
+
+   const fetchStats = async ()=>{
+    setIsLoading(true);
+    try {
+      const response = await getTotalStats();
+      
+     
+      setTotalStats(response);
+    } catch (error) {
+       console.error('Error fetching stats:', error);
+      toast({
+        title: "Failed to load stats",
+        description: "Could not system statistics. Please try again.",
+        variant: "destructive"
+      });
+    } finally{
+      setIsLoading(false);
+    }
+  }
+
+  const fetchStudents = async () => {
+    setIsStudentsLoading(true);
+    try {
+      const response: PaginatedResponse<Student> = await api.get("/teacher/students");
+      console.log("fetched students paginated response", response);
+
+      
+  
+      // Fix: The response is already unwrapped by the axios interceptor in api.ts
+      if (!Array.isArray(response?.content)) {
+        throw new Error('Missing or invalid content in response');
+      }
+  
+      if (response.content.length === 0) {
+        console.warn('No students found in response');
+        setStudents([]);
+        return;
+      }
+  
+      const formattedStudents = response.content.map((student, i) => ({
+        id: student.id ?? `student-${i}`,
+        fullName: student.fullName || 'Unnamed Student',
+        username: student.username || '',
+        email: student.email || '',
+        gradeLevel: student.gradeLevel || 'N/A',
+        role: student.role || 'STUDENT'
+      }));
+     
+
+      setTotal(formattedStudents.length)
+      setStudents(formattedStudents);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+  
+      toast({
+        title: "Failed to load students",
+        description: error instanceof Error 
+          ? error.message 
+          : "Could not load student data. Please try again.",
+        variant: "destructive"
+      });
+  
+      setStudents([]);
+    } finally {
+      setIsStudentsLoading(false);
+    }
+  };
   
   // Calculate overall progress - only relevant for students
   const overallProgress = user.role === 'STUDENT' && user.progress ? 
@@ -43,8 +139,8 @@ const Profile = () => {
       name: 'Welcome!', 
       description: 'Joined MTECH Kids Explore', 
       icon: '👋', 
-      earned: true,
-      roles: ['student', 'teacher', 'admin']
+      earned: user.earnedBadges?.includes('welcome')||true,
+      roles: ['STUDENT', 'TEACHER', 'ADMIN']
     },
     { 
       id: 'eager_learner', 
@@ -52,15 +148,15 @@ const Profile = () => {
       description: 'Completed 5+ lessons', 
       icon: '📚', 
       earned: user.earnedBadges?.includes('eager_learner') || false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'math_wizard', 
       name: 'Math Wizard', 
       description: 'Completed all math lessons', 
       icon: '🧮', 
-      earned: user.progress?.['mathematics']?.completed === user.progress?.['mathematics']?.total,
-      roles: ['student']
+      earned: false,
+      roles: ['STUDENT']
     },
     { 
       id: 'science_explorer', 
@@ -68,7 +164,7 @@ const Profile = () => {
       description: 'Completed 3+ science quizzes', 
       icon: '🔬', 
       earned: false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'perfect_score', 
@@ -76,7 +172,7 @@ const Profile = () => {
       description: 'Scored 100% on a quiz', 
       icon: '🏆', 
       earned: false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'reading_champion', 
@@ -84,7 +180,7 @@ const Profile = () => {
       description: 'Read 10+ lessons', 
       icon: '📖', 
       earned: false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'quiz_master', 
@@ -92,7 +188,7 @@ const Profile = () => {
       description: 'Completed 20+ quizzes', 
       icon: '✅', 
       earned: false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'consistent_learner', 
@@ -100,7 +196,7 @@ const Profile = () => {
       description: 'Logged in for 5 consecutive days', 
       icon: '📆', 
       earned: false,
-      roles: ['student']
+      roles: ['STUDENT']
     },
     { 
       id: 'helpful_teacher', 
@@ -108,7 +204,7 @@ const Profile = () => {
       description: 'Created content that helped many students', 
       icon: '🏆', 
       earned: false,
-      roles: ['teacher']
+      roles: ['TEACHER']
     },
     { 
       id: 'content_creator', 
@@ -116,7 +212,7 @@ const Profile = () => {
       description: 'Created multiple high-quality learning resources', 
       icon: '✏️', 
       earned: false,
-      roles: ['teacher']
+      roles: ['TEACHER']
     },
   ];
 
@@ -217,7 +313,7 @@ const Profile = () => {
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-mtech-primary">
-                        0
+                        {total}
                       </p>
                       <p className="text-xs text-gray-500">Students</p>
                     </div>
@@ -228,19 +324,19 @@ const Profile = () => {
                   <>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-mtech-primary">
-                        0
+                        {totalStats.totalTeachers}
                       </p>
                       <p className="text-xs text-gray-500">Teachers</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-mtech-secondary">
-                        0
+                       {totalStats.totalStudents}
                       </p>
                       <p className="text-xs text-gray-500">Students</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-mtech-primary">
-                        0
+                        {totalStats.totalResources}
                       </p>
                       <p className="text-xs text-gray-500">Resources</p>
                     </div>
