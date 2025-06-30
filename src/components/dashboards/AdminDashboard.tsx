@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/context/AuthContext';
-import { BarChart3, Users, Settings, Shield, Book, FileText } from 'lucide-react';
+import { BarChart3, Users, Settings, Shield, Book, FileText, Building2 } from 'lucide-react';
 import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseCreation from './CourseCreation';
 import { getAllUsers, getTotalStats } from '@/services/apiService';
@@ -189,11 +189,9 @@ type RecentUser = {
             <Button className="w-full flex items-center justify-start" variant="outline">
               <FileText className="mr-2 h-4 w-4" /> Content Management
             </Button>
+            
             <Button className="w-full flex items-center justify-start" variant="outline">
-              <Shield className="mr-2 h-4 w-4" /> Role Permissions
-            </Button>
-            <Button className="w-full flex items-center justify-start" variant="outline">
-              <Settings className="mr-2 h-4 w-4" /> System Settings
+              <Building2 className="mr-2 h-4 w-4" /> Class Management
             </Button>
           </CardContent>
         </Card>
@@ -201,10 +199,9 @@ type RecentUser = {
       
       <Tabs defaultValue="courses" className="w-full mb-8">
         <TabsList >
-          <TabsTrigger value="courses">Course Management</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-          <TabsTrigger value="logs">System Logs</TabsTrigger>
+          <TabsTrigger value="courses">Teacher Management</TabsTrigger>
+          <TabsTrigger value="classes">Classes</TabsTrigger>
+          
         </TabsList>
         
         <TabsContent value="courses" className="pt-4">
@@ -256,53 +253,23 @@ type RecentUser = {
           </div>
         </TabsContent>
         
-        <TabsContent value="analytics" className="pt-4">
+        <TabsContent value="classes" className="pt-4">
           <Card>
             <CardHeader>
-              <CardTitle>User Growth</CardTitle>
-              <CardDescription>New user registrations over time</CardDescription>
+              <CardTitle>Class Management </CardTitle>
+              <CardDescription>Class assignment to teachers</CardDescription>
             </CardHeader>
             <CardContent className="h-80 flex items-center justify-center">
               <div className="flex flex-col items-center text-center">
-                <BarChart3 className="h-16 w-16 text-gray-300 mb-4" />
-                <p>Analytics visualization would appear here</p>
-                <p className="text-sm text-gray-500">User growth metrics and charts</p>
+                <Building2 className="h-16 w-16 text-gray-300 mb-4" />
+                <p>Viewing classes and assigning them here</p>
+               
               </div>
             </CardContent>
           </Card>
         </TabsContent>
         
-        <TabsContent value="reports" className="pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>System Reports</CardTitle>
-              <CardDescription>Usage and performance reports</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80 flex items-center justify-center">
-              <div className="flex flex-col items-center text-center">
-                <FileText className="h-16 w-16 text-gray-300 mb-4" />
-                <p>Reports would appear here</p>
-                <p className="text-sm text-gray-500">Download or view system reports</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
         
-        <TabsContent value="logs" className="pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>System Logs</CardTitle>
-              <CardDescription>Recent system activity logs</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80 flex items-center justify-center">
-              <div className="flex flex-col items-center text-center">
-                <Settings className="h-16 w-16 text-gray-300 mb-4" />
-                <p>System logs would appear here</p>
-                <p className="text-sm text-gray-500">Monitor system activity and events</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );
