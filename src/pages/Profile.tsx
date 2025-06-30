@@ -10,7 +10,7 @@ import { User, Settings, BookOpen, Award, BarChart3, CheckCircle, Users, PenTool
 import { useAuth } from '@/context/AuthContext';
 import ProfileEdit from '@/components/ProfileEdit';
 import api, { teacherService } from '@/lib/api';
-import { Student } from '@/components/types/apiTypes';
+import { PaginatedResponse, Student } from '@/components/types/apiTypes';
 import { toast } from '@/components/ui/use-toast';
 import { getTotalStats } from '@/services/apiService';
 
@@ -75,7 +75,7 @@ const Profile = () => {
   const fetchStudents = async () => {
     setIsStudentsLoading(true);
     try {
-      const response = await api.get("/teacher/students");
+      const response: PaginatedResponse<Student> = await api.get("/teacher/students");
       console.log("fetched students paginated response", response);
 
       

@@ -17,7 +17,7 @@ import { getResources, deleteResource, getAllUsers, getAllStudents } from '@/ser
 import { useIsMobile } from '@/hooks/use-mobile';
 import StudentAccountCreation from '../StudentAccountCreation';
 import api, { teacherService } from '@/lib/api';
-import { Student } from '../types/apiTypes';
+import { PaginatedResponse, Student } from '../types/apiTypes';
 import { capitalize } from '@/utils/stringUtils';
 
 const TeacherDashboard: React.FC = () => {
@@ -105,7 +105,7 @@ const paginatedResources = resources.slice(
   const fetchStudents = async () => {
     setIsStudentsLoading(true);
     try {
-      const response = await api.get("/teacher/students");
+      const response: PaginatedResponse<Student> = await api.get("/teacher/students");
       console.log("fetched students paginated response", response);
   
       // Fix: The response is already unwrapped by the axios interceptor in api.ts
@@ -575,7 +575,7 @@ const paginatedResources = resources.slice(
                     <TableHeader>
                       <TableRow>
                         <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
+                        <TableHead>Username</TableHead>
                         {!isMobile && <TableHead>Grade</TableHead>}
                         {/*<TableHead>Last Active</TableHead>*/}
                         <TableHead className="text-right">Actions</TableHead>
@@ -585,7 +585,7 @@ const paginatedResources = resources.slice(
   {students.map((student, index) => (
     <TableRow key={index}>
       <TableCell className="font-medium">
-        {student.fullName || 'Unnamed'}
+        {capitalize(student.fullName) || 'Unnamed'}
       </TableCell>
 
       <TableCell>
@@ -608,6 +608,7 @@ const paginatedResources = resources.slice(
 </TableBody>
 
                   </Table>
+                  //?Todo add pagination here
                 </div>
               ) : (
                 <div className="text-center py-10">
