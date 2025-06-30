@@ -17,7 +17,7 @@ import { capitalize } from '@/utils/stringUtils';
 import { Button } from '../ui/button';
 import { Link } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { LineChart } from '../charts/LineChart';
+import { LineChart } from '../ui/charts/LineChart';
 import QuizManagement from '../QuizManagement';
 import QuizCreationDialog from '../QuizCreationDialog';
 
