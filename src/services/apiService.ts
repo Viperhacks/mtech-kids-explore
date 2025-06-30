@@ -1,4 +1,3 @@
-
 import api, { 
   authService, 
   resourceService, 
@@ -151,6 +150,81 @@ export const submitQuiz = async (quizId: string, answers: any) => {
     return response.data;
   } catch (error) {
     console.error('Submit quiz error:', error);
+    throw error;
+  }
+};
+
+// Quiz management services
+export const createQuiz = async (quizData: any) => {
+  try {
+    const response = await api.post('/quiz', quizData);
+    return response.data;
+  } catch (error) {
+    console.error('Create quiz error:', error);
+    throw error;
+  }
+};
+
+export const getAllQuizzes = async () => {
+  try {
+    const response = await api.get('/quiz/all');
+    return response.data;
+  } catch (error) {
+    console.error('Get all quizzes error:', error);
+    throw error;
+  }
+};
+
+export const deleteQuiz = async (quizId: string) => {
+  try {
+    const response = await api.delete(`/quiz/${quizId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Delete quiz error:', error);
+    throw error;
+  }
+};
+
+export const uploadQuestions = async (quizId: string, file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post(`/question/upload?id=${quizId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Upload questions error:', error);
+    throw error;
+  }
+};
+
+export const getQuizQuestions = async (quizId: string) => {
+  try {
+    const response = await api.get(`/question/${quizId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Get quiz questions error:', error);
+    throw error;
+  }
+};
+
+export const deleteQuestion = async (questionId: string) => {
+  try {
+    const response = await api.delete(`/question/${questionId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Delete question error:', error);
+    throw error;
+  }
+};
+
+export const submitQuizAttempt = async (quizId: string, correctAnswers: number) => {
+  try {
+    const response = await api.post(`/attempt/${quizId}?correctAnswers=${correctAnswers}`);
+    return response.data;
+  } catch (error) {
+    console.error('Submit quiz attempt error:', error);
     throw error;
   }
 };

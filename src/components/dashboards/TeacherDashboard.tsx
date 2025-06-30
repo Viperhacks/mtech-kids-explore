@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +14,21 @@ import StudentAccountCreation from '../StudentAccountCreation';
 import api, { teacherService } from '@/lib/api';
 import { PaginatedResponse, Student } from '../types/apiTypes';
 import { capitalize } from '@/utils/stringUtils';
+import { Button } from '../ui/button';
+import { Link } from 'react-router-dom';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { LineChart } from '../charts/LineChart';
+import QuizManagement from '../QuizManagement';
+import QuizCreationDialog from '../QuizCreationDialog';
+
+interface ExtendedStudent extends Student {
+  id: string;
+  fullName: string;
+  username: string;
+  email: string;
+  gradeLevel: string;
+  role: string;
+}
 
 const TeacherDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -23,6 +37,15 @@ const TeacherDashboard = () => {
   const [resourceStats, setResourceStats] = useState<any>(null);
   const [systemStats, setSystemStats] = useState<any>(null);
   const { user } = useAuth();
+  const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const [resources, setResources] = useState<any[]>([]);
+  const [groupedResources, setGroupedResources] = useState<any>({});
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<any>(null);
+  const [resourceType, setResourceType] = useState('document');
+  const [isStudentsLoading, setIsStudentsLoading] = useState(true);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   useEffect(() => {
     fetchResources();
@@ -232,6 +255,7 @@ const paginatedResources = resources.slice(
         <TabsList className={`mb-6 ${isMobile ? 'grid grid-cols-2 gap-2 ' : ''}`}>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="materials">My Materials</TabsTrigger>
+          <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
            {!isMobile &&<TabsTrigger value="students">Students</TabsTrigger>}
            {!isMobile &&<TabsTrigger value="accounts">Student Accounts</TabsTrigger>}
           {!isMobile && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
@@ -445,7 +469,7 @@ const paginatedResources = resources.slice(
 
         </TabsContent>
         
-        <TabsContent value="resources" className="space-y-4">
+        <TabsContent value="materials" className="space-y-4">
           <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -563,58 +587,9 @@ const paginatedResources = resources.slice(
                     <Button onClick={() => handleCreateNew('document')}>
                       <FileText className="mr-2 h-4 w-4" /> Upload Document
                     </Button>
-                  </CardFooter>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Quizzes</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <span className="text-2xl font-bold">{resourceStats?.quizCount || 5}</span>
-                  </CardContent>
-                  <CardFooter>
-                    <Button variant="outline" size="sm" asChild className="w-full">
-                      <Link to="/resources?type=quiz">View All</Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
-              
-              <div className="mt-8">
-                <h3 className="text-lg font-medium mb-4">Resource Performance</h3>
-                <div className="space-y-4">
-                  <div className="bg-muted rounded p-4">
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">Grade 3 Science: States of Matter</span>
-                      <span className="text-muted-foreground">82% completion</span>
-                    </div>
-                    <div className="w-full h-2 bg-muted-foreground/20 rounded-full overflow-hidden">
-                      <div className="h-full bg-mtech-primary rounded-full" style={{width: '82%'}}></div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-muted rounded p-4">
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">Grade 2 Math: Addition Quiz</span>
-                      <span className="text-muted-foreground">95% completion</span>
-                    </div>
-                    <div className="w-full h-2 bg-muted-foreground/20 rounded-full overflow-hidden">
-                      <div className="h-full bg-mtech-primary rounded-full" style={{width: '95%'}}></div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-muted rounded p-4">
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">Grade 1 Reading: Letter Sounds</span>
-                      <span className="text-muted-foreground">67% completion</span>
-                    </div>
-                    <div className="w-full h-2 bg-muted-foreground/20 rounded-full overflow-hidden">
-                      <div className="h-full bg-mtech-primary rounded-full" style={{width: '67%'}}></div>
-                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </CardContent>
             <CardFooter>
               <Button asChild>
@@ -622,6 +597,10 @@ const paginatedResources = resources.slice(
               </Button>
             </CardFooter>
           </Card>
+        </TabsContent>
+        
+        <TabsContent value="quizzes" className="space-y-4">
+          <QuizManagement />
         </TabsContent>
         
         <TabsContent value="students" className="space-y-4">
@@ -710,6 +689,18 @@ const paginatedResources = resources.slice(
                   { name: 'Social Studies', value: 85 },
                 ]} 
               />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="accounts" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Create Student Account</CardTitle>
+              <CardDescription>Add new students to your class</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <StudentAccountCreation />
             </CardContent>
           </Card>
         </TabsContent>

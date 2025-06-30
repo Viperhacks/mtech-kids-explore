@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
@@ -11,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getResourcesForAnyOne } from '@/services/apiService';
 import { toast } from '@/hooks/use-toast';
 import { userTrackingService } from '@/lib/userTracking';
+import StudentQuizzes from '../StudentQuizzes';
 
 interface StudentDashboardProps {
   isParent?: boolean;
@@ -166,6 +166,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
       <Tabs defaultValue="progress">
         <TabsList className="w-full md:w-auto">
           <TabsTrigger value="progress">My Progress</TabsTrigger>
+          <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
         </TabsList>
 
@@ -285,6 +286,9 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
   )*/}
 </TabsContent>
 
+        <TabsContent value="quizzes" className="space-y-6">
+          <StudentQuizzes />
+        </TabsContent>
 
         <TabsContent value="achievements" className="space-y-6">
           <Card>
