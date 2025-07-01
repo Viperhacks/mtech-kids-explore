@@ -19,6 +19,8 @@ import StudentAccountCreation from '../StudentAccountCreation';
 import api, { teacherService } from '@/lib/api';
 import { PaginatedResponse, Student } from '../types/apiTypes';
 import { capitalize } from '@/utils/stringUtils';
+import QuizManagement from '../QuizManagement';
+import QuizCreationDialog from '../QuizCreationDialog';
 
 const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -34,6 +36,7 @@ const TeacherDashboard: React.FC = () => {
   const [isStudentsLoading, setIsStudentsLoading] = useState(true);
   const [resourceType, setResourceType] = useState('document');
   const [groupedResources, setGroupedResources] = useState({});
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   
   useEffect(() => {
     fetchResources();
@@ -226,11 +229,17 @@ const paginatedResources = resources.slice(
         <TabsList className={`mb-6 ${isMobile ? 'grid grid-cols-2 gap-2 ' : ''}`}>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="materials">My Materials</TabsTrigger>
+          <TabsTrigger value="quiz_management">Quiz Management</TabsTrigger>
            {!isMobile &&<TabsTrigger value="students">Students</TabsTrigger>}
            {!isMobile &&<TabsTrigger value="accounts">Student Accounts</TabsTrigger>}
           {!isMobile && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
         </TabsList>
-      
+
+
+       <TabsContent value="quiz_management">
+      <QuizManagement/>
+       </TabsContent>
+
         <TabsContent value="overview">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card>
@@ -248,7 +257,7 @@ const paginatedResources = resources.slice(
                 <Button 
                   className="w-full flex items-center justify-start" 
                   variant="outline"
-                  onClick={() => handleCreateNew('quiz')}
+                  onClick={() => setShowCreateDialog(true)}
                 >
                   <FileText className="mr-2 h-4 w-4" /> Create Quiz
                 </Button>
@@ -328,7 +337,7 @@ const paginatedResources = resources.slice(
               </CardContent>
             </Card>
           </div>
-          
+         
         <div className="mb-8">
   <h2 className="text-xl font-semibold mb-4">Manage Grade Resources</h2>
 
@@ -449,7 +458,7 @@ const paginatedResources = resources.slice(
 
   <Button
     className="flex-1 flex items-center justify-center"
-    onClick={() => handleCreateNew('quiz')}
+    onClick={() => setShowCreateDialog(true)}
     variant="outline"
   >
     <CheckCircle className="mr-2 h-4 w-4" />
@@ -546,7 +555,7 @@ const paginatedResources = resources.slice(
                     <Button onClick={() => handleCreateNew('document')}>
                       <FileText className="mr-2 h-4 w-4" /> Upload Document
                     </Button>
-                    <Button onClick={() => handleCreateNew('quiz')} variant="outline">
+                    <Button onClick={() => setShowCreateDialog(true)} variant="outline">
                       <CheckCircle className="mr-2 h-4 w-4" /> Create Quiz
                     </Button>
                   </div>
@@ -664,6 +673,11 @@ const paginatedResources = resources.slice(
           />
         </DialogContent>
       </Dialog>
+       <QuizCreationDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onQuizCreated={null}
+      />
     </div>
   );
 };
