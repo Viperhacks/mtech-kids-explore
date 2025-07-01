@@ -6,15 +6,16 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, Clock, Award, BookOpen } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CheckCircle, Clock, Award, BookOpen, Search, Filter, Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAllQuizzes, getQuizQuestions, submitQuizAttempt } from '@/services/apiService';
 import { useAuth } from '@/context/AuthContext';
+import { useQuizProgress } from './QuizProgressTracker';
 
 interface Quiz {
-
   quizId: string;
-
   title: string;
   description: string;
   grade: string;
@@ -25,9 +26,7 @@ interface Quiz {
 
 interface Question {
   id: string;
- 
   questionText: string;
-
   options: string[];
   correctIndex: number;
 }
@@ -36,6 +35,7 @@ const StudentQuizzes: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
@@ -45,18 +45,28 @@ const StudentQuizzes: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
+  
+  // Filters
+  const [searchTerm, setSearchTerm] = useState('');
+  const [subjectFilter, setSubjectFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const userGrade = user?.grade || user?.gradeLevel || '1';
+  const userId = user?.id || user?.userId || 'anonymous';
+  const quizProgress = useQuizProgress(userId);
 
   useEffect(() => {
     fetchAvailableQuizzes();
   }, []);
 
+  useEffect(() => {
+    filterQuizzes();
+  }, [quizzes, searchTerm, subjectFilter, statusFilter]);
+
   const fetchAvailableQuizzes = async () => {
     setIsLoading(true);
     try {
       const response = await getAllQuizzes();
-      // Filter quizzes for student's grade
       const studentQuizzes = response.filter((quiz: Quiz) => 
         quiz.grade === userGrade
       );
@@ -72,11 +82,32 @@ const StudentQuizzes: React.FC = () => {
     }
   };
 
+  const filterQuizzes = () => {
+    let filtered = quizzes.filter(quiz => {
+      const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSubject = subjectFilter === 'all' || quiz.subject === subjectFilter;
+      
+      let matchesStatus = true;
+      if (statusFilter === 'completed') {
+        matchesStatus = quizProgress.isQuizCompleted(quiz.quizId);
+      } else if (statusFilter === 'not-started') {
+        matchesStatus = !quizProgress.isQuizCompleted(quiz.quizId);
+      }
+
+      return matchesSearch && matchesSubject && matchesStatus;
+    });
+
+    setFilteredQuizzes(filtered);
+  };
+
+  const getUniqueSubjects = () => {
+    return Array.from(new Set(quizzes.map(quiz => quiz.subject)));
+  };
+
   const startQuiz = async (quiz: Quiz) => {
     try {
- 
       const questions = await getQuizQuestions(quiz.quizId);
-
       setQuizQuestions(questions);
       setSelectedQuiz(quiz);
       setCurrentQuestionIndex(0);
@@ -114,7 +145,6 @@ const StudentQuizzes: React.FC = () => {
   const submitQuiz = async () => {
     setIsSubmitting(true);
     try {
-      // Calculate correct answers
       let correctCount = 0;
       quizQuestions.forEach(question => {
         if (answers[question.id] === question.correctIndex) {
@@ -123,6 +153,9 @@ const StudentQuizzes: React.FC = () => {
       });
 
       await submitQuizAttempt(selectedQuiz!.quizId, correctCount);
+      
+      // Record progress
+      quizProgress.recordQuizAttempt(selectedQuiz!.quizId, correctCount, quizQuestions.length);
 
       setScore(correctCount);
       setQuizCompleted(true);
@@ -147,6 +180,8 @@ const StudentQuizzes: React.FC = () => {
     setSelectedQuiz(null);
     setQuizQuestions([]);
     setQuizCompleted(false);
+    // Refresh to show updated progress
+    filterQuizzes();
   };
 
   if (isLoading) {
@@ -158,42 +193,121 @@ const StudentQuizzes: React.FC = () => {
       <div>
         <h2 className="text-2xl font-bold mb-2">Available Quizzes</h2>
         <p className="text-muted-foreground">Test your knowledge with these quizzes for Grade {userGrade}</p>
+        <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <Trophy className="h-4 w-4 text-yellow-600" />
+              <span>Completed: {quizProgress.getTotalCompletedQuizzes()}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-blue-600" />
+              <span>Available: {quizzes.length}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {quizzes.length === 0 ? (
+      {/* Filters */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search quizzes..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder="All Subjects" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Subjects</SelectItem>
+                {getUniqueSubjects().map(subject => (
+                  <SelectItem key={subject} value={subject}>
+                    {subject.charAt(0).toUpperCase() + subject.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="not-started">Not Started</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {filteredQuizzes.length === 0 ? (
         <Card>
           <CardContent className="text-center py-8">
             <BookOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No quizzes available</h3>
-            <p className="text-muted-foreground">Check back later for new quizzes from your teachers</p>
+            <h3 className="text-lg font-medium mb-2">No quizzes found</h3>
+            <p className="text-muted-foreground">Try adjusting your search or filters</p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {quizzes.map((quiz) => (
- 
-            <Card key={quiz.quizId} className="hover:shadow-lg transition-shadow">
-
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg">{quiz.title}</CardTitle>
-                  <Badge variant="secondary">{quiz.subject}</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">{quiz.description}</p>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm text-muted-foreground">By {quiz.teacherName}</span>
-                  <Badge variant={quiz.standaAlone ? "default" : "outline"}>
-                    {quiz.standaAlone ? "Standalone" : "Linked"}
-                  </Badge>
-                </div>
-                <Button className="w-full" onClick={() => startQuiz(quiz)}>
-                  Start Quiz
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          {filteredQuizzes.map((quiz) => {
+            const isCompleted = quizProgress.isQuizCompleted(quiz.quizId);
+            const bestScore = quizProgress.getBestScore(quiz.quizId);
+            
+            return (
+              <Card key={quiz.quizId} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg">{quiz.title}</CardTitle>
+                    <div className="flex flex-col gap-1">
+                      <Badge variant="secondary">{quiz.subject}</Badge>
+                      {isCompleted && (
+                        <Badge variant="default" className="text-xs">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Completed
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{quiz.description}</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-sm text-muted-foreground">By {quiz.teacherName}</span>
+                    <Badge variant={quiz.standaAlone ? "default" : "outline"}>
+                      {quiz.standaAlone ? "Standalone" : "Linked"}
+                    </Badge>
+                  </div>
+                  
+                  {isCompleted && (
+                    <div className="mb-4 p-2 bg-green-50 rounded-md">
+                      <div className="flex items-center justify-between text-sm">
+                        <span>Best Score:</span>
+                        <span className="font-medium text-green-700">{bestScore}%</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <Button 
+                    className="w-full" 
+                    onClick={() => startQuiz(quiz)}
+                    variant={isCompleted ? "outline" : "default"}
+                  >
+                    {isCompleted ? "Retake Quiz" : "Start Quiz"}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 
@@ -214,9 +328,7 @@ const StudentQuizzes: React.FC = () => {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-medium mb-4">
-
                       {quizQuestions[currentQuestionIndex]?.questionText}
-
                     </h3>
                     <RadioGroup
                       value={answers[quizQuestions[currentQuestionIndex]?.id]?.toString() || ""}
@@ -277,6 +389,9 @@ const StudentQuizzes: React.FC = () => {
                   <p className="text-muted-foreground">
                     {Math.round((score / quizQuestions.length) * 100)}% Correct
                   </p>
+                  {quizProgress.getBestScore(selectedQuiz!.quizId) < Math.round((score / quizQuestions.length) * 100) && (
+                    <Badge className="mt-2">New Best Score!</Badge>
+                  )}
                 </div>
               </div>
               <DialogFooter>

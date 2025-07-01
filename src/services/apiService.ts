@@ -158,9 +158,19 @@ export const submitQuiz = async (quizId: string, answers: any) => {
 export const createQuiz = async (quizData: any) => {
   try {
     const response = await api.post('/quiz', quizData);
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Create quiz error:', error);
+    throw error;
+  }
+};
+
+export const updateQuiz = async (quizId: string, quizData: any) => {
+  try {
+    const response = await api.put(`/quiz/${quizId}`, quizData);
+    return response;
+  } catch (error) {
+    console.error('Update quiz error:', error);
     throw error;
   }
 };
@@ -168,7 +178,7 @@ export const createQuiz = async (quizData: any) => {
 export const getAllQuizzes = async () => {
   try {
     const response = await api.get('/quiz/all');
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Get all quizzes error:', error);
     throw error;
@@ -178,7 +188,7 @@ export const getAllQuizzes = async () => {
 export const deleteQuiz = async (quizId: string) => {
   try {
     const response = await api.delete(`/quiz/${quizId}`);
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Delete quiz error:', error);
     throw error;
@@ -192,7 +202,7 @@ export const uploadQuestions = async (quizId: string, file: File) => {
     const response = await api.post(`/question/upload?id=${quizId}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Upload questions error:', error);
     throw error;
@@ -202,7 +212,7 @@ export const uploadQuestions = async (quizId: string, file: File) => {
 export const getQuizQuestions = async (quizId: string) => {
   try {
     const response = await api.get(`/question/${quizId}`);
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Get quiz questions error:', error);
     throw error;
@@ -212,7 +222,7 @@ export const getQuizQuestions = async (quizId: string) => {
 export const deleteQuestion = async (questionId: string) => {
   try {
     const response = await api.delete(`/question/${questionId}`);
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Delete question error:', error);
     throw error;
@@ -222,7 +232,7 @@ export const deleteQuestion = async (questionId: string) => {
 export const submitQuizAttempt = async (quizId: string, correctAnswers: number) => {
   try {
     const response = await api.post(`/attempt/${quizId}?correctAnswers=${correctAnswers}`);
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Submit quiz attempt error:', error);
     throw error;
