@@ -12,7 +12,10 @@ import { useAuth } from '@/context/AuthContext';
 import QuizCreationDialog from './QuizCreationDialog';
 
 interface Quiz {
-  id: string;
+ 
+  quizId: string;
+
+  
   title: string;
   description: string;
   grade: string;
@@ -23,7 +26,9 @@ interface Quiz {
 
 interface Question {
   id: string;
-  text: string;
+ 
+  questionText: string;
+
   options: string[];
   correctIndex: number;
 }
@@ -81,7 +86,9 @@ const QuizManagement: React.FC = () => {
 
   const handleViewQuestions = async (quiz: Quiz) => {
     try {
-      const questions = await getQuizQuestions(quiz.id);
+ 
+      const questions = await getQuizQuestions(quiz.quizId);
+
       setQuizQuestions(questions);
       setSelectedQuiz(quiz);
       setShowQuestionsDialog(true);
@@ -153,7 +160,10 @@ const QuizManagement: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {quizzes.map((quiz) => (
-                  <TableRow key={quiz.id}>
+ 
+                  <TableRow key={quiz.quizId}>
+
+                  
                     <TableCell className="font-medium">{quiz.title}</TableCell>
                     <TableCell>{quiz.subject}</TableCell>
                     <TableCell>Grade {quiz.grade}</TableCell>
@@ -166,7 +176,9 @@ const QuizManagement: React.FC = () => {
                       <Button variant="ghost" size="sm" onClick={() => handleViewQuestions(quiz)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDeleteQuiz(quiz.id)}>
+ 
+                      <Button variant="ghost" size="sm" onClick={() => handleDeleteQuiz(quiz.quizId)}>
+
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -196,7 +208,9 @@ const QuizManagement: React.FC = () => {
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <h4 className="font-medium mb-2">Question {index + 1}</h4>
-                      <p className="mb-3">{question.text}</p>
+ 
+                      <p className="mb-3">{question.questionText}</p>
+
                       <div className="space-y-1">
                         {question.options.map((option, optIndex) => (
                           <div

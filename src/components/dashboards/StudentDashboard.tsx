@@ -49,29 +49,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
 
   const badges = user?.earnedBadges || [];
 
-  const suggestedResources = [
-    {
-      id: 1,
-      title: 'Basic Fractions',
-      description: 'Learn how to identify and work with basic fractions',
-      duration: '15 minutes',
-      path: '/lessons/fractions'
-    },
-    {
-      id: 2,
-      title: 'Reading Comprehension',
-      description: 'Practice understanding story elements',
-      duration: '10 minutes',
-      path: '/lessons/reading-comprehension'
-    },
-    {
-      id: 3,
-      title: 'Animal Habitats',
-      description: 'Learn about different animal homes and environments',
-      duration: '20 minutes',
-      path: '/lessons/animal-habitats'
-    }
-  ];
+ 
 
   useEffect(() => {
     fetchResources();
@@ -166,7 +144,10 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
       <Tabs defaultValue="progress">
         <TabsList className="w-full md:w-auto">
           <TabsTrigger value="progress">My Progress</TabsTrigger>
-          <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
+ 
+          <TabsTrigger value='quizzes'>Quizzes</TabsTrigger>
+
+          
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
         </TabsList>
 
@@ -286,9 +267,11 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
   )*/}
 </TabsContent>
 
-        <TabsContent value="quizzes" className="space-y-6">
-          <StudentQuizzes />
-        </TabsContent>
+ 
+      <TabsContent value='quizzes'>
+        <StudentQuizzes/>
+      </TabsContent>
+
 
         <TabsContent value="achievements" className="space-y-6">
           <Card>

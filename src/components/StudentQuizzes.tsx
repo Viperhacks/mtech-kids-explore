@@ -12,7 +12,9 @@ import { getAllQuizzes, getQuizQuestions, submitQuizAttempt } from '@/services/a
 import { useAuth } from '@/context/AuthContext';
 
 interface Quiz {
-  id: string;
+
+  quizId: string;
+
   title: string;
   description: string;
   grade: string;
@@ -23,7 +25,9 @@ interface Quiz {
 
 interface Question {
   id: string;
-  text: string;
+ 
+  questionText: string;
+
   options: string[];
   correctIndex: number;
 }
@@ -70,7 +74,9 @@ const StudentQuizzes: React.FC = () => {
 
   const startQuiz = async (quiz: Quiz) => {
     try {
-      const questions = await getQuizQuestions(quiz.id);
+ 
+      const questions = await getQuizQuestions(quiz.quizId);
+
       setQuizQuestions(questions);
       setSelectedQuiz(quiz);
       setCurrentQuestionIndex(0);
@@ -116,7 +122,8 @@ const StudentQuizzes: React.FC = () => {
         }
       });
 
-      await submitQuizAttempt(selectedQuiz!.id, correctCount);
+      await submitQuizAttempt(selectedQuiz!.quizId, correctCount);
+
       setScore(correctCount);
       setQuizCompleted(true);
       
@@ -164,7 +171,9 @@ const StudentQuizzes: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {quizzes.map((quiz) => (
-            <Card key={quiz.id} className="hover:shadow-lg transition-shadow">
+ 
+            <Card key={quiz.quizId} className="hover:shadow-lg transition-shadow">
+
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-lg">{quiz.title}</CardTitle>
@@ -205,7 +214,9 @@ const StudentQuizzes: React.FC = () => {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-medium mb-4">
-                      {quizQuestions[currentQuestionIndex]?.text}
+
+                      {quizQuestions[currentQuestionIndex]?.questionText}
+
                     </h3>
                     <RadioGroup
                       value={answers[quizQuestions[currentQuestionIndex]?.id]?.toString() || ""}

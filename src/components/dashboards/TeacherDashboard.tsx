@@ -14,28 +14,12 @@ import StudentAccountCreation from '../StudentAccountCreation';
 import api, { teacherService } from '@/lib/api';
 import { PaginatedResponse, Student } from '../types/apiTypes';
 import { capitalize } from '@/utils/stringUtils';
-import { Button } from '../ui/button';
-import { Link } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { LineChart } from '../ui/charts/LineChart';
+ 
 import QuizManagement from '../QuizManagement';
 import QuizCreationDialog from '../QuizCreationDialog';
 
-interface ExtendedStudent extends Student {
-  id: string;
-  fullName: string;
-  username: string;
-  email: string;
-  gradeLevel: string;
-  role: string;
-}
+const TeacherDashboard: React.FC = () => {
 
-const TeacherDashboard = () => {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isLoading, setIsLoading] = useState(true);
-  const [students, setStudents] = useState<ExtendedStudent[]>([]);
-  const [resourceStats, setResourceStats] = useState<any>(null);
-  const [systemStats, setSystemStats] = useState<any>(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -44,8 +28,10 @@ const TeacherDashboard = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedResource, setSelectedResource] = useState<any>(null);
   const [resourceType, setResourceType] = useState('document');
-  const [isStudentsLoading, setIsStudentsLoading] = useState(true);
+
+  const [groupedResources, setGroupedResources] = useState({});
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  
 
   useEffect(() => {
     fetchResources();
@@ -255,25 +241,23 @@ const paginatedResources = resources.slice(
         <TabsList className={`mb-6 ${isMobile ? 'grid grid-cols-2 gap-2 ' : ''}`}>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="materials">My Materials</TabsTrigger>
-          <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
+ 
+          <TabsTrigger value="quiz_management">Quiz Management</TabsTrigger>
+
            {!isMobile &&<TabsTrigger value="students">Students</TabsTrigger>}
            {!isMobile &&<TabsTrigger value="accounts">Student Accounts</TabsTrigger>}
           {!isMobile && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
         </TabsList>
-        
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Total Students</CardTitle>
-                <CardDescription>Students assigned to you</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{students.length}</div>
-              </CardContent>
-            </Card>
-            
-            <Card>
+ 
+
+
+       <TabsContent value="quiz_management">
+      <QuizManagement/>
+       </TabsContent>
+
+        <TabsContent value="overview">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
               <CardHeader>
                 <CardTitle>Resources Created</CardTitle>
                 <CardDescription>Videos, documents & quizzes</CardDescription>
@@ -289,7 +273,7 @@ const paginatedResources = resources.slice(
                 <Button 
                   className="w-full flex items-center justify-start" 
                   variant="outline"
-                  onClick={() => handleCreateNew('quiz')}
+                  onClick={() => setShowCreateDialog(true)}
                 >
                   <FileText className="mr-2 h-4 w-4" /> Create Quiz
                 </Button>
@@ -369,7 +353,7 @@ const paginatedResources = resources.slice(
               </CardContent>
             </Card>
           </div>
-          
+         
         <div className="mb-8">
   <h2 className="text-xl font-semibold mb-4">Manage Grade Resources</h2>
 
@@ -490,7 +474,7 @@ const paginatedResources = resources.slice(
 
   <Button
     className="flex-1 flex items-center justify-center"
-    onClick={() => handleCreateNew('quiz')}
+    onClick={() => setShowCreateDialog(true)}
     variant="outline"
   >
     <CheckCircle className="mr-2 h-4 w-4" />
@@ -587,6 +571,11 @@ const paginatedResources = resources.slice(
                     <Button onClick={() => handleCreateNew('document')}>
                       <FileText className="mr-2 h-4 w-4" /> Upload Document
                     </Button>
+ 
+                    <Button onClick={() => setShowCreateDialog(true)} variant="outline">
+                      <CheckCircle className="mr-2 h-4 w-4" /> Create Quiz
+                    </Button>
+
                   </div>
                 </div>
               )}
@@ -705,6 +694,37 @@ const paginatedResources = resources.slice(
           </Card>
         </TabsContent>
       </Tabs>
+ 
+      
+      <Dialog open={isEditing} onOpenChange={(open) => !open && setIsEditing(false)}>
+        <DialogContent className="sm:max-w-[800px] h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedResource ? 'Edit Resource' : resourceType === 'quiz' ? 'Create New Quiz' : 'Upload New Resource'}</DialogTitle>
+            <DialogDescription>
+              {selectedResource 
+                ? 'Modify your existing learning material' 
+                : resourceType === 'quiz' 
+                  ? 'Create a new quiz for your students'
+                  : 'Add a new learning resource for your students'
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <CourseEditor 
+            resource={selectedResource} 
+            onSave={handleSaveComplete} 
+            onCancel={() => setIsEditing(false)}
+            isNew={!selectedResource}
+            initialType={resourceType}
+          />
+        </DialogContent>
+      </Dialog>
+       <QuizCreationDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onQuizCreated={null}
+      />
+
+
     </div>
   );
 };
