@@ -407,10 +407,11 @@ const completionPercent = progress.total > 0
     }
   ];
   
+  
  
 
   return (
-    <div className="mtech-container py-8">
+    <div id='content-container' className="mtech-container py-8">
       <div className="flex items-center mb-6">
         <Button variant="ghost" size="sm" asChild className="mr-2">
           <Link to={`/dashboard`}>

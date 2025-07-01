@@ -1,3 +1,4 @@
+
 export interface Student {
   id: string;
   fullName: string;
@@ -7,6 +8,8 @@ export interface Student {
   role: string;
   createdAt?: string;
   lastActive?: string;
+  name?: string;
+  progress?: number;
 }
 
 export interface PaginatedResponse<T> {

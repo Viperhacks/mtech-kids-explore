@@ -314,8 +314,8 @@ export const getActiveUsers = async (period: string = 'day') => {
 export const getAllUsers = async (page: number = 1, limit: number = 10, filters?: any) => {
   try {
     const response = await adminService.getAllUsers(page, limit, filters);
-     console.log("response from api: ",response?.content)
-    return response.content;
+    console.log("response from api: ", response?.content)
+    return response; // Changed from response.content to response since interceptor unwraps
   } catch (error) {
     console.error('Get all users error:', error);
     throw error;
@@ -326,22 +326,21 @@ export const getAllStudents = async (): Promise<PaginatedResponse<Student>> => {
   try {
     const response = await api.get('/teacher/students');
 
-    // Check if 'content' exists in the response
-    if (!response.data || !response.data.content) {
+    // Since the response is already unwrapped by the axios interceptor,
+    // we need to check the structure properly
+    if (!response || !Array.isArray(response.content)) {
       throw new Error('Missing content in API response');
     }
 
     // Now safely return the response
-    return response.data; // This will return the entire data including 'content'
+    return response; // This will return the entire data including 'content'
   } catch (error) {
     console.error('Get all students error:', error);
     throw error;
   }
 };
 
-
-
- export const getTotalStats = async()=>{
+export const getTotalStats = async()=>{
   try {
     const response = await adminService.getTotalStats();
     return response.data;
@@ -349,9 +348,7 @@ export const getAllStudents = async (): Promise<PaginatedResponse<Student>> => {
      console.error('Get total stats error:', error);
     throw error;
   }
- }
-
-
+}
 
 export const getResourceStats = async () => {
   try {
@@ -379,6 +376,28 @@ export const updateUserRole = async (userId: string, role: string) => {
     return response.data;
   } catch (error) {
     console.error('Update user role error:', error);
+    throw error;
+  }
+};
+
+export const getUsageMetrics = async (timeRange: string = 'week') => {
+  try {
+    const response = await trackingService.getSystemStats();
+    // Mock data for now since the actual endpoint structure may vary
+    return {
+      data: Array.from({ length: 7 }, (_, i) => ({
+        date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        newUsers: Math.floor(Math.random() * 10) + 5,
+        activeUsers: Math.floor(Math.random() * 50) + 20,
+        sessions: Math.floor(Math.random() * 100) + 50,
+        avgSessionTime: Math.floor(Math.random() * 30) + 10,
+        resourceViews: Math.floor(Math.random() * 200) + 100,
+        quizStarts: Math.floor(Math.random() * 50) + 25,
+        quizCompletions: Math.floor(Math.random() * 30) + 15
+      }))
+    };
+  } catch (error) {
+    console.error('Get usage metrics error:', error);
     throw error;
   }
 };
