@@ -158,9 +158,19 @@ export const submitQuiz = async (quizId: string, answers: any) => {
 export const createQuiz = async (quizData: any) => {
   try {
     const response = await api.post('/quiz', quizData);
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Create quiz error:', error);
+    throw error;
+  }
+};
+
+export const updateQuiz = async (quizId: string, quizData: any) => {
+  try {
+    const response = await api.put(`/quiz/${quizId}`, quizData);
+    return response;
+  } catch (error) {
+    console.error('Update quiz error:', error);
     throw error;
   }
 };
@@ -168,7 +178,7 @@ export const createQuiz = async (quizData: any) => {
 export const getAllQuizzes = async () => {
   try {
     const response = await api.get('/quiz/all');
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Get all quizzes error:', error);
     throw error;
@@ -178,7 +188,7 @@ export const getAllQuizzes = async () => {
 export const deleteQuiz = async (quizId: string) => {
   try {
     const response = await api.delete(`/quiz/${quizId}`);
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Delete quiz error:', error);
     throw error;
@@ -192,7 +202,7 @@ export const uploadQuestions = async (quizId: string, file: File) => {
     const response = await api.post(`/question/upload?id=${quizId}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Upload questions error:', error);
     throw error;
@@ -202,7 +212,7 @@ export const uploadQuestions = async (quizId: string, file: File) => {
 export const getQuizQuestions = async (quizId: string) => {
   try {
     const response = await api.get(`/question/${quizId}`);
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Get quiz questions error:', error);
     throw error;
@@ -212,7 +222,7 @@ export const getQuizQuestions = async (quizId: string) => {
 export const deleteQuestion = async (questionId: string) => {
   try {
     const response = await api.delete(`/question/${questionId}`);
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Delete question error:', error);
     throw error;
@@ -222,7 +232,7 @@ export const deleteQuestion = async (questionId: string) => {
 export const submitQuizAttempt = async (quizId: string, correctAnswers: number) => {
   try {
     const response = await api.post(`/attempt/${quizId}?correctAnswers=${correctAnswers}`);
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Submit quiz attempt error:', error);
     throw error;
@@ -314,8 +324,8 @@ export const getActiveUsers = async (period: string = 'day') => {
 export const getAllUsers = async (page: number = 1, limit: number = 10, filters?: any) => {
   try {
     const response = await adminService.getAllUsers(page, limit, filters);
-     console.log("response from api: ",response?.content)
-    return response.content;
+    console.log("response from api: ", response?.content)
+    return response; // Changed from response.content to response since interceptor unwraps
   } catch (error) {
     console.error('Get all users error:', error);
     throw error;
@@ -326,22 +336,21 @@ export const getAllStudents = async (): Promise<PaginatedResponse<Student>> => {
   try {
     const response = await api.get('/teacher/students');
 
-    // Check if 'content' exists in the response
-    if (!response.data || !response.data.content) {
+    // Since the response is already unwrapped by the axios interceptor,
+    // we need to check the structure properly
+    if (!response || !Array.isArray(response.content)) {
       throw new Error('Missing content in API response');
     }
 
     // Now safely return the response
-    return response.data; // This will return the entire data including 'content'
+    return response; // This will return the entire data including 'content'
   } catch (error) {
     console.error('Get all students error:', error);
     throw error;
   }
 };
 
-
-
- export const getTotalStats = async()=>{
+export const getTotalStats = async()=>{
   try {
     const response = await adminService.getTotalStats();
     return response.data;
@@ -349,9 +358,7 @@ export const getAllStudents = async (): Promise<PaginatedResponse<Student>> => {
      console.error('Get total stats error:', error);
     throw error;
   }
- }
-
-
+}
 
 export const getResourceStats = async () => {
   try {
@@ -379,6 +386,28 @@ export const updateUserRole = async (userId: string, role: string) => {
     return response.data;
   } catch (error) {
     console.error('Update user role error:', error);
+    throw error;
+  }
+};
+
+export const getUsageMetrics = async (timeRange: string = 'week') => {
+  try {
+    const response = await trackingService.getSystemStats();
+    // Mock data for now since the actual endpoint structure may vary
+    return {
+      data: Array.from({ length: 7 }, (_, i) => ({
+        date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+        newUsers: Math.floor(Math.random() * 10) + 5,
+        activeUsers: Math.floor(Math.random() * 50) + 20,
+        sessions: Math.floor(Math.random() * 100) + 50,
+        avgSessionTime: Math.floor(Math.random() * 30) + 10,
+        resourceViews: Math.floor(Math.random() * 200) + 100,
+        quizStarts: Math.floor(Math.random() * 50) + 25,
+        quizCompletions: Math.floor(Math.random() * 30) + 15
+      }))
+    };
+  } catch (error) {
+    console.error('Get usage metrics error:', error);
     throw error;
   }
 };

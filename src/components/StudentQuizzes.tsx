@@ -53,7 +53,7 @@ const StudentQuizzes: React.FC = () => {
     try {
       const response = await getAllQuizzes();
       // Filter quizzes for student's grade
-      const studentQuizzes = response.filter((quiz: Quiz) => 
+      const studentQuizzes = response.data.filter((quiz: Quiz) => 
         quiz.grade === userGrade
       );
       setQuizzes(studentQuizzes);
@@ -70,8 +70,8 @@ const StudentQuizzes: React.FC = () => {
 
   const startQuiz = async (quiz: Quiz) => {
     try {
-      const questions = await getQuizQuestions(quiz.quizId);
-      setQuizQuestions(questions);
+      const response = await getQuizQuestions(quiz.quizId);
+      setQuizQuestions(response.data);
       setSelectedQuiz(quiz);
       setCurrentQuestionIndex(0);
       setAnswers({});
@@ -147,7 +147,7 @@ const StudentQuizzes: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 container mb-4">
       <div>
         <h2 className="text-2xl font-bold mb-2">Available Quizzes</h2>
         <p className="text-muted-foreground">Test your knowledge with these quizzes for Grade {userGrade}</p>

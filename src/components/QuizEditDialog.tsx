@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,22 +8,32 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { createQuiz } from '@/services/apiService';
+import { updateQuiz } from '@/services/apiService';
 import { Loader2 } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 
-interface QuizCreationDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onQuizCreated: () => void;
+interface Quiz {
+  quizId: string;
+  title: string;
+  description: string;
+  grade: string;
+  subject: string;
+  standaAlone: boolean;
+  teacherName: string;
 }
 
-const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
+interface QuizEditDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  quiz: Quiz | null;
+  onQuizUpdated: () => void;
+}
+
+const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
   open,
   onOpenChange,
-  onQuizCreated
+  quiz,
+  onQuizUpdated
 }) => {
-  const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,27 +41,37 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
     description: '',
     grade: '',
     subject: '',
-    standaAlone: true,
-    resourceId: '',
-    teacherName: user?.fullName || user?.name || ''
+    standaAlone: true
   });
+
+  useEffect(() => {
+    if (quiz) {
+      setFormData({
+        title: quiz.title,
+        description: quiz.description,
+        grade: quiz.grade,
+        subject: quiz.subject,
+        standaAlone: quiz.standaAlone
+      });
+    }
+  }, [quiz]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!quiz) return;
 
+    setIsLoading(true);
     try {
-      await createQuiz(formData);
+      await updateQuiz(quiz.quizId, formData);
       toast({
-        title: "Quiz Created Successfully",
-        description: "You can now upload questions to your quiz"
+        title: "Quiz Updated",
+        description: "Quiz has been successfully updated"
       });
-      onQuizCreated();
+      onQuizUpdated();
       onOpenChange(false);
-      resetForm();
     } catch (error) {
       toast({
-        title: "Failed to create quiz",
+        title: "Failed to update quiz",
         description: "Please try again",
         variant: "destructive"
       });
@@ -60,23 +80,11 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      description: '',
-      grade: '',
-      subject: '',
-      standaAlone: true,
-      resourceId: '',
-      teacherName: user?.fullName || user?.name || ''
-    });
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Create New Quiz</DialogTitle>
+          <DialogTitle>Edit Quiz</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -146,7 +154,7 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Create Quiz'}
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Update Quiz'}
             </Button>
           </DialogFooter>
         </form>
@@ -155,4 +163,4 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
   );
 };
 
-export default QuizCreationDialog;
+export default QuizEditDialog;
