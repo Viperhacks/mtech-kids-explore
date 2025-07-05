@@ -1,9 +1,14 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, Video, FileText, Award } from 'lucide-react';
+import { BookOpen, Video, FileText, Award, ChevronRight } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import useQuizStats from '@/hooks/useQuizStats';
+import { Button } from './ui/button';
+
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+
 
 interface ResourceStats {
   total: number;
@@ -28,9 +33,13 @@ const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
   const progress = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
   const { total, completed } = useQuizStats();
+  const hasVideos = stats.videos > 0;
+  const navigate = useNavigate();
+  const { user } = useAuth();
+   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
 
   return (
-    <Card>
+    <Card className='mb-5'>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
           <span className="bg-blue-100 text-blue-700 p-2 rounded-full">
@@ -71,6 +80,24 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
             </div>
           </div>
         </div>
+
+        {hasVideos ? (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => navigate(`/grade/grade${getRecommendedGrade()}/subject/${subject}`)}
+                >
+                  Continue <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => navigate("/revision")}
+                >
+                  No videos available, go to revisions <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              )}
       </CardContent>
     </Card>
   );
