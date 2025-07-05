@@ -12,22 +12,9 @@ import { getAllQuizzes, getQuizQuestions, submitQuizAttempt } from '@/services/a
 import { useAuth } from '@/context/AuthContext';
 import LoadingQuizzes from './LoadingQuizzes';
 
-interface Quiz {
-  quizId: string;
-  title: string;
-  description: string;
-  grade: string;
-  subject: string;
-  standaAlone: boolean;
-  teacherName: string;
-}
-
-interface Question {
-  id: string;
-  questionText: string;
-  options: string[];
-  correctAnswerPosition: number;
-}
+import { Quiz,Question } from './types/apiTypes';
+import { shuffleAnswers } from '@/utils/quizUtils';
+import QuizResultPreview from './QuizResultPreview';
 
 const StudentQuizzes: React.FC = () => {
   const { user } = useAuth();
@@ -43,6 +30,9 @@ const StudentQuizzes: React.FC = () => {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
   const [completedQuizIds,setCompletedQuizIds] = useState<string[]>([]);
+  const [showReview,setShowReview] = useState(false)
+  const [answerdQues,setAnsweredQues] = useState<Record<string,boolean>>({})
+   const [showConfirm ,setShowConfirm] = useState(false);
 
   const userGrade = user?.grade || user?.gradeLevel || '1';
 
@@ -72,6 +62,7 @@ const StudentQuizzes: React.FC = () => {
         quiz.grade === userGrade
       );
       
+      
       setQuizzes(studentQuizzes);
     } catch (error) {
       toast({
@@ -87,8 +78,9 @@ const StudentQuizzes: React.FC = () => {
   const startQuiz = async (quiz: Quiz) => {
     try {
       const response = await getQuizQuestions(quiz.quizId);
-       console.log("heres the questions",response);
-      setQuizQuestions(response.data);
+      const shuffledQuestions = shuffleAnswers(response.data)
+      setQuizQuestions(shuffledQuestions);
+      
       setSelectedQuiz(quiz);
       setCurrentQuestionIndex(0);
       setAnswers({});
@@ -108,13 +100,17 @@ const StudentQuizzes: React.FC = () => {
       ...prev,
       [questionId]: answerIndex
     }));
+
+    setAnsweredQues((prev)=>({
+      ...prev,
+      [questionId]: true
+    }));
   };
 
   const nextQuestion = () => {
-    
-    
       const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
-   if(answers[currentQuestionId] === undefined){
+      console.log("test",(answers[currentQuestionId]))
+   if(!answerdQues[currentQuestionId]){
     toast({
       title: "Please select an answer",
       variant: "destructive"
@@ -132,6 +128,16 @@ const StudentQuizzes: React.FC = () => {
   };
 
   const submitQuiz = async () => {
+    const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
+      console.log("test",(answers[currentQuestionId]))
+   if(!answerdQues[currentQuestionId]){
+    toast({
+      title: "Please select an answer",
+      variant: "destructive"
+    });
+    return;
+   }
+
     setIsSubmitting(true);
     try {
       // Calculate correct answers
@@ -142,10 +148,10 @@ const StudentQuizzes: React.FC = () => {
         }
       });
 
-      await submitQuizAttempt(selectedQuiz!.quizId, correctCount,
+      /*await submitQuizAttempt(selectedQuiz!.quizId, correctCount,
         user?.id,
         quizQuestions.length
-      );
+      );*/
       setScore(correctCount);
       setQuizCompleted(true);
       
@@ -179,6 +185,11 @@ const StudentQuizzes: React.FC = () => {
     setSelectedQuiz(null);
     setQuizQuestions([]);
     setQuizCompleted(false);
+    setScore(0);
+    setAnswers({});
+    setCurrentQuestionIndex(0);
+    setShowReview(false);
+    setAnsweredQues({});
   };
 
   if (isLoading) {
@@ -227,16 +238,55 @@ const StudentQuizzes: React.FC = () => {
                     {quiz.standaAlone ? "Standalone" : "Linked"}
                   </Badge>
                 </div>
-                <Button className="w-full" onClick={() => startQuiz(quiz)}> {completedQuizIds.includes(quiz.quizId) ? 'Retry Quiz' : 'Start Quiz'}
+
+                {
+                  completedQuizIds.includes(quiz.quizId)  ? (
+                     <Button variant='destructive' onClick={()=>setShowConfirm(true)}  className="w-full"> Retry Quiz
                 </Button>
+
+                   
+                  ): (
+                     <Button  className="w-full" onClick={() => startQuiz(quiz)}> Start Quiz
+                </Button>
+                  )
+                }
+
+                 {
+                      showConfirm && (
+                         <>
+                                    <div className="text-sm text-center text-muted-foreground">
+                                        Are you sure? Your latest score will be used, if you get a lesser score, that one will be used as the final mark.
+                                         </div>
+                                        <div className="flex gap-2 w-full">
+                                            <Button variant="secondary" className="w-full" onClick={()=> setShowConfirm(false)}>
+                                            No, go back
+                                            </Button>
+                                             <Button variant="default" className="w-full" onClick={() => {
+                                             
+                                              startQuiz(quiz);
+                                               setShowConfirm(false);
+                                             }}>
+                                            Yes, Retry
+                                            </Button>
+                                        </div>
+                                   
+                                    </>
+                      )
+                    }
+               
               </CardContent>
             </Card>
           ))}
         </div>
       )}
 
-      <Dialog open={showQuizDialog} onOpenChange={setShowQuizDialog}>
-        <DialogContent className="max-w-2xl">
+      <Dialog open={showQuizDialog} onOpenChange={(isOpen)=>{
+        
+        if(!isOpen){
+          closeQuiz();
+        }
+      }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           {!quizCompleted ? (
             <>
               <DialogHeader>
@@ -303,7 +353,11 @@ const StudentQuizzes: React.FC = () => {
               <DialogHeader>
                 <DialogTitle className="text-center">Quiz Completed!</DialogTitle>
               </DialogHeader>
-              <div className="text-center space-y-4">
+              
+            {
+              !showReview ? (
+                <>
+                <div className="text-center space-y-4">
                 <div className="flex justify-center">
                   <div className="p-4 bg-green-100 rounded-full">
                     <Award className="h-12 w-12 text-green-600" />
@@ -319,11 +373,33 @@ const StudentQuizzes: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <DialogFooter>
+               <DialogFooter>
+                <Button variant='secondary' onClick={()=> setShowReview(true)} className='w-full'>View All My Answers</Button>
                 <Button onClick={closeQuiz} className="w-full">
                   Close
                 </Button>
               </DialogFooter>
+              </>
+              ) :  showReview && (
+                <QuizResultPreview
+                quizQuestions={quizQuestions}
+                score={score}
+                answers={answers}
+                onClose={closeQuiz}
+                onRetry={()=>{
+                  setQuizCompleted(false);
+                  setShowReview(false);
+                  setAnswers({});
+                  setCurrentQuestionIndex(0);
+                  setAnsweredQues({});
+                }}
+                
+                />
+              )
+            }
+
+              
+             
             </>
           )}
         </DialogContent>
