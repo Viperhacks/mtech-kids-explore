@@ -251,27 +251,27 @@ const StudentQuizzes: React.FC = () => {
                   )
                 }
 
-                 {
-                      showConfirm && (
-                         <>
-                                    <div className="text-sm text-center text-muted-foreground">
-                                        Are you sure? Your latest score will be used, if you get a lesser score, that one will be used as the final mark.
-                                         </div>
-                                        <div className="flex gap-2 w-full">
-                                            <Button variant="secondary" className="w-full" onClick={()=> setShowConfirm(false)}>
-                                            No, go back
-                                            </Button>
-                                             <Button variant="default" className="w-full" onClick={() => {
-                                             
-                                              startQuiz(quiz);
-                                               setShowConfirm(false);
-                                             }}>
-                                            Yes, Retry
-                                            </Button>
-                                        </div>
-                                   
-                                    </>
-                      )
+                    {
+                    showConfirm && (
+                    <>
+                      <div className="text-sm text-center text-muted-foreground">
+                      Are you sure? Your latest score will be used, if you get a lesser score, that one will be used as the final mark.
+                      </div>
+                      <div className="flex gap-2 w-full">
+                        <Button variant="secondary" className="w-full" onClick={()=> setShowConfirm(false)}>
+                        No, go back
+                        </Button>
+                          <Button variant="default" className="w-full" onClick={() => {
+                          
+                          startQuiz(quiz);
+                            setShowConfirm(false);
+                          }}>
+                        Yes, Retry
+                        </Button>
+                      </div>
+
+                    </>
+                    )
                     }
                
               </CardContent>
