@@ -145,7 +145,7 @@ const QuizManagement: React.FC = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>My Quizzes</CardTitle>
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-auto">
               <Button variant="outline" onClick={() => setShowUploadDialog(true)}>
                 <Upload className="h-4 w-4 mr-2" />
                 Upload Questions

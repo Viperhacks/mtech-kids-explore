@@ -459,15 +459,6 @@ const completionPercent = progress.total > 0
           <Video className="mr-2 h-4 w-4" />
           Upload Video
         </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => handleCreateNewResource('quiz')}
-          className="w-full sm:w-auto"
-        >
-          <CheckCircle className="mr-2 h-4 w-4" />
-          Create Quiz
-        </Button>
       </div>
     )}
   </div>

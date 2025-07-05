@@ -26,7 +26,7 @@ interface Question {
   id: string;
   questionText: string;
   options: string[];
-  correctIndex: number;
+  correctAnswerPosition: number;
 }
 
 const StudentQuizzes: React.FC = () => {
@@ -71,6 +71,7 @@ const StudentQuizzes: React.FC = () => {
       const studentQuizzes = response.data.filter((quiz: Quiz) => 
         quiz.grade === userGrade
       );
+      
       setQuizzes(studentQuizzes);
     } catch (error) {
       toast({
@@ -86,6 +87,7 @@ const StudentQuizzes: React.FC = () => {
   const startQuiz = async (quiz: Quiz) => {
     try {
       const response = await getQuizQuestions(quiz.quizId);
+       console.log("heres the questions",response);
       setQuizQuestions(response.data);
       setSelectedQuiz(quiz);
       setCurrentQuestionIndex(0);
@@ -135,7 +137,7 @@ const StudentQuizzes: React.FC = () => {
       // Calculate correct answers
       let correctCount = 0;
       quizQuestions.forEach(question => {
-        if (answers[question.id] === question.correctIndex) {
+        if (answers[question.id] === question.correctAnswerPosition-1) {
           correctCount++;
         }
       });
@@ -251,8 +253,11 @@ const StudentQuizzes: React.FC = () => {
                   <div>
                     <h3 className="text-lg font-medium mb-4">
                       {quizQuestions[currentQuestionIndex]?.questionText}
+                      
                     </h3>
-                    <RadioGroup
+                    <div key={quizQuestions[currentQuestionIndex]?.id}>
+                      <RadioGroup
+                      key={quizQuestions[currentQuestionIndex].id}
                       value={answers[quizQuestions[currentQuestionIndex]?.id]?.toString() || ""}
                       onValueChange={(value) => 
                         handleAnswerChange(quizQuestions[currentQuestionIndex].id, parseInt(value))
@@ -262,11 +267,12 @@ const StudentQuizzes: React.FC = () => {
                         <div key={index} className="flex items-center space-x-2">
                           <RadioGroupItem value={index.toString()} id={`option-${index}`} />
                           <Label htmlFor={`option-${index}`} className="cursor-pointer">
-                            {String.fromCharCode(65 + index)}. {option}
+                            {String.fromCharCode(65 + index)}. {option} 
                           </Label>
                         </div>
                       ))}
                     </RadioGroup>
+                    </div>
                   </div>
 
                   <DialogFooter className="flex justify-between">
