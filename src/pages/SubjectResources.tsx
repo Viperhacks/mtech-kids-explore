@@ -16,6 +16,7 @@ import { getResources, deleteResource, getResourcesForAnyOne } from '@/services/
 import CourseEditor from '@/components/CourseEditor';
 import VideoThumbnail from './VideoThumbnail';
 import { resolve } from 'path';
+import FloatingBackButton from '@/components/FloatingBackButton';
 
 const SubjectResources = () => {
   //const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
@@ -412,12 +413,7 @@ const completionPercent = progress.total > 0
   return (
     <div className="mtech-container py-8">
       <div className="flex items-center mb-6">
-        <Button variant="ghost" size="sm" asChild className="mr-2">
-          <Link to={`/dashboard`}>
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back
-          </Link>
-        </Button>
+        <FloatingBackButton/>
         <div>
           <h1 className="text-2xl font-bold text-mtech-dark">
             Grade {gradeIdNumber} - {subject?.name || subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}
