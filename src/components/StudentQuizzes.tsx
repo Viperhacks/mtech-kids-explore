@@ -10,6 +10,7 @@ import { CheckCircle, Clock, Award, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAllQuizzes, getQuizQuestions, submitQuizAttempt } from '@/services/apiService';
 import { useAuth } from '@/context/AuthContext';
+import LoadingQuizzes from './LoadingQuizzes';
 
 interface Quiz {
   quizId: string;
@@ -41,6 +42,7 @@ const StudentQuizzes: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
+  const [completedQuizIds,setCompletedQuizIds] = useState<string[]>([]);
 
   const userGrade = user?.grade || user?.gradeLevel || '1';
 
@@ -48,6 +50,19 @@ const StudentQuizzes: React.FC = () => {
     fetchAvailableQuizzes();
   }, []);
 
+  useEffect(
+    ()=>{
+      const stored = localStorage.getItem("completedQuizzes");
+      if (stored){
+        setCompletedQuizIds(JSON.parse(stored))
+      }
+    },[]
+  );
+
+  useEffect(()=>{
+    localStorage.setItem("completedQuizzes",JSON.stringify(completedQuizIds));
+  },[completedQuizIds]);
+  
   const fetchAvailableQuizzes = async () => {
     setIsLoading(true);
     try {
@@ -94,9 +109,18 @@ const StudentQuizzes: React.FC = () => {
   };
 
   const nextQuestion = () => {
-    if (currentQuestionIndex < quizQuestions.length - 1) {
+    
+    
+      const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
+   if(answers[currentQuestionId] === undefined){
+    toast({
+      title: "Please select an answer",
+      variant: "destructive"
+    });
+    return;
+   }
       setCurrentQuestionIndex(prev => prev + 1);
-    }
+    
   };
 
   const previousQuestion = () => {
@@ -116,10 +140,23 @@ const StudentQuizzes: React.FC = () => {
         }
       });
 
-      await submitQuizAttempt(selectedQuiz!.quizId, correctCount);
+      await submitQuizAttempt(selectedQuiz!.quizId, correctCount,
+        user?.id,
+        quizQuestions.length
+      );
       setScore(correctCount);
       setQuizCompleted(true);
       
+      //mark
+
+      if(selectedQuiz?.quizId){
+        setCompletedQuizIds((prev)=>
+        prev.includes(selectedQuiz.quizId)?
+        prev 
+        : [...prev, selectedQuiz.quizId]
+        );
+      }
+
       toast({
         title: "Quiz Submitted!",
         description: `You scored ${correctCount} out of ${quizQuestions.length}`,
@@ -143,7 +180,7 @@ const StudentQuizzes: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="p-4">Loading available quizzes...</div>;
+    return <LoadingQuizzes/>
   }
 
   return (
@@ -163,11 +200,20 @@ const StudentQuizzes: React.FC = () => {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          
+
           {quizzes.map((quiz) => (
-            <Card key={quiz.quizId} className="hover:shadow-lg transition-shadow">
+            <Card key={quiz.quizId} className=" relative hover:shadow-lg transition-shadow">
+               
               <CardHeader>
+                
                 <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg">{quiz.title}</CardTitle>
+                  {completedQuizIds.includes(quiz.quizId) && (
+                <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full z-10">
+                  <CheckCircle className="h-4 w-4" /> 
+                  </div>
+                )}
+                  <CardTitle className="text-lg">{quiz.title} </CardTitle>
                   <Badge variant="secondary">{quiz.subject}</Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">{quiz.description}</p>
@@ -179,8 +225,7 @@ const StudentQuizzes: React.FC = () => {
                     {quiz.standaAlone ? "Standalone" : "Linked"}
                   </Badge>
                 </div>
-                <Button className="w-full" onClick={() => startQuiz(quiz)}>
-                  Start Quiz
+                <Button className="w-full" onClick={() => startQuiz(quiz)}> {completedQuizIds.includes(quiz.quizId) ? 'Retry Quiz' : 'Start Quiz'}
                 </Button>
               </CardContent>
             </Card>

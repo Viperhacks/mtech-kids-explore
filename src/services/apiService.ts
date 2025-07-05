@@ -229,7 +229,7 @@ export const deleteQuestion = async (questionId: string) => {
   }
 };
 
-export const submitQuizAttempt = async (quizId: string, correctAnswers: number) => {
+export const submitQuizAttempt = async (quizId: string, correctAnswers: number, id?: string, length?: number) => {
   try {
     const response = await api.post(`/attempt/${quizId}?correctAnswers=${correctAnswers}`);
     return response;

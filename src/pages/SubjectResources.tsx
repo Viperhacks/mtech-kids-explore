@@ -17,6 +17,10 @@ import CourseEditor from '@/components/CourseEditor';
 import VideoThumbnail from './VideoThumbnail';
 import { resolve } from 'path';
 import FloatingBackButton from '@/components/FloatingBackButton';
+import QuizCreationDialog from '@/components/QuizCreationDialog';
+import QuizCreationDialog from '@/components/QuizCreationDialog';
+import StudentQuizzes from '@/components/StudentQuizzes';
+import QuizManagement from '@/components/QuizManagement';
 
 const SubjectResources = () => {
   //const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
@@ -608,72 +612,16 @@ const completionPercent = progress.total > 0
 </TabsContent>
         
         
-        {/*<TabsContent value="quizzes" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {subject.quizzes.map((quiz) => {
-              const isCompleted = user?.completedLessons?.includes(quiz.id);
-              return (
-                <Card key={quiz.id}>
-                  <CardHeader>
-                    <div className="flex justify-between">
-                      <CardTitle className="text-base">{quiz.title}</CardTitle>
-                      {isCompleted && (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      )}
-                    </div>
-                    <CardDescription className="text-xs">
-                      {quiz.questions} Questions • {quiz.time} Minutes
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600">{quiz.description}</p>
-                  </CardContent>
-                  <CardFooter className="flex justify-between">
-                    <Button 
-                      size="sm" 
-                      className="flex-1 bg-mtech-secondary"
-                      onClick={() => handleStartQuiz(quiz)}
-                    >
-                      {isCompleted ? 'Retry Quiz' : 'Start Quiz'}
-                    </Button>
-                    
-                    {user?.role === 'TEACHER' && (
-                      <div className="flex gap-1 ml-2">
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          onClick={() => handleEditResource(quiz)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          onClick={() => handleDeleteResource(quiz.id)}
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                  </CardFooter>
-                </Card>
-              );
-            })}
-            
-            {user?.role === 'TEACHER' && (
-              <Card className="flex flex-col items-center justify-center h-full min-h-[200px] border-dashed">
-                <Button 
-                  variant="ghost" 
-                  className="flex flex-col h-full w-full p-6"
-                  onClick={() => handleCreateNewResource('quiz')}
-                >
-                  <PlusCircle className="h-8 w-8 mb-2" />
-                  <p>Create New Quiz</p>
-                </Button>
-              </Card>
-            )}
-          </div>
-        </TabsContent>*/}
+        <TabsContent value="quizzes" className="mt-6">
+           {
+            user?.role == "STUDENT" ? (
+              <StudentQuizzes/>
+            ): (
+              <QuizManagement/>
+
+            )
+           }
+        </TabsContent>
       </Tabs>
       
       {/* Video Dialog */}
