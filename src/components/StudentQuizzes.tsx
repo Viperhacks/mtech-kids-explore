@@ -38,11 +38,13 @@ const StudentQuizzes: React.FC = () => {
   const [completedQuizIds,setCompletedQuizIds] = useState<string[]>([]);
   const [showReview,setShowReview] = useState(false)
   const [answerdQues,setAnsweredQues] = useState<Record<string,boolean>>({})
-   const [showConfirm ,setShowConfirm] = useState(false);
+  const [showConfirm ,setShowConfirm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [subjectFilter, setSubjectFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const userGrade = user?.grade || user?.gradeLevel || '1';
-  const userId = user?.id || user?.userId || 'anonymous';
-  const quizProgress = useQuizProgress(userId);
+  const userId = user?.id || user?.username || 'anonymous';
 
   useEffect(() => {
     fetchAvailableQuizzes();
@@ -95,9 +97,9 @@ const StudentQuizzes: React.FC = () => {
       
       let matchesStatus = true;
       if (statusFilter === 'completed') {
-        matchesStatus = quizProgress.isQuizCompleted(quiz.quizId);
+        matchesStatus = completedQuizIds.includes(quiz.quizId);
       } else if (statusFilter === 'not-started') {
-        matchesStatus = !quizProgress.isQuizCompleted(quiz.quizId);
+        matchesStatus = !completedQuizIds.includes(quiz.quizId);
       }
 
       return matchesSearch && matchesSubject && matchesStatus;
@@ -243,7 +245,7 @@ const StudentQuizzes: React.FC = () => {
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
               <Trophy className="h-4 w-4 text-yellow-600" />
-              <span>Completed: {quizProgress.getTotalCompletedQuizzes()}</span>
+              <span>Completed: {completedQuizIds.length}</span>
             </div>
             <div className="flex items-center gap-2">
               <BookOpen className="h-4 w-4 text-blue-600" />
@@ -465,8 +467,8 @@ const StudentQuizzes: React.FC = () => {
                   <p className="text-muted-foreground">
                     {Math.round((score / quizQuestions.length) * 100)}% Correct
                   </p>
-                  {quizProgress.getBestScore(selectedQuiz!.quizId) < Math.round((score / quizQuestions.length) * 100) && (
-                    <Badge className="mt-2">New Best Score!</Badge>
+                  {Math.round((score / quizQuestions.length) * 100) >= 80 && (
+                    <Badge className="mt-2">Great Score!</Badge>
                   )}
                 </div>
               </div>

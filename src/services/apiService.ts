@@ -327,26 +327,18 @@ export const getActiveUsers = async (period: string = 'day') => {
 export const getAllUsers = async (page: number = 1, limit: number = 10, filters?: any) => {
   try {
     const response = await adminService.getAllUsers(page, limit, filters);
-    console.log("response from api: ", response?.content)
-    return response; // Changed from response.content to response since interceptor unwraps
+    console.log("response from api: ", response)
+    return response; // Response is already unwrapped by axios interceptor
   } catch (error) {
     console.error('Get all users error:', error);
     throw error;
   }
 };
 
-export const getAllStudents = async (): Promise<PaginatedResponse<Student>> => {
+export const getAllStudents = async (): Promise<any> => {
   try {
     const response = await api.get('/teacher/students');
-
-    // Since the response is already unwrapped by the axios interceptor,
-    // we need to check the structure properly
-    if (!response || !Array.isArray(response.content)) {
-      throw new Error('Missing content in API response');
-    }
-
-    // Now safely return the response
-    return response; // This will return the entire data including 'content'
+    return response; // Response is already unwrapped by axios interceptor
   } catch (error) {
     console.error('Get all students error:', error);
     throw error;
@@ -411,6 +403,79 @@ export const getUsageMetrics = async (timeRange: string = 'week') => {
     };
   } catch (error) {
     console.error('Get usage metrics error:', error);
+    throw error;
+  }
+};
+
+// Student quiz attempts
+export const getStudentAttempts = async (page: number = 1, limit: number = 10) => {
+  try {
+    const response = await api.get('/attempt/student', { params: { page, limit } });
+    return response;
+  } catch (error) {
+    console.error('Get student attempts error:', error);
+    throw error;
+  }
+};
+
+// Teacher - Get all attempts for a specific quiz
+export const getQuizAttempts = async (quizId: string, page: number = 1, limit: number = 10) => {
+  try {
+    const response = await api.get(`/attempt/quiz/${quizId}`, { params: { page, limit } });
+    return response;
+  } catch (error) {
+    console.error('Get quiz attempts error:', error);
+    throw error;
+  }
+};
+
+// Classroom management services
+export const getClassrooms = async (page: number = 1, limit: number = 10) => {
+  try {
+    const response = await api.get('/classrooms', { params: { page, limit } });
+    return response;
+  } catch (error) {
+    console.error('Get classrooms error:', error);
+    throw error;
+  }
+};
+
+export const getClassroomById = async (id: string) => {
+  try {
+    const response = await api.get(`/classrooms/${id}`);
+    return response;
+  } catch (error) {
+    console.error('Get classroom error:', error);
+    throw error;
+  }
+};
+
+export const createClassroom = async (classroomData: { name: string; gradeLevel: string }) => {
+  try {
+    const response = await api.post('/classrooms', classroomData);
+    return response;
+  } catch (error) {
+    console.error('Create classroom error:', error);
+    throw error;
+  }
+};
+
+export const updateClassroom = async (id: string, classroomData: { name: string; gradeLevel: string }) => {
+  try {
+    const response = await api.put(`/classrooms/${id}`, classroomData);
+    return response;
+  } catch (error) {
+    console.error('Update classroom error:', error);
+    throw error;
+  }
+};
+
+export const deleteClassroom = async (id: string) => {
+  try {
+    const response = await api.delete(`/classrooms/${id}`);
+    return response;
+  } catch (error) {
+    console.error('Delete classroom error:', error);
     throw error;
   }
 };

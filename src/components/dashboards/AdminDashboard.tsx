@@ -77,13 +77,12 @@ type RecentUser = {
   const fetchUsers = async ()=>{
     setIsLoading(true);
     try {
-      const response =  await getAllUsers(0,10);
+      const response = await getAllUsers(0,10);
+      let content = Array.isArray(response) ? response : response.content || [];
+      content = content.sort((a: any, b: any) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
-      let content = response || [];
-      content = content.sort((a,b)=>
-      new Date(b.createdAt).getTime()- new Date(a.createdAt).getTime())
-
-      const formatted = content.map(u=> ({
+      const formatted = content.map((u: any) => ({
         id: u.id,
         name: u.fullName,
         username: u.username,

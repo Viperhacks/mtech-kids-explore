@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Upload, Users, FileText, Book, PlusCircle, Video, CheckCircle, Trophy } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -14,23 +18,26 @@ import StudentAccountCreation from '../StudentAccountCreation';
 import api, { teacherService } from '@/lib/api';
 import { PaginatedResponse, Student } from '../types/apiTypes';
 import { capitalize } from '@/utils/stringUtils';
- 
+import { LineChart } from '@/components/ui/charts/LineChart';
 import QuizManagement from '../QuizManagement';
 import QuizCreationDialog from '../QuizCreationDialog';
 
 const TeacherDashboard: React.FC = () => {
-
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  
+  // State variables
   const [resources, setResources] = useState<any[]>([]);
   const [groupedResources, setGroupedResources] = useState<any>({});
   const [isEditing, setIsEditing] = useState(false);
   const [selectedResource, setSelectedResource] = useState<any>(null);
   const [resourceType, setResourceType] = useState('document');
-
-  const [groupedResources, setGroupedResources] = useState({});
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [isLoading, setIsLoading] = useState(false);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [isStudentsLoading, setIsStudentsLoading] = useState(false);
   
 
   useEffect(() => {
@@ -257,6 +264,7 @@ const paginatedResources = resources.slice(
 
         <TabsContent value="overview">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card>
 
               <CardHeader>
                 <CardTitle>Resources Created</CardTitle>
