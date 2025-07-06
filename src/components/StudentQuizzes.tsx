@@ -109,7 +109,7 @@ const StudentQuizzes: React.FC = () => {
 
   const nextQuestion = () => {
       const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
-      
+      console.log("test",(answers[currentQuestionId]))
    if(!answerdQues[currentQuestionId]){
     toast({
       title: "Please select an answer",
@@ -129,7 +129,7 @@ const StudentQuizzes: React.FC = () => {
 
   const submitQuiz = async () => {
     const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
-      
+      console.log("test",(answers[currentQuestionId]))
    if(!answerdQues[currentQuestionId]){
     toast({
       title: "Please select an answer",
@@ -149,7 +149,7 @@ const StudentQuizzes: React.FC = () => {
       });
 
       await submitQuizAttempt(selectedQuiz!.quizId, correctCount,
-       
+        
         quizQuestions.length
       );
       setScore(correctCount);
