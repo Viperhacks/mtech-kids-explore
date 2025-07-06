@@ -229,6 +229,7 @@ export const deleteQuestion = async (questionId: string) => {
   }
 };
 
+
 export const submitQuizAttempt = async (quizId: string, score: number, total: number) => {
   try {
     const response = await api.post(`/attempt/${quizId}?score=${score}&total=${total}`);
@@ -237,6 +238,7 @@ export const submitQuizAttempt = async (quizId: string, score: number, total: nu
     console.error('Submit quiz score error:', error);
     throw error;
   }
+
 };
 
 

@@ -16,6 +16,7 @@ import ResourcesData from '@/data/resources';
 import { uploadResource } from '@/services/apiService';
 
 const GradeResources = () => {
+ 
   const { gradeId } = useParams<{ gradeId: string }>();
   const { user, trackActivity } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('all');
@@ -31,6 +32,10 @@ const GradeResources = () => {
     type: 'video',
     file: null as File | null,
   });
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 });
+  }, [activeTab]);
   
   // Get the grade resources
   const gradeData = ResourcesData.grades.find(g => g.id === gradeId);

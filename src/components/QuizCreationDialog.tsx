@@ -108,7 +108,9 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
                   <SelectValue placeholder="Select grade" />
                 </SelectTrigger>
                 <SelectContent>
+
                   {[1, 2, 3, 4, 5, 6, 7].map(grade => (
+
                     <SelectItem key={grade} value={grade.toString()}>Grade {grade}</SelectItem>
                   ))}
                 </SelectContent>
