@@ -50,7 +50,9 @@ const QuizManagement: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await getAllQuizzes();
-      const teacherQuizzes = response.filter((quiz: Quiz) => 
+
+      const teacherQuizzes = response.data.filter((quiz: Quiz) => 
+
         quiz.teacherName === user?.fullName || quiz.teacherName === user?.name
       );
       setQuizzes(teacherQuizzes);
@@ -88,8 +90,8 @@ const QuizManagement: React.FC = () => {
 
   const handleViewQuestions = async (quiz: Quiz) => {
     try {
-      const questions = await getQuizQuestions(quiz.quizId);
-      setQuizQuestions(questions);
+      const response = await getQuizQuestions(quiz.quizId);
+      setQuizQuestions(response.data);
       setSelectedQuiz(quiz);
       setShowQuestionsDialog(true);
     } catch (error) {
@@ -144,7 +146,9 @@ const QuizManagement: React.FC = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>My Quizzes</CardTitle>
-            <div className="flex gap-2">
+
+            <div className="flex gap-2 overflow-auto">
+
               <Button variant="outline" onClick={() => setShowUploadDialog(true)}>
                 <Upload className="h-4 w-4 mr-2" />
                 Upload Questions

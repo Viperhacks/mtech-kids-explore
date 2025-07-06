@@ -1,10 +1,10 @@
 {
   "name": "mtech_kidz",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "description": "Kids Learning Platform",
-  "author": "Tadiwa Blessed",
+  "author": "BLEXTA Technologies",
   "main": "main.cjs",
   "scripts": {
     "dev": "cross-env ELECTRON_IS_DEV=true vite --port 8081",
@@ -18,7 +18,7 @@
   },
   "build": {
     "appId": "com.mtechkids.app",
-    "productName": "MTechKidsExplore",
+    "productName": "MMtechKidsExplore",
     "files": [
       "dist/**/*",
       "main.cjs",

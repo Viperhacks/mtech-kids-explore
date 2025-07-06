@@ -24,3 +24,21 @@ export interface PaginatedResponse<T> {
   numberOfElements: number;
   empty: boolean;
 }
+
+
+export interface Quiz {
+  quizId: string;
+  title: string;
+  description: string;
+  grade: string;
+  subject: string;
+  standaAlone: boolean;
+  teacherName: string;
+}
+
+export interface Question {
+  id: string;
+  questionText: string;
+  options: string[];
+  correctAnswerPosition: number;
+}

@@ -11,6 +11,7 @@ import { getResourcesForAnyOne } from '@/services/apiService';
 import { toast } from '@/hooks/use-toast';
 import { userTrackingService } from '@/lib/userTracking';
 import StudentQuizzes from '../StudentQuizzes';
+import SubjectProgressCard from '../SubjectProgressCard';
 
 interface StudentDashboardProps {
   isParent?: boolean;
@@ -164,71 +165,16 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
     </div>
   ) : (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Object.entries(resourceStats).map(([subject, stats]) => {
-        const hasVideos = stats.videos > 0; // Check if there are videos
-        return (
-          <Card key={subject}>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2">
-                <span className="bg-blue-100 text-blue-700 p-2 rounded-full">
-                  <BookOpen className="h-4 w-4" />
-                </span>
-                {capitalize(subject)}
-              </CardTitle>
-              <CardDescription>
-                Grade {getRecommendedGrade()} {capitalize(subject)}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Overall Progress</span>
-                  <span className="text-muted-foreground">
-                    {calculateProgress(subject).completed}/{calculateProgress(subject).total} items
-                  </span>
-                </div>
-                <Progress value={calculateProgress(subject).progress} className="h-2" />
-                
-                <div className="grid grid-cols-3 gap-2 mt-4">
-                  <div className="text-center p-2 bg-blue-50 rounded-md">
-                    <Video className="h-4 w-4 mx-auto mb-1 text-blue-600" />
-                    <p className="text-xs font-medium">{stats.videosCompleted}/{stats.videos}</p>
-                    <p className="text-xs text-muted-foreground">Videos</p>
-                  </div>
-                  <div className="text-center p-2 bg-green-50 rounded-md">
-                    <FileText className="h-4 w-4 mx-auto mb-1 text-green-600" />
-                    <p className="text-xs font-medium">{stats.documentsCompleted}/{stats.documents}</p>
-                    <p className="text-xs text-muted-foreground">Docs</p>
-                  </div>
-                  <div className="text-center p-2 bg-amber-50 rounded-md">
-                    <Award className="h-4 w-4 mx-auto mb-1 text-amber-600" />
-                    <p className="text-xs font-medium">{stats.quizzesCompleted}/{stats.quizzes}</p>
-                    <p className="text-xs text-muted-foreground">Quizzes</p>
-                  </div>
-                </div>
-              </div>
-
-              {hasVideos ? (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => navigate(`/grade/grade${getRecommendedGrade()}/subject/${subject}`)}
-                >
-                  Continue <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => navigate("/revision")}
-                >
-                  No videos available, go to revisions <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })}
+      {Object.entries(resourceStats).map(([subject, stats]) => (
+  <>
+<SubjectProgressCard
+    key={subject}
+    subject={subject}
+    stats={stats}
+    grade={getRecommendedGrade()}
+  />
+</>
+))}
     </div>
   )}
 

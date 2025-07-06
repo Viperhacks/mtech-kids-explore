@@ -229,15 +229,18 @@ export const deleteQuestion = async (questionId: string) => {
   }
 };
 
-export const submitQuizAttempt = async (quizId: string, correctAnswers: number) => {
-  try {
-    const response = await api.post(`/attempt/${quizId}?correctAnswers=${correctAnswers}`);
-    return response;
-  } catch (error) {
-    console.error('Submit quiz attempt error:', error);
-    throw error;
-  }
+
+export const submitQuizAttempt = async (quizId: string, score: number, total: number) => {
+  try {
+    const response = await api.post(`/attempt/${quizId}?score=${score}&total=${total}`);
+    return response.data;
+  } catch (error) {
+    console.error('Submit quiz score error:', error);
+    throw error;
+  }
+
 };
+
 
 // Tracking services
 export const trackActivity = async (activityData: any) => {

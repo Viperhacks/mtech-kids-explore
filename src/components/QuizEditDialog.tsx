@@ -116,7 +116,9 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
                   <SelectValue placeholder="Select grade" />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(grade => (
+
+                  {[1, 2, 3, 4, 5, 6, 7].map(grade => (
+
                     <SelectItem key={grade} value={grade.toString()}>Grade {grade}</SelectItem>
                   ))}
                 </SelectContent>
