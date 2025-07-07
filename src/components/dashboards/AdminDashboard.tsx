@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +22,7 @@ import TeacherAccountCreation from '../TeacherAccountCreation';
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('users');
   
   type Stats = {
     totalUsers: number;
@@ -72,7 +74,7 @@ const AdminDashboard: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await getAllUsers(0,10);
-      let content = Array.isArray(response) ? response : response.content || response.data?.content || [];
+      let content = Array.isArray(response) ? response : response.content || [];
       content = content.sort((a: any, b: any) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
@@ -102,6 +104,25 @@ const AdminDashboard: React.FC = () => {
   ];
 
   const recentUsers = joinedUsers;
+
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'users':
+        setActiveTab('users');
+        break;
+      case 'content':
+        toast({
+          title: "Content Management",
+          description: "Content management features coming soon!"
+        });
+        break;
+      case 'classes':
+        setActiveTab('classes');
+        break;
+      default:
+        break;
+    }
+  };
   
   return (
     <div className="container mx-auto py-8 px-4">
@@ -170,7 +191,9 @@ const AdminDashboard: React.FC = () => {
             )}
           </CardContent>
           <CardFooter>
-            <Button variant="outline">View All Users</Button>
+            <Button variant="outline" onClick={() => handleQuickAction('users')}>
+              View All Users
+            </Button>
           </CardFooter>
         </Card>
         
@@ -179,20 +202,32 @@ const AdminDashboard: React.FC = () => {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Button className="w-full flex items-center justify-start" variant="outline">
+            <Button 
+              className="w-full flex items-center justify-start" 
+              variant="outline"
+              onClick={() => handleQuickAction('users')}
+            >
               <Users className="mr-2 h-4 w-4" /> Manage Users
             </Button>
-            <Button className="w-full flex items-center justify-start" variant="outline">
+            <Button 
+              className="w-full flex items-center justify-start" 
+              variant="outline"
+              onClick={() => handleQuickAction('content')}
+            >
               <FileText className="mr-2 h-4 w-4" /> Content Management
             </Button>
-            <Button className="w-full flex items-center justify-start" variant="outline">
+            <Button 
+              className="w-full flex items-center justify-start" 
+              variant="outline"
+              onClick={() => handleQuickAction('classes')}
+            >
               <Building2 className="mr-2 h-4 w-4" /> Class Management
             </Button>
           </CardContent>
         </Card>
       </div>
       
-      <Tabs defaultValue="users" className="w-full mb-8">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
         <TabsList>
           <TabsTrigger value="users">User Management</TabsTrigger>
           <TabsTrigger value="teachers">Teacher Management</TabsTrigger>
