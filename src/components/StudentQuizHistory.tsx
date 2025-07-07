@@ -11,12 +11,17 @@ import { Search, Trophy, Calendar, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getStudentAttempts } from '@/services/apiService';
 
+import toReadableDate from '@/utils/toReadableDate';
+
+
 interface QuizAttempt {
   id: string;
   quizTitle: string;
   score: number;
   total: number;
-  date: string;
+
+  attemptedAt: string;
+
   subject: string;
   grade: string;
 }
@@ -28,7 +33,9 @@ const StudentQuizHistory: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const [currentPage, setCurrentPage] = useState(0);
+
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -43,6 +50,9 @@ const StudentQuizHistory: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await getStudentAttempts(currentPage, 10);
+
+      
+
       // Handle different response structures
       const attemptsData = response.content || response.data?.content || response || [];
       const totalPagesData = response.totalPages || response.data?.totalPages || 1;
@@ -170,11 +180,20 @@ const StudentQuizHistory: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Subjects</SelectItem>
-                {getUniqueSubjects().map(subject => (
-                  <SelectItem key={subject} value={subject}>
-                    {subject.charAt(0).toUpperCase() + subject.slice(1)}
-                  </SelectItem>
-                ))}
+
+               {getUniqueSubjects().map(subject => {
+  const label = typeof subject === 'string'
+    ? subject.charAt(0).toUpperCase() + subject.slice(1)
+    : "Unknown";
+
+  return (
+    <SelectItem key={subject || 'unknown'} value={subject || 'unknown'}>
+      {label}
+    </SelectItem>
+  );
+})}
+
+
               </SelectContent>
             </Select>
           </div>
@@ -216,10 +235,15 @@ const StudentQuizHistory: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          {new Date(attempt.date).toLocaleDateString()}
-                        </div>
+
+                       <div className="flex items-center gap-2">
+  <Calendar className="h-4 w-4 text-muted-foreground" />
+  {Array.isArray(attempt.attemptedAt)
+    ? toReadableDate(attempt.attemptedAt)
+    : "Invalid date"}
+</div>
+
+
                       </TableCell>
                     </TableRow>
                   ))}

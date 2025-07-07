@@ -52,9 +52,7 @@ const QuestionUploadDialog: React.FC<QuestionUploadDialogProps> = ({
   const fetchQuizzes = async () => {
     try {
       const response = await getAllQuizzes();
-
       const teacherQuizzes = response.data.filter((quiz: Quiz) => 
-
         quiz.teacherName === user?.fullName || quiz.teacherName === user?.name
       );
       setQuizzes(teacherQuizzes);

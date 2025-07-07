@@ -8,7 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Edit, Trash2, Building2, Users } from 'lucide-react';
+
+import { PlusCircle, Edit, Trash2, Building2, Users, Loader2 } from 'lucide-react';
+
 import { useToast } from '@/hooks/use-toast';
 import { 
   getClassrooms, 
@@ -32,7 +34,9 @@ const ClassroomManagement: React.FC = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(null);
   const [formData, setFormData] = useState({ name: '', gradeLevel: '' });
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const [currentPage, setCurrentPage] = useState(0);
+
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -152,9 +156,18 @@ const ClassroomManagement: React.FC = () => {
     setShowDeleteDialog(true);
   };
 
-  if (isLoading) {
-    return <div className="p-4">Loading classrooms...</div>;
-  }
+
+
+
+if (isLoading) {
+  return (
+    <div className="flex items-center justify-center gap-2 p-6 text-muted-foreground text-sm">
+      <Loader2 className="w-4 h-4 animate-spin" />
+      Loading classrooms...
+    </div>
+  );
+}
+
 
   return (
     <div className="space-y-6">
@@ -268,7 +281,9 @@ const ClassroomManagement: React.FC = () => {
                   <SelectValue placeholder="Select grade level" />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(grade => (
+
+                  {[1, 2, 3, 4, 5, 6, 7].map(grade => (
+
                     <SelectItem key={grade} value={grade.toString()}>
                       Grade {grade}
                     </SelectItem>

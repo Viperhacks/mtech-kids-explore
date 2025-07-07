@@ -22,6 +22,7 @@ const iconVariants = {
   }
 };
 
+// Define feature data as an array
 const features = [
   {
     icon: <Award className="h-6 w-6 text-mtech-primary" />,
@@ -119,10 +120,7 @@ const Index = () => {
                     {({ inView, ref }) => (
                       <div ref={ref} className="text-4xl font-bold mb-2">
                         {inView && (
-                          <CountUp 
-                            end={stat.number}
-                            formattingFn={(value) => value.toLocaleString()}
-                          />
+                          <CountUp start={0} end={stat.number} duration={3} separator="," />
                         )}
                         <span className="text-xl">+</span>
                       </div>

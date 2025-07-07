@@ -14,6 +14,9 @@ import QuestionUploadDialog from './QuestionUploadDialog';
 import QuizEditDialog from './QuizEditDialog';
 import QuizAttemptModal from './QuizAttemptModal';
 
+import LoadingQuizzes from './LoadingQuizzes';
+
+
 interface Quiz {
   quizId: string;
   title: string;
@@ -143,7 +146,7 @@ const QuizManagement: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="p-4">Loading quizzes...</div>;
+    return <LoadingQuizzes/>
   }
 
   return (

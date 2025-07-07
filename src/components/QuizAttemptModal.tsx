@@ -9,12 +9,15 @@ import { Download, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getQuizAttempts } from '@/services/apiService';
 
+import toReadableDate from '@/utils/toReadableDate';
+
 interface QuizAttempt {
   id: string;
-  studentName: string;
+  userFullName: string;
   score: number;
   total: number;
-  date: string;
+  attemptedAt: string;
+
 }
 
 interface QuizAttemptModalProps {
@@ -33,7 +36,9 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
   const { toast } = useToast();
   const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const [currentPage, setCurrentPage] = useState(0);
+
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -66,12 +71,16 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
     const csvContent = [
       ['Student Name', 'Score', 'Total', 'Percentage', 'Date'],
       ...attempts.map(attempt => [
-        attempt.studentName,
+
+        attempt.userFullName,
         attempt.score.toString(),
         attempt.total.toString(),
         `${Math.round((attempt.score / attempt.total) * 100)}%`,
-        attempt.date
-      ])
+       Array.isArray(attempt.attemptedAt)
+        ? toReadableDate(attempt.attemptedAt)
+        : "Invalid date"
+    ])
+
     ].map(row => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -125,7 +134,9 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
                   {attempts.map((attempt) => (
                     <TableRow key={attempt.id}>
                       <TableCell className="font-medium">
-                        {attempt.studentName}
+
+                        {attempt.userFullName}
+
                       </TableCell>
                       <TableCell>
                         {attempt.score}/{attempt.total}
@@ -141,7 +152,13 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
                           {Math.round((attempt.score / attempt.total) * 100)}%
                         </Badge>
                       </TableCell>
-                      <TableCell>{attempt.date}</TableCell>
+
+                      <TableCell>
+                         {Array.isArray(attempt.attemptedAt)
+                            ? toReadableDate(attempt.attemptedAt)
+                            : "Invalid date"}
+                      </TableCell>
+
                     </TableRow>
                   ))}
                 </TableBody>

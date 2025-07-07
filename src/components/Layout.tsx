@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
@@ -9,7 +8,7 @@ const Layout: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex-1 flex flex-col">
-        <main className="flex-1 flex flex-col">
+        <main className="flex-1">
           <Outlet />
         </main>
         <Footer />

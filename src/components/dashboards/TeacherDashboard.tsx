@@ -1,6 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,7 +22,7 @@ import StudentAccountCreation from '../StudentAccountCreation';
 import api, { teacherService } from '@/lib/api';
 import { PaginatedResponse, Student } from '../types/apiTypes';
 import { capitalize } from '@/utils/stringUtils';
-import { LineChart } from '@/components/ui/charts/LineChart';
+
 import QuizManagement from '../QuizManagement';
 import QuizCreationDialog from '../QuizCreationDialog';
 
@@ -26,20 +30,26 @@ const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  
-  // State variables
+
+  const [activeTab, setActiveTab] = useState('overview');
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
   const [resources, setResources] = useState<any[]>([]);
-  const [groupedResources, setGroupedResources] = useState<any>({});
-  const [isEditing, setIsEditing] = useState(false);
+  const [students, setStudents] = useState<Student[]>([]);
   const [selectedResource, setSelectedResource] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isStudentsLoading, setIsStudentsLoading] = useState(true);
   const [resourceType, setResourceType] = useState('document');
+
+  const [groupedResources, setGroupedResources] = useState({});
+
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
   const [isStudentsLoading, setIsStudentsLoading] = useState(false);
   
-
   useEffect(() => {
     fetchResources();
     if (activeTab === 'students') {
@@ -224,38 +234,18 @@ const paginatedResources = resources.slice(
 
   
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-        <div className="mb-4 md:mb-0">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Teacher Dashboard
-          </h1>
-          <p className="text-gray-500">
-            Welcome back, {user?.name || 'Teacher'}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button asChild>
-            <Link to="/course-creation">Create Course</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/student-accounts">Manage Students</Link>
-          </Button>
-        </div>
-      </div>
-
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Teacher Dashboard</h1>
+      
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className={`mb-6 ${isMobile ? 'grid grid-cols-2 gap-2 ' : ''}`}>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="materials">My Materials</TabsTrigger>
- 
           <TabsTrigger value="quiz_management">Quiz Management</TabsTrigger>
-
            {!isMobile &&<TabsTrigger value="students">Students</TabsTrigger>}
            {!isMobile &&<TabsTrigger value="accounts">Student Accounts</TabsTrigger>}
           {!isMobile && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
         </TabsList>
- 
 
 
        <TabsContent value="quiz_management">
@@ -267,8 +257,7 @@ const paginatedResources = resources.slice(
             <Card>
 
               <CardHeader>
-                <CardTitle>Resources Created</CardTitle>
-                <CardDescription>Videos, documents & quizzes</CardDescription>
+                <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button 
@@ -309,10 +298,10 @@ const paginatedResources = resources.slice(
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="col-span-1 md:col-span-2">
               <CardHeader>
-                <CardTitle>Student Engagement</CardTitle>
-                <CardDescription>Average completion rate</CardDescription>
+                <CardTitle>Recent Uploads</CardTitle>
+                <CardDescription>Your recently uploaded materials</CardDescription>
               </CardHeader>
               <CardContent className={isMobile ? "px-2 " : ""}>
                 {isLoading ? (
@@ -461,7 +450,7 @@ const paginatedResources = resources.slice(
 
         </TabsContent>
         
-        <TabsContent value="materials" className="space-y-4">
+        <TabsContent value="materials">
           <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -579,39 +568,21 @@ const paginatedResources = resources.slice(
                     <Button onClick={() => handleCreateNew('document')}>
                       <FileText className="mr-2 h-4 w-4" /> Upload Document
                     </Button>
- 
                     <Button onClick={() => setShowCreateDialog(true)} variant="outline">
                       <CheckCircle className="mr-2 h-4 w-4" /> Create Quiz
                     </Button>
-
                   </div>
                 </div>
               )}
             </CardContent>
-            <CardFooter>
-              <Button asChild>
-                <Link to="/course-creation">Create New Resource</Link>
-              </Button>
-            </CardFooter>
           </Card>
         </TabsContent>
         
-        <TabsContent value="quizzes" className="space-y-4">
-          <QuizManagement />
-        </TabsContent>
-        
-        <TabsContent value="students" className="space-y-4">
+        <TabsContent value="students">
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>Student Management</CardTitle>
-                  <CardDescription>View and manage your students</CardDescription>
-                </div>
-                <Button asChild>
-                  <Link to="/student-accounts">Add Students</Link>
-                </Button>
-              </div>
+              <CardTitle>My Students</CardTitle>
+              <CardDescription>View and manage your students</CardDescription>
             </CardHeader>
             <CardContent>
               {isStudentsLoading ? (
@@ -662,47 +633,36 @@ const paginatedResources = resources.slice(
                   //?Todo add pagination here
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground mb-4">No students assigned yet</p>
-                  <Button asChild>
-                    <Link to="/student-accounts">Add Students</Link>
-                  </Button>
+                <div className="text-center py-10">
+                  <Users className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                  <h3 className="font-medium text-lg">No students found</h3>
+                  <p className="text-muted-foreground">You don't have any students assigned yet</p>
                 </div>
               )}
             </CardContent>
           </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Student Performance</CardTitle>
-              <CardDescription>Average scores by subject</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <LineChart 
-                data={[
-                  { name: 'Math', value: 78 },
-                  { name: 'Reading', value: 82 },
-                  { name: 'Science', value: 76 },
-                  { name: 'Social Studies', value: 85 },
-                ]} 
-              />
-            </CardContent>
-          </Card>
         </TabsContent>
-
-        <TabsContent value="accounts" className="space-y-4">
+        
+        <TabsContent value="accounts">
+          <StudentAccountCreation />
+        </TabsContent>
+        
+        <TabsContent value="analytics">
           <Card>
             <CardHeader>
-              <CardTitle>Create Student Account</CardTitle>
-              <CardDescription>Add new students to your class</CardDescription>
+              <CardTitle>Learning Analytics</CardTitle>
+              <CardDescription>Track performance and engagement</CardDescription>
             </CardHeader>
             <CardContent>
-              <StudentAccountCreation />
+              <div className="text-center py-10">
+                <Book className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                <h3 className="font-medium text-lg">Analytics Coming Soon</h3>
+                <p className="text-muted-foreground">Track student progress and engagement with your materials</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
- 
       
       <Dialog open={isEditing} onOpenChange={(open) => !open && setIsEditing(false)}>
         <DialogContent className="sm:max-w-[800px] h-[90vh] overflow-y-auto">
@@ -731,8 +691,6 @@ const paginatedResources = resources.slice(
         onOpenChange={setShowCreateDialog}
         onQuizCreated={null}
       />
-
-
     </div>
   );
 };
