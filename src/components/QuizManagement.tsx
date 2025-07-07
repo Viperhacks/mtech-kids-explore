@@ -261,7 +261,12 @@ const QuizManagement: React.FC = () => {
             <DialogTitle>{selectedQuiz?.title} - Questions</DialogTitle>
           </DialogHeader>
           <div className="max-h-96 overflow-y-auto space-y-4">
-            {quizQuestions.map((question, index) => (
+            {quizQuestions.length === 0 ? (
+    <p className="text-center text-muted-foreground py-10">
+      No questions available for this quiz.
+    </p>
+  ) : (
+            quizQuestions.map((question, index) => (
               <Card key={question.id}>
                 <CardContent className="pt-4">
                   <div className="flex justify-between items-start">
@@ -294,7 +299,8 @@ const QuizManagement: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            ))
+            )}
           </div>
         </DialogContent>
       </Dialog>
