@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Upload, Users, FileText, Book, PlusCircle, Video, CheckCircle, Trophy } from 'lucide-react';
+import { Upload, Users, FileText, Book, PlusCircle, Video, CheckCircle, Trophy, Search } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import DefaultLoginInfo from '../DefaultLoginInfo';
@@ -21,6 +21,7 @@ import { PaginatedResponse, Student } from '../types/apiTypes';
 import { capitalize } from '@/utils/stringUtils';
 import QuizManagement from '../QuizManagement';
 import QuizCreationDialog from '../QuizCreationDialog';
+import { Input } from '../ui/input';
 
 const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -39,6 +40,7 @@ const TeacherDashboard: React.FC = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
    const [currentStudentPage, setCurrentStudentPage] = useState(1);
   const studentsPerPage = 10;
+  const [searchTerm, setSearchTerm] = useState('');
   
   useEffect(() => {
     fetchResources();
@@ -97,6 +99,7 @@ const TeacherDashboard: React.FC = () => {
     }
   };
   
+  
   const itemsPerPage = 10;
 const [currentPage, setCurrentPage] = useState(1);
 
@@ -150,11 +153,21 @@ const paginatedResources = resources.slice(
       setIsStudentsLoading(false);
     }
   };
+  const filteredStudents = students.filter(student => {
+  if (!searchTerm) return true;
+  const term = searchTerm.toLowerCase();
+  return (
+    (student.fullName?.toLowerCase().includes(term)) ||
+    (student.username?.toLowerCase().includes(term)) ||
+    (student.email?.toLowerCase().includes(term)) ||
+    (student.gradeLevel?.toString().includes(term))
+  );
+});
   
-   const totalStudentPages = Math.ceil(students.length / studentsPerPage);
+    const totalStudentPages = Math.ceil(filteredStudents.length / studentsPerPage);
   const indexOfLastStudent = currentStudentPage * studentsPerPage;
   const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-  const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
+  const currentStudents = filteredStudents.slice(indexOfFirstStudent, indexOfLastStudent);
   
   const handleCreateNew = (type: string = 'document') => {
     setSelectedResource(null);
@@ -552,10 +565,29 @@ const paginatedResources = resources.slice(
         <TabsContent value="students">
           <Card>
            <CardHeader>
-            <CardTitle>My Students</CardTitle>
-            <CardDescription>
-              View and manage your students (Page {currentStudentPage} of {totalStudentPages})
-            </CardDescription>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <CardTitle>My Students</CardTitle>
+                <CardDescription>
+                  View and manage your students ({filteredStudents.length} found)
+                </CardDescription>
+              </div>
+              
+              {/* Search Input */}
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search students..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentStudentPage(1); // Reset to first page on search
+                  }}
+                  className="pl-10 w-full"
+                />
+              </div>
+            </div>
           </CardHeader>
             <CardContent>
               {isStudentsLoading ? (
@@ -564,7 +596,7 @@ const paginatedResources = resources.slice(
                   <Skeleton className="h-12 w-full" />
                   <Skeleton className="h-12 w-full" />
                 </div>
-              ) : students.length > 0 ? (
+              ) : filteredStudents.length > 0 ? (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
@@ -603,37 +635,63 @@ const paginatedResources = resources.slice(
 </TableBody>
 
                   </Table>
-                  {totalStudentPages > 1 && (
-                   <div className="flex items-center justify-end space-x-2 mt-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentStudentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={currentStudentPage === 1}
-                    >
-                      Previous
-                    </Button>
-                    <span className="text-sm">
-                      Page {currentStudentPage} of {totalStudentPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentStudentPage(prev => Math.min(prev + 1, totalStudentPages))}
-                      disabled={currentStudentPage === totalStudentPages}
-                    >
-                      Next
-                    </Button>
+                 {totalStudentPages > 1 && (
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="text-sm text-muted-foreground">
+                      Showing {indexOfFirstStudent + 1} to {Math.min(indexOfLastStudent, filteredStudents.length)} of {filteredStudents.length} students
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentStudentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentStudentPage === 1}
+                      >
+                        Previous
+                      </Button>
+                      <span className="text-sm">
+                        Page {currentStudentPage} of {totalStudentPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentStudentPage(prev => Math.min(prev + 1, totalStudentPages))}
+                        disabled={currentStudentPage === totalStudentPages}
+                      >
+                        Next
+                      </Button>
+                    </div>
                   </div>
-                  )}
+                )}
                 </div>
-              ) : (
-                <div className="text-center py-10">
-                  <Users className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                  <h3 className="font-medium text-lg">No students found</h3>
-                  <p className="text-muted-foreground">You don't have any students assigned yet</p>
-                </div>
-              )}
+              )
+              : (
+              <div className="text-center py-10">
+                {searchTerm ? (
+                  <>
+                    <Search className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                    <h3 className="font-medium text-lg">No matching students</h3>
+                    <p className="text-muted-foreground">
+                      No students found for "{searchTerm}"
+                    </p>
+                    <Button 
+                      variant="ghost" 
+                      className="mt-4"
+                      onClick={() => setSearchTerm('')}
+                    >
+                      Clear search
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Users className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                    <h3 className="font-medium text-lg">No students found</h3>
+                    <p className="text-muted-foreground">You don't have any students assigned yet</p>
+                  </>
+                )}
+              </div>
+            )}
             </CardContent>
           </Card>
         </TabsContent>
