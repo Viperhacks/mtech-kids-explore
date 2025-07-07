@@ -408,7 +408,9 @@ export const getUsageMetrics = async (timeRange: string = 'week') => {
 };
 
 // Student quiz attempts
+
 export const getStudentAttempts = async (page: number = 0, limit: number = 10) => {
+
   try {
     const response = await api.get('/attempt/student', { params: { page, limit } });
     return response.data || response;

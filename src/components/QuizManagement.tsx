@@ -13,7 +13,9 @@ import QuizCreationDialog from './QuizCreationDialog';
 import QuestionUploadDialog from './QuestionUploadDialog';
 import QuizEditDialog from './QuizEditDialog';
 import QuizAttemptModal from './QuizAttemptModal';
+
 import LoadingQuizzes from './LoadingQuizzes';
+
 
 interface Quiz {
   quizId: string;

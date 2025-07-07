@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Download, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getQuizAttempts } from '@/services/apiService';
+
 import toReadableDate from '@/utils/toReadableDate';
 
 interface QuizAttempt {
@@ -16,6 +17,7 @@ interface QuizAttempt {
   score: number;
   total: number;
   attemptedAt: string;
+
 }
 
 interface QuizAttemptModalProps {
@@ -34,7 +36,9 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
   const { toast } = useToast();
   const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(0);
+
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -67,6 +71,7 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
     const csvContent = [
       ['Student Name', 'Score', 'Total', 'Percentage', 'Date'],
       ...attempts.map(attempt => [
+
         attempt.userFullName,
         attempt.score.toString(),
         attempt.total.toString(),
@@ -75,6 +80,7 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
         ? toReadableDate(attempt.attemptedAt)
         : "Invalid date"
     ])
+
     ].map(row => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -128,7 +134,9 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
                   {attempts.map((attempt) => (
                     <TableRow key={attempt.id}>
                       <TableCell className="font-medium">
+
                         {attempt.userFullName}
+
                       </TableCell>
                       <TableCell>
                         {attempt.score}/{attempt.total}
@@ -144,11 +152,13 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
                           {Math.round((attempt.score / attempt.total) * 100)}%
                         </Badge>
                       </TableCell>
+
                       <TableCell>
                          {Array.isArray(attempt.attemptedAt)
                             ? toReadableDate(attempt.attemptedAt)
                             : "Invalid date"}
                       </TableCell>
+
                     </TableRow>
                   ))}
                 </TableBody>
