@@ -6,10 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, Clock, Award, BookOpen } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CheckCircle, Clock, Award, BookOpen, Search, Filter, Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAllQuizzes, getQuizQuestions, submitQuizAttempt } from '@/services/apiService';
 import { useAuth } from '@/context/AuthContext';
+
 import LoadingQuizzes from './LoadingQuizzes';
 
 import { Quiz,Question } from './types/apiTypes';
@@ -20,6 +23,7 @@ const StudentQuizzes: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
@@ -29,12 +33,17 @@ const StudentQuizzes: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
+
   const [completedQuizIds,setCompletedQuizIds] = useState<string[]>([]);
   const [showReview,setShowReview] = useState(false)
   const [answerdQues,setAnsweredQues] = useState<Record<string,boolean>>({})
-   const [showConfirm ,setShowConfirm] = useState(false);
+  const [showConfirm ,setShowConfirm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [subjectFilter, setSubjectFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const userGrade = user?.grade || user?.gradeLevel || '1';
+  const userId = user?.id || user?.username || 'anonymous';
 
   useEffect(() => {
     fetchAvailableQuizzes();
@@ -52,16 +61,21 @@ const StudentQuizzes: React.FC = () => {
   useEffect(()=>{
     localStorage.setItem("completedQuizzes",JSON.stringify(completedQuizIds));
   },[completedQuizIds]);
-  
+
+  // Add the missing useEffect for filtering
+  useEffect(() => {
+    filterQuizzes();
+  }, [quizzes, searchTerm, subjectFilter, statusFilter]);
+
   const fetchAvailableQuizzes = async () => {
     setIsLoading(true);
     try {
       const response = await getAllQuizzes();
+
       // Filter quizzes for student's grade
       const studentQuizzes = response.data.filter((quiz: Quiz) => 
         quiz.grade === userGrade
       );
-      
       
       setQuizzes(studentQuizzes);
     } catch (error) {
@@ -73,6 +87,29 @@ const StudentQuizzes: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const filterQuizzes = () => {
+    let filtered = quizzes.filter(quiz => {
+      const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSubject = subjectFilter === 'all' || quiz.subject === subjectFilter;
+      
+      let matchesStatus = true;
+      if (statusFilter === 'completed') {
+        matchesStatus = completedQuizIds.includes(quiz.quizId);
+      } else if (statusFilter === 'not-started') {
+        matchesStatus = !completedQuizIds.includes(quiz.quizId);
+      }
+
+      return matchesSearch && matchesSubject && matchesStatus;
+    });
+
+    setFilteredQuizzes(filtered);
+  };
+
+  const getUniqueSubjects = () => {
+    return Array.from(new Set(quizzes.map(quiz => quiz.subject)));
   };
 
   const startQuiz = async (quiz: Quiz) => {
@@ -109,7 +146,7 @@ const StudentQuizzes: React.FC = () => {
 
   const nextQuestion = () => {
       const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
-      console.log("test",(answers[currentQuestionId]))
+      
    if(!answerdQues[currentQuestionId]){
     toast({
       title: "Please select an answer",
@@ -129,7 +166,7 @@ const StudentQuizzes: React.FC = () => {
 
   const submitQuiz = async () => {
     const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
-      console.log("test",(answers[currentQuestionId]))
+      
    if(!answerdQues[currentQuestionId]){
     toast({
       title: "Please select an answer",
@@ -140,7 +177,6 @@ const StudentQuizzes: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // Calculate correct answers
       let correctCount = 0;
       quizQuestions.forEach(question => {
         if (answers[question.id] === question.correctAnswerPosition-1) {
@@ -149,14 +185,13 @@ const StudentQuizzes: React.FC = () => {
       });
 
       await submitQuizAttempt(selectedQuiz!.quizId, correctCount,
-        
         quizQuestions.length
       );
+
       setScore(correctCount);
       setQuizCompleted(true);
       
       //mark
-
       if(selectedQuiz?.quizId){
         setCompletedQuizIds((prev)=>
         prev.includes(selectedQuiz.quizId)?
@@ -201,25 +236,75 @@ const StudentQuizzes: React.FC = () => {
       <div>
         <h2 className="text-2xl font-bold mb-2">Available Quizzes</h2>
         <p className="text-muted-foreground">Test your knowledge with these quizzes for Grade {userGrade}</p>
+        <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <Trophy className="h-4 w-4 text-yellow-600" />
+              <span>Completed: {completedQuizIds.length}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-blue-600" />
+              <span>Available: {quizzes.length}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {quizzes.length === 0 ? (
+      {/* Filters */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search quizzes..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder="All Subjects" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Subjects</SelectItem>
+                {getUniqueSubjects().map(subject => (
+                  <SelectItem key={subject} value={subject}>
+                    {subject.charAt(0).toUpperCase() + subject.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="not-started">Not Started</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {filteredQuizzes.length === 0 ? (
         <Card>
           <CardContent className="text-center py-8">
             <BookOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No quizzes available</h3>
-            <p className="text-muted-foreground">Check back later for new quizzes from your teachers</p>
+            <h3 className="text-lg font-medium mb-2">No quizzes found</h3>
+            <p className="text-muted-foreground">Try adjusting your search or filters</p>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          
-
-          {quizzes.map((quiz) => (
+          {filteredQuizzes.map((quiz) => (
             <Card key={quiz.quizId} className=" relative hover:shadow-lg transition-shadow">
-               
               <CardHeader>
-                
                 <div className="flex justify-between items-start">
                   {completedQuizIds.includes(quiz.quizId) && (
                 <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full z-10">
@@ -243,7 +328,6 @@ const StudentQuizzes: React.FC = () => {
                   completedQuizIds.includes(quiz.quizId)  ? (
                      <Button variant='destructive' onClick={()=>setShowConfirm(true)}  className="w-full"> Retry Quiz
                 </Button>
-
                    
                   ): (
                      <Button  className="w-full" onClick={() => startQuiz(quiz)}> Start Quiz
@@ -277,11 +361,11 @@ const StudentQuizzes: React.FC = () => {
               </CardContent>
             </Card>
           ))}
+
         </div>
       )}
 
       <Dialog open={showQuizDialog} onOpenChange={(isOpen)=>{
-        
         if(!isOpen){
           closeQuiz();
         }
@@ -371,6 +455,9 @@ const StudentQuizzes: React.FC = () => {
                   <p className="text-muted-foreground">
                     {Math.round((score / quizQuestions.length) * 100)}% Correct
                   </p>
+                  {Math.round((score / quizQuestions.length) * 100) >= 80 && (
+                    <Badge className="mt-2">Great Score!</Badge>
+                  )}
                 </div>
               </div>
                <DialogFooter>
@@ -397,9 +484,6 @@ const StudentQuizzes: React.FC = () => {
                 />
               )
             }
-
-              
-             
             </>
           )}
         </DialogContent>

@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { BarChart3, Users, Settings, Shield, Book, FileText, Building2 } from 'lucide-react';
 import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseCreation from '../CourseCreation';
+import ClassroomManagement from '../ClassroomManagement';
 import { getAllUsers, getTotalStats } from '@/services/apiService';
 import { toast } from '../ui/use-toast';
 import { getDaysAgo } from '@/utils/calculateDays';
@@ -27,8 +28,6 @@ const AdminDashboard: React.FC = () => {
     totalResources: number;
   };
 
- 
-  
   const [totalStats, setTotalStats] = useState<Stats>({
     totalUsers: 0,
     totalTeachers: 0,
@@ -48,18 +47,11 @@ type RecentUser = {
     fetchStats();
     fetchUsers();
   },[])
-  
- 
-  
-  
-  
 
   const fetchStats = async ()=>{
     setIsLoading(true);
     try {
       const response = await getTotalStats();
-      
-     
       setTotalStats(response);
     } catch (error) {
        console.error('Error fetching stats:', error);
@@ -73,12 +65,11 @@ type RecentUser = {
     }
   }
 
-
   const fetchUsers = async ()=>{
     setIsLoading(true);
     try {
       const response = await getAllUsers(0,10);
-      let content = Array.isArray(response) ? response : response.content || [];
+      let content = Array.isArray(response) ? response : response.content || response.data?.content || [];
       content = content.sort((a: any, b: any) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
@@ -94,7 +85,9 @@ type RecentUser = {
       console.log("sorted",formatted)
       setRecentUsers(formatted)
     } catch (error) {
-      
+      console.error('Error fetching users:', error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -201,7 +194,6 @@ type RecentUser = {
         <TabsList >
           <TabsTrigger value="courses">Teacher Management</TabsTrigger>
           <TabsTrigger value="classes">Classes</TabsTrigger>
-          
         </TabsList>
         
         <TabsContent value="courses" className="pt-4">
@@ -236,7 +228,6 @@ type RecentUser = {
                       </div>
                       <Badge variant="outline">Active</Badge>
                     </div>
-                    
                   </div>
                 )}
               </CardContent>
@@ -248,22 +239,8 @@ type RecentUser = {
         </TabsContent>
         
         <TabsContent value="classes" className="pt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Class Management </CardTitle>
-              <CardDescription>Class assignment to teachers</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80 flex items-center justify-center">
-              <div className="flex flex-col items-center text-center">
-                <Building2 className="h-16 w-16 text-gray-300 mb-4" />
-                <p>Viewing classes and assigning them here</p>
-               
-              </div>
-            </CardContent>
-          </Card>
+          <ClassroomManagement />
         </TabsContent>
-        
-        
       </Tabs>
     </div>
   );

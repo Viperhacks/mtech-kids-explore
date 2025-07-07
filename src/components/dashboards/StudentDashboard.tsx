@@ -12,6 +12,7 @@ import { getResourcesForAnyOne } from '@/services/apiService';
 import { toast } from '@/hooks/use-toast';
 import { userTrackingService } from '@/lib/userTracking';
 import StudentQuizzes from '../StudentQuizzes';
+import StudentQuizHistory from '../StudentQuizHistory';
 import SubjectProgressCard from '../SubjectProgressCard';
 
 interface StudentDashboardProps {
@@ -50,8 +51,6 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
   const badges = user?.earnedBadges || [];
-
- 
 
   useEffect(() => {
     fetchResources();
@@ -132,88 +131,48 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
             Hello, {capitalize(displayName.split(' ')[0] || 'Student')}!
           </h1>
         </div>
-       {/* <div className="text-left md:text-right">
-          <Button 
-            onClick={() => navigate(`/grade/grade${getRecommendedGrade()}`)}
-            className="bg-mtech-primary hover:bg-mtech-dark text-white"
-          >
-            Continue Learning
-            <ChevronRight className="ml-1 h-4 w-4" />
-          </Button>
-        </div>*/}
       </div>
 
       <Tabs defaultValue="progress">
         <TabsList className="w-full md:w-auto">
           <TabsTrigger value="progress">My Progress</TabsTrigger>
           <TabsTrigger value='quizzes'>Quizzes</TabsTrigger>
+          <TabsTrigger value='quiz-history'>Quiz History</TabsTrigger>
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
         </TabsList>
 
         <TabsContent value="progress" className="space-y-6">
-  {isLoading ? (
-    <div className="flex items-center justify-center py-20 flex-col text-center text-muted-foreground">
-      <Loader2 className="animate-spin h-8 w-8 mb-4" />
-      Hang tight, loading your learning world...
-    </div>
-  ) : resources.length === 0 ? (
-    <div className="text-center text-muted-foreground py-12">
-      <h2 className="text-xl font-semibold mb-2">Oops, no lessons available yet!</h2>
-      <p>Check back later or explore other subjects.</p>
-    </div>
-  ) : (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Object.entries(resourceStats).map(([subject, stats]) => (
-  <>
-<SubjectProgressCard
-    key={subject}
-    subject={subject}
-    stats={stats}
-    grade={getRecommendedGrade()}
-  />
-</>
-))}
-    </div>
-  )}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20 flex-col text-center text-muted-foreground">
+              <Loader2 className="animate-spin h-8 w-8 mb-4" />
+              Hang tight, loading your learning world...
+            </div>
+          ) : resources.length === 0 ? (
+            <div className="text-center text-muted-foreground py-12">
+              <h2 className="text-xl font-semibold mb-2">Oops, no lessons available yet!</h2>
+              <p>Check back later or explore other subjects.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Object.entries(resourceStats).map(([subject, stats]) => (
+                <SubjectProgressCard
+                  key={subject}
+                  subject={subject}
+                  stats={stats}
+                  grade={getRecommendedGrade()}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
 
-  {/*!isLoading && resources.length > 0 && (
-    <Card>
-      <CardHeader>
-        <CardTitle>Suggested Resources</CardTitle>
-        <CardDescription>Based on your recent activity and progress</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {suggestedResources.map(resource => (
-            <Button
-              key={resource.id}
-              variant="outline"
-              onClick={() => navigate(resource.path)}
-              className="justify-start p-6 h-auto transition-all border hover:bg-muted hover:border-mtech-primary hover:shadow-md group"
-            >
-              <div className="flex flex-col items-start gap-2 w-full text-left">
-                <div className="flex items-center gap-2 text-muted-foreground group-hover:text-mtech-primary">
-                  <Clock className="h-4 w-4" />
-                  <span className="text-xs">{resource.duration}</span>
-                </div>
-                <h3 className="text-lg font-semibold text-foreground group-hover:text-mtech-primary">
-                  {resource.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {resource.description}
-                </p>
-              </div>
-            </Button>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  )*/}
-</TabsContent>
+        <TabsContent value='quizzes'>
+          <StudentQuizzes/>
+        </TabsContent>
 
-      <TabsContent value='quizzes'>
-        <StudentQuizzes/>
-      </TabsContent>
+        <TabsContent value='quiz-history'>
+          <StudentQuizHistory/>
+        </TabsContent>
 
         <TabsContent value="achievements" className="space-y-6">
           <Card>

@@ -75,7 +75,7 @@ export const getResources = async (grade?: string, subject?: string) => {
 export const getResourcesForAnyOne = async (grade?: string, subject?: string) => {
   try {
     const response = await resourceService.getResourcesForStudent(grade, subject);
-    return response.data;
+    return response.data || response;
   } catch (error) {
     console.error('Get resources error:', error);
     throw error;
@@ -231,13 +231,13 @@ export const deleteQuestion = async (questionId: string) => {
 
 
 export const submitQuizAttempt = async (quizId: string, score: number, total: number) => {
-  try {
-    const response = await api.post(`/attempt/${quizId}?score=${score}&total=${total}`);
-    return response.data;
-  } catch (error) {
-    console.error('Submit quiz score error:', error);
-    throw error;
-  }
+  try {
+    const response = await api.post(`/attempt/${quizId}?score=${score}&total=${total}`);
+    return response.data;
+  } catch (error) {
+    console.error('Submit quiz score error:', error);
+    throw error;
+  }
 
 };
 
@@ -408,10 +408,10 @@ export const getUsageMetrics = async (timeRange: string = 'week') => {
 };
 
 // Student quiz attempts
-export const getStudentAttempts = async (page: number = 1, limit: number = 10) => {
+export const getStudentAttempts = async (page: number = 0, limit: number = 10) => {
   try {
     const response = await api.get('/attempt/student', { params: { page, limit } });
-    return response;
+    return response.data || response;
   } catch (error) {
     console.error('Get student attempts error:', error);
     throw error;
@@ -422,7 +422,7 @@ export const getStudentAttempts = async (page: number = 1, limit: number = 10) =
 export const getQuizAttempts = async (quizId: string, page: number = 1, limit: number = 10) => {
   try {
     const response = await api.get(`/attempt/quiz/${quizId}`, { params: { page, limit } });
-    return response;
+    return response.data || response;
   } catch (error) {
     console.error('Get quiz attempts error:', error);
     throw error;
@@ -433,7 +433,7 @@ export const getQuizAttempts = async (quizId: string, page: number = 1, limit: n
 export const getClassrooms = async (page: number = 1, limit: number = 10) => {
   try {
     const response = await api.get('/classrooms', { params: { page, limit } });
-    return response;
+    return response.data || response;
   } catch (error) {
     console.error('Get classrooms error:', error);
     throw error;
@@ -443,7 +443,7 @@ export const getClassrooms = async (page: number = 1, limit: number = 10) => {
 export const getClassroomById = async (id: string) => {
   try {
     const response = await api.get(`/classrooms/${id}`);
-    return response;
+    return response.data || response;
   } catch (error) {
     console.error('Get classroom error:', error);
     throw error;
@@ -453,7 +453,7 @@ export const getClassroomById = async (id: string) => {
 export const createClassroom = async (classroomData: { name: string; gradeLevel: string }) => {
   try {
     const response = await api.post('/classrooms', classroomData);
-    return response;
+    return response.data || response;
   } catch (error) {
     console.error('Create classroom error:', error);
     throw error;
@@ -463,7 +463,7 @@ export const createClassroom = async (classroomData: { name: string; gradeLevel:
 export const updateClassroom = async (id: string, classroomData: { name: string; gradeLevel: string }) => {
   try {
     const response = await api.put(`/classrooms/${id}`, classroomData);
-    return response;
+    return response.data || response;
   } catch (error) {
     console.error('Update classroom error:', error);
     throw error;
@@ -473,7 +473,7 @@ export const updateClassroom = async (id: string, classroomData: { name: string;
 export const deleteClassroom = async (id: string) => {
   try {
     const response = await api.delete(`/classrooms/${id}`);
-    return response;
+    return response.data || response;
   } catch (error) {
     console.error('Delete classroom error:', error);
     throw error;
