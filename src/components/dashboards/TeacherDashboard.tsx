@@ -37,6 +37,8 @@ const TeacherDashboard: React.FC = () => {
   const [resourceType, setResourceType] = useState('document');
   const [groupedResources, setGroupedResources] = useState({});
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+   const [currentStudentPage, setCurrentStudentPage] = useState(1);
+  const studentsPerPage = 10;
   
   useEffect(() => {
     fetchResources();
@@ -149,14 +151,10 @@ const paginatedResources = resources.slice(
     }
   };
   
-  
-  
-  
-  
-  
-  
-  
-  
+   const totalStudentPages = Math.ceil(students.length / studentsPerPage);
+  const indexOfLastStudent = currentStudentPage * studentsPerPage;
+  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
+  const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
   
   const handleCreateNew = (type: string = 'document') => {
     setSelectedResource(null);
@@ -553,10 +551,12 @@ const paginatedResources = resources.slice(
         
         <TabsContent value="students">
           <Card>
-            <CardHeader>
-              <CardTitle>My Students</CardTitle>
-              <CardDescription>View and manage your students</CardDescription>
-            </CardHeader>
+           <CardHeader>
+            <CardTitle>My Students</CardTitle>
+            <CardDescription>
+              View and manage your students (Page {currentStudentPage} of {totalStudentPages})
+            </CardDescription>
+          </CardHeader>
             <CardContent>
               {isStudentsLoading ? (
                 <div className="space-y-4">
@@ -577,7 +577,7 @@ const paginatedResources = resources.slice(
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-  {students.map((student, index) => (
+  {currentStudents.map((student, index) => (
     <TableRow key={index}>
       <TableCell className="font-medium">
         {capitalize(student.fullName) || 'Unnamed'}
@@ -603,7 +603,29 @@ const paginatedResources = resources.slice(
 </TableBody>
 
                   </Table>
-                  //?Todo add pagination here
+                  {totalStudentPages > 1 && (
+                   <div className="flex items-center justify-end space-x-2 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentStudentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentStudentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <span className="text-sm">
+                      Page {currentStudentPage} of {totalStudentPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentStudentPage(prev => Math.min(prev + 1, totalStudentPages))}
+                      disabled={currentStudentPage === totalStudentPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-10">
