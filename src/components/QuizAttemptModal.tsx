@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -46,8 +47,8 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
     try {
       const response = await getQuizAttempts(quizId, currentPage, 10);
       // Handle different response structures
-      const attemptsData = response.content || response || [];
-      const totalPagesData = response.totalPages || 1;
+      const attemptsData = response.content || response.data?.content || response || [];
+      const totalPagesData = response.totalPages || response.data?.totalPages || 1;
       setAttempts(Array.isArray(attemptsData) ? attemptsData : []);
       setTotalPages(totalPagesData);
     } catch (error) {

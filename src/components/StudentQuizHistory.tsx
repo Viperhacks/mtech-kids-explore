@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -43,8 +44,8 @@ const StudentQuizHistory: React.FC = () => {
     try {
       const response = await getStudentAttempts(currentPage, 10);
       // Handle different response structures
-      const attemptsData = response.content || response || [];
-      const totalPagesData = response.totalPages || 1;
+      const attemptsData = response.content || response.data?.content || response || [];
+      const totalPagesData = response.totalPages || response.data?.totalPages || 1;
       setAttempts(Array.isArray(attemptsData) ? attemptsData : []);
       setTotalPages(totalPagesData);
     } catch (error) {

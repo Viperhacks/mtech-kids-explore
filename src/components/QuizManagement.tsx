@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { PlusCircle, Eye, Trash2, FileQuestion, Upload, Edit } from 'lucide-react';
+import { PlusCircle, Eye, Trash2, FileQuestion, Upload, Edit, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getAllQuizzes, deleteQuiz, getQuizQuestions, deleteQuestion } from '@/services/apiService';
 import { useAuth } from '@/context/AuthContext';
 import QuizCreationDialog from './QuizCreationDialog';
 import QuestionUploadDialog from './QuestionUploadDialog';
 import QuizEditDialog from './QuizEditDialog';
+import QuizAttemptModal from './QuizAttemptModal';
 
 interface Quiz {
   quizId: string;
@@ -38,6 +39,7 @@ const QuizManagement: React.FC = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showAttemptModal, setShowAttemptModal] = useState(false);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
   const [showQuestionsDialog, setShowQuestionsDialog] = useState(false);
@@ -52,7 +54,6 @@ const QuizManagement: React.FC = () => {
       const response = await getAllQuizzes();
 
       const teacherQuizzes = response.data.filter((quiz: Quiz) => 
-
         quiz.teacherName === user?.fullName || quiz.teacherName === user?.name
       );
       setQuizzes(teacherQuizzes);
@@ -103,6 +104,11 @@ const QuizManagement: React.FC = () => {
     }
   };
 
+  const handleViewAttempts = (quiz: Quiz) => {
+    setSelectedQuiz(quiz);
+    setShowAttemptModal(true);
+  };
+
   const handleDeleteQuestion = async (questionId: string) => {
     if (!confirm('Are you sure you want to delete this question?')) {
       return;
@@ -148,7 +154,6 @@ const QuizManagement: React.FC = () => {
             <CardTitle>My Quizzes</CardTitle>
 
             <div className="flex gap-2 overflow-auto">
-
               <Button variant="outline" onClick={() => setShowUploadDialog(true)}>
                 <Upload className="h-4 w-4 mr-2" />
                 Upload Questions
@@ -197,6 +202,9 @@ const QuizManagement: React.FC = () => {
                       <Button variant="ghost" size="sm" onClick={() => handleViewQuestions(quiz)}>
                         <Eye className="h-4 w-4" />
                       </Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleViewAttempts(quiz)}>
+                        <Users className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="sm" onClick={() => handleUploadQuestions(quiz)}>
                         <Upload className="h-4 w-4" />
                       </Button>
@@ -234,6 +242,15 @@ const QuizManagement: React.FC = () => {
         quiz={selectedQuiz}
         onQuizUpdated={fetchQuizzes}
       />
+
+      {selectedQuiz && (
+        <QuizAttemptModal
+          open={showAttemptModal}
+          onOpenChange={setShowAttemptModal}
+          quizId={selectedQuiz.quizId}
+          quizTitle={selectedQuiz.title}
+        />
+      )}
 
       <Dialog open={showQuestionsDialog} onOpenChange={setShowQuestionsDialog}>
         <DialogContent className="max-w-3xl">

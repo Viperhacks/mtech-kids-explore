@@ -15,7 +15,6 @@ import { useAuth } from '@/context/AuthContext';
 
 import LoadingQuizzes from './LoadingQuizzes';
 
-
 import { Quiz,Question } from './types/apiTypes';
 import { shuffleAnswers } from '@/utils/quizUtils';
 import QuizResultPreview from './QuizResultPreview';
@@ -50,7 +49,6 @@ const StudentQuizzes: React.FC = () => {
     fetchAvailableQuizzes();
   }, []);
 
-
   useEffect(
     ()=>{
       const stored = localStorage.getItem("completedQuizzes");
@@ -63,7 +61,11 @@ const StudentQuizzes: React.FC = () => {
   useEffect(()=>{
     localStorage.setItem("completedQuizzes",JSON.stringify(completedQuizIds));
   },[completedQuizIds]);
-  
+
+  // Add the missing useEffect for filtering
+  useEffect(() => {
+    filterQuizzes();
+  }, [quizzes, searchTerm, subjectFilter, statusFilter]);
 
   const fetchAvailableQuizzes = async () => {
     setIsLoading(true);
@@ -72,10 +74,8 @@ const StudentQuizzes: React.FC = () => {
 
       // Filter quizzes for student's grade
       const studentQuizzes = response.data.filter((quiz: Quiz) => 
-
         quiz.grade === userGrade
       );
-      
       
       setQuizzes(studentQuizzes);
     } catch (error) {
@@ -184,9 +184,7 @@ const StudentQuizzes: React.FC = () => {
         }
       });
 
-
       await submitQuizAttempt(selectedQuiz!.quizId, correctCount,
-       
         quizQuestions.length
       );
 
@@ -194,7 +192,6 @@ const StudentQuizzes: React.FC = () => {
       setQuizCompleted(true);
       
       //mark
-
       if(selectedQuiz?.quizId){
         setCompletedQuizIds((prev)=>
         prev.includes(selectedQuiz.quizId)?
@@ -223,13 +220,11 @@ const StudentQuizzes: React.FC = () => {
     setSelectedQuiz(null);
     setQuizQuestions([]);
     setQuizCompleted(false);
-
     setScore(0);
     setAnswers({});
     setCurrentQuestionIndex(0);
     setShowReview(false);
     setAnsweredQues({});
-
   };
 
   if (isLoading) {
@@ -307,14 +302,9 @@ const StudentQuizzes: React.FC = () => {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-          
-
-          {quizzes.map((quiz) => (
+          {filteredQuizzes.map((quiz) => (
             <Card key={quiz.quizId} className=" relative hover:shadow-lg transition-shadow">
-               
               <CardHeader>
-                
                 <div className="flex justify-between items-start">
                   {completedQuizIds.includes(quiz.quizId) && (
                 <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full z-10">
@@ -338,7 +328,6 @@ const StudentQuizzes: React.FC = () => {
                   completedQuizIds.includes(quiz.quizId)  ? (
                      <Button variant='destructive' onClick={()=>setShowConfirm(true)}  className="w-full"> Retry Quiz
                 </Button>
-
                    
                   ): (
                      <Button  className="w-full" onClick={() => startQuiz(quiz)}> Start Quiz
@@ -377,7 +366,6 @@ const StudentQuizzes: React.FC = () => {
       )}
 
       <Dialog open={showQuizDialog} onOpenChange={(isOpen)=>{
-        
         if(!isOpen){
           closeQuiz();
         }
@@ -496,9 +484,6 @@ const StudentQuizzes: React.FC = () => {
                 />
               )
             }
-
-              
-             
             </>
           )}
         </DialogContent>
