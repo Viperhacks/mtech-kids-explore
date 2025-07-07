@@ -16,7 +16,7 @@ import { useAuth } from '@/context/AuthContext';
 import LoadingQuizzes from './LoadingQuizzes';
 
 import { Quiz,Question } from './types/apiTypes';
-import { shuffleAnswers } from '@/utils/quizUtils';
+import { shuffleAnswers, shuffleArray, shuffleQuestions } from '@/utils/quizUtils';
 import QuizResultPreview from './QuizResultPreview';
 
 const StudentQuizzes: React.FC = () => {
@@ -76,8 +76,10 @@ const StudentQuizzes: React.FC = () => {
       const studentQuizzes = response.data.filter((quiz: Quiz) => 
         quiz.grade === userGrade
       );
+
+      const shuffle = shuffleArray(studentQuizzes) as Quiz[];
       
-      setQuizzes(studentQuizzes);
+      setQuizzes(shuffle);
     } catch (error) {
       toast({
         title: "Failed to load quizzes",
@@ -115,7 +117,7 @@ const StudentQuizzes: React.FC = () => {
   const startQuiz = async (quiz: Quiz) => {
     try {
       const response = await getQuizQuestions(quiz.quizId);
-      const shuffledQuestions = shuffleAnswers(response.data)
+      const shuffledQuestions = shuffleQuestions(response.data);
       setQuizQuestions(shuffledQuestions);
       
       setSelectedQuiz(quiz);

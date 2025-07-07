@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Trash, Save, X } from 'lucide-react';
 import { resourceService } from '@/lib/api';
 import { title } from 'process';
+import { subjects } from '@/utils/subjectUtils';
 
 interface CourseEditorProps {
   resource?: any;
@@ -194,13 +195,12 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
                   <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mathematics">Mathematics</SelectItem>
-                  <SelectItem value="english">English</SelectItem>
-                  <SelectItem value="science">Science</SelectItem>
-                  <SelectItem value="social">Social Studies</SelectItem>
-                  <SelectItem value="shona">Shona</SelectItem>
-                  <SelectItem value="ict">ICT</SelectItem>
-                </SelectContent>
+  {subjects.map(subject => (
+    <SelectItem key={subject.id} value={subject.name.toLowerCase()}>
+      {subject.name}
+    </SelectItem>
+  ))}
+</SelectContent>
               </Select>
             </div>
             
@@ -216,7 +216,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
                 <SelectContent>
                   <SelectItem value="video">Video</SelectItem>
                   <SelectItem value="document">Document</SelectItem>
-                  <SelectItem value="quiz">Quiz</SelectItem>
+                  
                 </SelectContent>
               </Select>
             </div>

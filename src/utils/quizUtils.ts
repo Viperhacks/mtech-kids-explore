@@ -26,3 +26,9 @@ export const shuffleAnswers = (questions: Question[]): Question[] => {
     };
   });
 };
+
+// Shuffle question order and their answers
+export const shuffleQuestions = (questions: Question[]): Question[] => {
+  const shuffled = shuffleArray(questions);
+  return shuffleAnswers(shuffled);
+};

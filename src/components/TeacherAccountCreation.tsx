@@ -48,7 +48,7 @@ const TeacherAccountCreation = () => {
         formData.password,
         formData.confirmPassword,
         'TEACHER',
-        formData.gradeLevel 
+        
       );
 
       toast({
@@ -134,27 +134,7 @@ const TeacherAccountCreation = () => {
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="gradeLevel">Grade Level</Label>
-            <select 
-              id="gradeLevel" 
-              name="gradeLevel" 
-              value={formData.gradeLevel} 
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Select Grade Level</option>
-              <option value="1">Grade 1</option>
-              <option value="2">Grade 2</option>
-              <option value="3">Grade 3</option>
-              <option value="4">Grade 4</option>
-              <option value="5">Grade 5</option>
-              <option value="6">Grade 6</option>
-              <option value="7">Grade 7</option>
-             
-            </select>
-          </div>
+          
         </CardContent>
         <CardFooter>
           <Button type="submit" className="w-full" disabled={isLoading}>

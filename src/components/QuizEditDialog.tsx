@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { updateQuiz } from '@/services/apiService';
 import { Loader2 } from 'lucide-react';
+import { subjects } from '@/utils/subjectUtils';
 
 interface Quiz {
   quizId: string;
@@ -129,13 +130,13 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
                 <SelectTrigger>
                   <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mathematics">Mathematics</SelectItem>
-                  <SelectItem value="science">Science</SelectItem>
-                  <SelectItem value="english">English</SelectItem>
-                  <SelectItem value="history">History</SelectItem>
-                  <SelectItem value="geography">Geography</SelectItem>
-                </SelectContent>
+               <SelectContent>
+                 {subjects.map(subject => (
+                   <SelectItem key={subject.id} value={subject.name.toLowerCase()}>
+                     {subject.name}
+                   </SelectItem>
+                 ))}
+               </SelectContent>
               </Select>
             </div>
           </div>

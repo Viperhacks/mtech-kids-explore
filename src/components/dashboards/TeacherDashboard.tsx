@@ -254,13 +254,7 @@ const paginatedResources = resources.slice(
                 >
                   <Upload className="mr-2 h-4 w-4" /> Upload Document
                 </Button>
-                <Button 
-                  className="w-full flex items-center justify-start" 
-                  variant="outline"
-                  onClick={() => setShowCreateDialog(true)}
-                >
-                  <FileText className="mr-2 h-4 w-4" /> Create Quiz
-                </Button>
+               
                 <Button 
     className="w-full flex items-center justify-start" 
     variant="outline"
@@ -456,14 +450,6 @@ const paginatedResources = resources.slice(
     Upload Document
   </Button>
 
-  <Button
-    className="flex-1 flex items-center justify-center"
-    onClick={() => setShowCreateDialog(true)}
-    variant="outline"
-  >
-    <CheckCircle className="mr-2 h-4 w-4" />
-    Create Quiz
-  </Button>
 
   <Button
     className="flex-1 flex items-center justify-center"
@@ -500,7 +486,7 @@ const paginatedResources = resources.slice(
                     <TableBody>
                       {paginatedResources.map(resource => (
                         <TableRow key={resource.response.id}>
-                          <TableCell className="font-medium">{resource.response.title}</TableCell>
+                          <TableCell className="font-medium">{capitalize(resource.response.title)}</TableCell>
                           <TableCell>
                             <div className="flex items-center">
                               {getResourceTypeIcon(resource.response.type)}
@@ -508,7 +494,7 @@ const paginatedResources = resources.slice(
                             </div>
                           </TableCell>
                           {!isMobile && <TableCell>Grade {resource.response.grade}</TableCell>}
-                          {!isMobile && <TableCell>{resource.response.subject}</TableCell>}
+                          {!isMobile && <TableCell>{capitalize(resource.response.subject)}</TableCell>}
                           <TableCell className="text-right space-x-2">
                             <Button variant="ghost" size="sm" onClick={() => handleEditResource(resource)}>
                               Edit
