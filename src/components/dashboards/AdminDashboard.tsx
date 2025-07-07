@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +11,7 @@ import { BarChart3, Users, Settings, Shield, Book, FileText, Building2 } from 'l
 import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseCreation from '../CourseCreation';
 import ClassroomManagement from '../ClassroomManagement';
+import UserManagementSection from '../UserManagementSection';
 import { getAllUsers, getTotalStats } from '@/services/apiService';
 import { toast } from '../ui/use-toast';
 import { getDaysAgo } from '@/utils/calculateDays';
@@ -21,6 +21,7 @@ import TeacherAccountCreation from '../TeacherAccountCreation';
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  
   type Stats = {
     totalUsers: number;
     totalTeachers: number;
@@ -35,14 +36,16 @@ const AdminDashboard: React.FC = () => {
     totalResources: 0,
   });
 
-type RecentUser = {
+  type RecentUser = {
     id: string;
     name: string;
     username: string;
     role: string;
     date: string;
   };
+  
   const [joinedUsers, setRecentUsers] = useState<RecentUser[]>([]);
+
   useEffect(()=>{
     fetchStats();
     fetchUsers();
@@ -92,13 +95,13 @@ type RecentUser = {
   }
 
   const stats = [
-    { label: "Total Users", value: totalStats.totalUsers , icon: Users },
+    { label: "Total Users", value: totalStats.totalUsers, icon: Users },
     { label: "Teachers", value: totalStats.totalTeachers, icon: Shield },
     { label: "Students", value: totalStats.totalStudents, icon: Book },
     { label: "Resources", value: totalStats.totalResources, icon: FileText },
   ];
 
-  const recentUsers =joinedUsers;
+  const recentUsers = joinedUsers;
   
   return (
     <div className="container mx-auto py-8 px-4">
@@ -182,7 +185,6 @@ type RecentUser = {
             <Button className="w-full flex items-center justify-start" variant="outline">
               <FileText className="mr-2 h-4 w-4" /> Content Management
             </Button>
-            
             <Button className="w-full flex items-center justify-start" variant="outline">
               <Building2 className="mr-2 h-4 w-4" /> Class Management
             </Button>
@@ -190,13 +192,18 @@ type RecentUser = {
         </Card>
       </div>
       
-      <Tabs defaultValue="courses" className="w-full mb-8">
-        <TabsList >
-          <TabsTrigger value="courses">Teacher Management</TabsTrigger>
+      <Tabs defaultValue="users" className="w-full mb-8">
+        <TabsList>
+          <TabsTrigger value="users">User Management</TabsTrigger>
+          <TabsTrigger value="teachers">Teacher Management</TabsTrigger>
           <TabsTrigger value="classes">Classes</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="courses" className="pt-4">
+        <TabsContent value="users" className="pt-4">
+          <UserManagementSection />
+        </TabsContent>
+        
+        <TabsContent value="teachers" className="pt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <TeacherAccountCreation />
             
@@ -217,14 +224,14 @@ type RecentUser = {
                     <div className="flex justify-between p-3 border rounded-md">
                       <div>
                         <p className="font-medium">First Teacher</p>
-                        <p className="text-sm text-muted-foreground">Grade 4 </p>
+                        <p className="text-sm text-muted-foreground">Grade 4</p>
                       </div>
                       <Badge variant="outline">Active</Badge>
                     </div>
                     <div className="flex justify-between p-3 border rounded-md">
                       <div>
-                        <p className="font-medium">Second Teacher </p>
-                        <p className="text-sm text-muted-foreground">Grade 5 </p>
+                        <p className="font-medium">Second Teacher</p>
+                        <p className="text-sm text-muted-foreground">Grade 5</p>
                       </div>
                       <Badge variant="outline">Active</Badge>
                     </div>

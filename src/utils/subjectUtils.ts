@@ -1,0 +1,23 @@
+
+export const subjects = [
+  { id: 1, name: 'Mathematics' },
+  { id: 2, name: 'English' },
+  { id: 3, name: 'Science' },
+  { id: 4, name: 'ICT' },
+  { id: 5, name: 'Agriculture' },
+  { id: 6, name: 'Shona' },
+  { id: 7, name: 'Physical Education' },
+  { id: 8, name: 'Art' },
+  { id: 9, name: 'Music' },
+  { id: 10, name: 'Geography' },
+  { id: 11, name: 'History' },
+  { id: 12, name: 'Religious Studies' }
+];
+
+export const getSubjectById = (id: number) => {
+  return subjects.find(subject => subject.id === id);
+};
+
+export const getSubjectByName = (name: string) => {
+  return subjects.find(subject => subject.name.toLowerCase() === name.toLowerCase());
+};

@@ -407,6 +407,47 @@ export const getUsageMetrics = async (timeRange: string = 'week') => {
   }
 };
 
+// Assignment management services
+export const createAssignment = async (teacherId: number, classroomId: number, subjectId: number) => {
+  try {
+    const response = await adminService.createAssignment({ teacherId, classroomId, subjectId });
+    return response.data || response;
+  } catch (error) {
+    console.error('Create assignment error:', error);
+    throw error;
+  }
+};
+
+export const getClassroomAssignments = async (classId: string) => {
+  try {
+    const response = await adminService.getClassroomAssignments(classId);
+    return response.data || response;
+  } catch (error) {
+    console.error('Get classroom assignments error:', error);
+    throw error;
+  }
+};
+
+export const deleteAssignment = async (assignmentId: string) => {
+  try {
+    const response = await adminService.deleteAssignment(assignmentId);
+    return response.data || response;
+  } catch (error) {
+    console.error('Delete assignment error:', error);
+    throw error;
+  }
+};
+
+export const getTeachers = async () => {
+  try {
+    const response = await adminService.getTeachers();
+    return response.data || response;
+  } catch (error) {
+    console.error('Get teachers error:', error);
+    throw error;
+  }
+};
+
 // Student quiz attempts
 
 export const getStudentAttempts = async (page: number = 0, limit: number = 10) => {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,9 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-import { PlusCircle, Edit, Trash2, Building2, Users, Loader2 } from 'lucide-react';
-
+import { PlusCircle, Edit, Trash2, Building2, Users, Loader2, UserPlus, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { 
   getClassrooms, 
@@ -18,6 +15,8 @@ import {
   updateClassroom, 
   deleteClassroom 
 } from '@/services/apiService';
+import TeacherAssignmentModal from './TeacherAssignmentModal';
+import ClassroomAssignmentsModal from './ClassroomAssignmentsModal';
 
 interface Classroom {
   id: string;
@@ -32,11 +31,11 @@ const ClassroomManagement: React.FC = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [showAssignmentsModal, setShowAssignmentsModal] = useState(false);
   const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(null);
   const [formData, setFormData] = useState({ name: '', gradeLevel: '' });
-
   const [currentPage, setCurrentPage] = useState(0);
-
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -156,18 +155,34 @@ const ClassroomManagement: React.FC = () => {
     setShowDeleteDialog(true);
   };
 
+  const openAssignmentModal = (classroom: Classroom) => {
+    setSelectedClassroom(classroom);
+    setShowAssignmentModal(true);
+  };
 
+  const openAssignmentsModal = (classroom: Classroom) => {
+    setSelectedClassroom(classroom);
+    setShowAssignmentsModal(true);
+  };
 
+  const handleAssignmentCreated = () => {
+    // Refresh data if needed
+    fetchClassrooms();
+  };
 
-if (isLoading) {
-  return (
-    <div className="flex items-center justify-center gap-2 p-6 text-muted-foreground text-sm">
-      <Loader2 className="w-4 h-4 animate-spin" />
-      Loading classrooms...
-    </div>
-  );
-}
+  const handleAssignmentDeleted = () => {
+    // Refresh data if needed
+    fetchClassrooms();
+  };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center gap-2 p-6 text-muted-foreground text-sm">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        Loading classrooms...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -218,6 +233,22 @@ if (isLoading) {
                         <Badge variant="outline">Grade {classroom.gradeLevel}</Badge>
                       </TableCell>
                       <TableCell className="text-right space-x-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => openAssignmentModal(classroom)}
+                          title="Assign Teacher"
+                        >
+                          <UserPlus className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => openAssignmentsModal(classroom)}
+                          title="View Assignments"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Button variant="ghost" size="sm" onClick={() => openEditDialog(classroom)}>
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -235,18 +266,18 @@ if (isLoading) {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={currentPage === 1}
+                    disabled={currentPage === 0}
                     onClick={() => setCurrentPage(prev => prev - 1)}
                   >
                     Previous
                   </Button>
                   <span className="text-sm text-muted-foreground">
-                    Page {currentPage} of {totalPages}
+                    Page {currentPage + 1} of {totalPages}
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={currentPage === totalPages}
+                    disabled={currentPage === totalPages - 1}
                     onClick={() => setCurrentPage(prev => prev + 1)}
                   >
                     Next
@@ -365,6 +396,26 @@ if (isLoading) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Teacher Assignment Modal */}
+      {selectedClassroom && (
+        <TeacherAssignmentModal
+          open={showAssignmentModal}
+          onOpenChange={setShowAssignmentModal}
+          classroom={selectedClassroom}
+          onAssignmentCreated={handleAssignmentCreated}
+        />
+      )}
+
+      {/* Classroom Assignments Modal */}
+      {selectedClassroom && (
+        <ClassroomAssignmentsModal
+          open={showAssignmentsModal}
+          onOpenChange={setShowAssignmentsModal}
+          classroom={selectedClassroom}
+          onAssignmentDeleted={handleAssignmentDeleted}
+        />
+      )}
     </div>
   );
 };
