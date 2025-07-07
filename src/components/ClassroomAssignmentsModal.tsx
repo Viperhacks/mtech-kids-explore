@@ -7,14 +7,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getClassroomAssignments, deleteAssignment } from '@/services/apiService';
-import { getSubjectById } from '@/utils/subjectUtils';
+import { getSubjectById, getSubjectByName } from '@/utils/subjectUtils';
 import { Users, Trash2, AlertTriangle } from 'lucide-react';
 
 interface Assignment {
   id: string;
   teacherId: number;
   teacherName: string;
-  subjectId: number;
+  subjectName: string;
   classroomId: number;
 }
 
@@ -53,6 +53,7 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
     try {
       const response = await getClassroomAssignments(classroom.id);
       const assignmentsData = Array.isArray(response) ? response : response.content || [];
+      console.log("asssignment data",assignmentsData)
       setAssignments(assignmentsData);
     } catch (error) {
       toast({
@@ -130,7 +131,7 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
                       {assignment.teacherName}
                     </TableCell>
                     <TableCell>
-                      {getSubjectById(assignment.subjectId)?.name || 'Unknown Subject'}
+                      {getSubjectByName(assignment.subjectName)?.name || 'Unknown Subject'}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button

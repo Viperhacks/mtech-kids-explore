@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { getTeachers, createAssignment } from '@/services/apiService';
-import { subjects } from '@/utils/subjectUtils';
+import { getSubjectNameById, subjects } from '@/utils/subjectUtils';
 import { UserPlus, Loader2 } from 'lucide-react';
 
 interface Teacher {
@@ -65,42 +65,76 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!selectedTeacher || !selectedSubject) {
-      toast({
-        title: "Validation Error",
-        description: "Please select both teacher and subject",
-        variant: "destructive"
-      });
-      return;
-    }
+  if (!selectedTeacher || !selectedSubject) {
+    toast({
+      title: "Validation Error",
+      description: "Please select both teacher and subject",
+      variant: "destructive",
+    });
+    return;
+  }
 
-    setIsLoading(true);
-    try {
-      await createAssignment(
-        parseInt(selectedTeacher),
-        parseInt(classroom.id),
-        parseInt(selectedSubject)
-      );
-      
-      toast({
-        title: "Assignment Created",
-        description: "Teacher has been assigned to classroom successfully"
-      });
+  setIsLoading(true);
 
-      onAssignmentCreated();
-      onOpenChange(false);
-      setSelectedTeacher('');
-      setSelectedSubject('');
-    } catch (error) {
+  try {
+    await createAssignment(
+      parseInt(selectedTeacher),
+      parseInt(classroom.id),
+      parseInt(selectedSubject)
+    );
+
+    toast({
+      title: "Assignment Created",
+      description: "Teacher has been assigned to classroom successfully",
+    });
+
+    onAssignmentCreated();
+    onOpenChange(false);
+    setSelectedTeacher("");
+    setSelectedSubject("");
+  } catch (error: any) {
+    const message = error.message;
+   
+    const subjectIdNum = parseInt(selectedSubject);
+    const selectedSubjectName = getSubjectNameById(subjectIdNum);
+
+    if (message === "Subject not found" && selectedSubjectName) {
+      try {
+        await createAssignment(
+          parseInt(selectedTeacher),
+          parseInt(classroom.id),
+          undefined,
+          selectedSubjectName
+        );
+
+        toast({
+          title: "Assignment Created",
+          description: "Teacher has been assigned to classroom successfully",
+        });
+
+        onAssignmentCreated();
+        onOpenChange(false);
+        setSelectedTeacher("");
+        setSelectedSubject("");
+      } catch (err) {
+        toast({
+          title: "Failed to create assignment",
+          description: "Could not assign teacher to classroom",
+          variant: "destructive",
+        });
+      }
+    } else {
       toast({
         title: "Failed to create assignment",
         description: "Could not assign teacher to classroom",
-        variant: "destructive"
+        variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

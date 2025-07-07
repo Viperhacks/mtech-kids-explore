@@ -408,15 +408,21 @@ export const getUsageMetrics = async (timeRange: string = 'week') => {
 };
 
 // Assignment management services
-export const createAssignment = async (teacherId: number, classroomId: number, subjectId: number) => {
+export const createAssignment = async (
+  teacherId: number,
+  classroomId: number,
+  subjectId?: number,
+  subjectName?: string
+) => {
   try {
-    const response = await adminService.createAssignment({ teacherId, classroomId, subjectId });
+    const response = await adminService.createAssignment({ teacherId, classroomId, subjectId, subjectName });
     return response.data || response;
   } catch (error) {
     console.error('Create assignment error:', error);
     throw error;
   }
 };
+
 
 export const getClassroomAssignments = async (classId: string) => {
   try {
