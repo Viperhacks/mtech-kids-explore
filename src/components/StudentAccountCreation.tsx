@@ -98,88 +98,97 @@ const StudentAccountCreation = () => {
         <CardDescription>Create new accounts for your students</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
-            <Input 
-              id="fullName" 
-              name="fullName" 
-              placeholder="Enter student's full name" 
-              value={formData.fullName} 
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input 
-              id="username" 
-              name="username" 
-              type="text" 
-              placeholder="Choose a unique username for the student" 
-              value={formData.username} 
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input 
-              id="password" 
-              name="password" 
-              type="password" 
-              placeholder="Enter a secure password" 
-              value={formData.password} 
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input 
-              id="confirmPassword" 
-              name="confirmPassword" 
-              placeholder="Re-enter password to confirm" 
-              type="password" 
-              value={formData.confirmPassword} 
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="gradeLevel">Grade Level</Label>
-            <select 
-              id="gradeLevel" 
-              name="gradeLevel" 
-              value={formData.gradeLevel} 
-              onChange={handleChange}
-              required
-              className="w-full p-2 border border-gray-300 rounded-md"
-            >
-              <option value="">Select Grade Level</option>
-              <option value="1">Grade 1</option>
-              <option value="2">Grade 2</option>
-              <option value="3">Grade 3</option>
-              <option value="4">Grade 4</option>
-              <option value="5">Grade 5</option>
-              <option value="6">Grade 6</option>
-              <option value="7">Grade 7</option>
-             
-            </select>
-          </div>
-        </CardContent>
+       <CardContent>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-2">
+      <Label htmlFor="fullName">Full Name</Label>
+      <Input 
+        id="fullName" 
+        name="fullName" 
+        placeholder="Enter student's full name" 
+        value={formData.fullName} 
+        onChange={handleChange}
+        required
+      />
+    </div>
+
+    <div className="space-y-2">
+      <Label htmlFor="username">Username</Label>
+      <Input 
+        id="username" 
+        name="username" 
+        type="text" 
+        placeholder="Unique username" 
+        value={formData.username} 
+        onChange={handleChange}
+        required
+      />
+    </div>
+
+    <div className="space-y-2">
+      <Label htmlFor="password">Password</Label>
+      <Input 
+        id="password" 
+        name="password" 
+        type="password" 
+        placeholder="Create password" 
+        value={formData.password} 
+        onChange={handleChange}
+        required
+      />
+    </div>
+
+    <div className="space-y-2">
+      <Label htmlFor="confirmPassword">Confirm Password</Label>
+      <Input 
+        id="confirmPassword" 
+        name="confirmPassword" 
+        placeholder="Repeat password" 
+        type="password" 
+        value={formData.confirmPassword} 
+        onChange={handleChange}
+        required
+      />
+    </div>
+
+    <div className="space-y-2 md:col-span-2">
+      <Label htmlFor="gradeLevel">Grade Level</Label>
+      <select 
+        id="gradeLevel" 
+        name="gradeLevel" 
+        value={formData.gradeLevel} 
+        onChange={handleChange}
+        required
+        className="w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+      >
+        <option value="">Select Grade Level</option>
+        {[1, 2, 3, 4, 5, 6, 7].map(grade => (
+          <option key={grade} value={grade}>Grade {grade}</option>
+        ))}
+      </select>
+    </div>
+  </div>
+</CardContent>
+
         <CardFooter>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Account...
-              </>
-            ) : (
-              <>
-                <UserPlus className="mr-2 h-4 w-4" /> Create Student Account
-              </>
-            )}
-          </Button>
+         <Button 
+  type="submit" 
+  className="w-full font-semibold tracking-wide" 
+  disabled={isLoading}
+>
+  {isLoading ? (
+    <>
+      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      Creating...
+    </>
+  ) : (
+    <>
+      <UserPlus className="mr-2 h-4 w-4" />
+      Create Student
+    </>
+  )}
+</Button>
+
         </CardFooter>
       </form>
     </Card>
