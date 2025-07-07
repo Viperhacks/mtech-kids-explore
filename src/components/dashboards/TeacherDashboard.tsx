@@ -243,7 +243,7 @@ const paginatedResources = resources.slice(
           <TabsTrigger value="quiz_management">Quiz Management</TabsTrigger>
            {!isMobile &&<TabsTrigger value="students">Students</TabsTrigger>}
            {!isMobile &&<TabsTrigger value="accounts">Student Accounts</TabsTrigger>}
-          {!isMobile && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
+          {/*!isMobile && <TabsTrigger value="analytics">Analytics</TabsTrigger>*/}
         </TabsList>
 
 

@@ -17,7 +17,7 @@ import { getTotalStats } from '@/services/apiService';
 
 const Profile = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('progress');
+  const [activeTab, setActiveTab] = useState('badges');
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
     const [isStudentsLoading, setIsStudentsLoading] = useState(true);
@@ -392,21 +392,21 @@ const Profile = () => {
           {user.role === 'STUDENT' && (
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full">
-                <TabsTrigger value="progress" className="flex-1">
+               {/*} <TabsTrigger value="progress" className="flex-1">
                   <BarChart3 className="mr-2 h-4 w-4" />
                   Learning Progress
-                </TabsTrigger>
+                </TabsTrigger>*/}
                 <TabsTrigger value="badges" className="flex-1">
                   <Award className="mr-2 h-4 w-4" />
                   Badges & Achievements
                 </TabsTrigger>
-                <TabsTrigger value="completed" className="flex-1">
+                {/*<TabsTrigger value="completed" className="flex-1">
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Completed Lessons
-                </TabsTrigger>
+                </TabsTrigger>*/}
               </TabsList>
               
-              {/* Progress Tab - Student only */}
+              {/* Progress Tab - Student only 
               <TabsContent value="progress" className="mt-6">
                 <Card>
                   <CardHeader>
@@ -451,7 +451,7 @@ const Profile = () => {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </TabsContent>*/}
               
               {/* Badges Tab - Filtered by role */}
               <TabsContent value="badges" className="mt-6">
@@ -489,7 +489,7 @@ const Profile = () => {
                 </Card>
               </TabsContent>
               
-              {/* Completed Lessons Tab - Student only */}
+              {/* Completed Lessons Tab - Student only 
               <TabsContent value="completed" className="mt-6">
                 <Card>
                   <CardHeader>
@@ -501,7 +501,7 @@ const Profile = () => {
                   <CardContent>
                     {user.completedLessons && user.completedLessons.length > 0 ? (
                       <div className="space-y-4">
-                        {/* This would be fetched from an API in a real app */}
+                        
                         <div className="p-4 border rounded-lg">
                           <div className="flex justify-between items-start">
                             <div>
@@ -541,12 +541,12 @@ const Profile = () => {
                     )}
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </TabsContent>*/}
             </Tabs>
           )}
           
           {/* Teacher specific tabs */}
-          {user.role === 'TEACHER' && (
+          {/*user.role === 'TEACHER' && (
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full">
                 <TabsTrigger value="resources" className="flex-1">
@@ -563,7 +563,7 @@ const Profile = () => {
                 </TabsTrigger>
               </TabsList>
               
-              {/* Teacher resources tab */}
+              
               <TabsContent value="resources" className="mt-6">
                 <Card>
                   <CardHeader>
@@ -584,7 +584,7 @@ const Profile = () => {
                 </Card>
               </TabsContent>
               
-              {/* Teacher badges tab */}
+              
               <TabsContent value="badges" className="mt-6">
                 <Card>
                   <CardHeader>
@@ -620,7 +620,7 @@ const Profile = () => {
                 </Card>
               </TabsContent>
               
-              {/* Teacher students tab */}
+             
               <TabsContent value="students" className="mt-6">
                 <Card>
                   <CardHeader>
@@ -641,9 +641,9 @@ const Profile = () => {
                 </Card>
               </TabsContent>
             </Tabs>
-          )}
+          )*/}
           
-          {/* Admin specific tabs */}
+          {/* Admin specific tabs 
           {user.role === 'ADMIN' && (
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="w-full">
@@ -659,9 +659,9 @@ const Profile = () => {
                   <Settings className="mr-2 h-4 w-4" />
                   Platform Settings
                 </TabsTrigger>
-              </TabsList>
+              </TabsList>*/}
               
-              {/* Admin users tab */}
+              {/* Admin users tab 
               <TabsContent value="users" className="mt-6">
                 <Card>
                   <CardHeader>
@@ -680,9 +680,9 @@ const Profile = () => {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </TabsContent>*/}
               
-              {/* Admin analytics tab */}
+              {/* Admin analytics tab 
               <TabsContent value="analytics" className="mt-6">
                 <Card>
                   <CardHeader>
@@ -701,9 +701,9 @@ const Profile = () => {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              </TabsContent>*/}
               
-              {/* Admin settings tab */}
+              {/* Admin settings tab 
               <TabsContent value="settings" className="mt-6">
                 <Card>
                   <CardHeader>
@@ -724,7 +724,7 @@ const Profile = () => {
                 </Card>
               </TabsContent>
             </Tabs>
-          )}
+          )}*/}
         </div>
       </div>
     </div>
