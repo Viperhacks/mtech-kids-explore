@@ -540,3 +540,54 @@ export const deleteClassroom = async (id: string) => {
     throw error;
   }
 };
+
+// Admin content management services
+export const getAllQuizzesAdmin = async () => {
+  try {
+    const response = await adminService.getAllQuizzes();
+    return response.data || response;
+  } catch (error) {
+    console.error('Get all quizzes admin error:', error);
+    throw error;
+  }
+};
+
+export const deleteQuizAdmin = async (id: string) => {
+  try {
+    const response = await adminService.deleteQuiz(id);
+    return response.data || response;
+  } catch (error) {
+    console.error('Delete quiz admin error:', error);
+    throw error;
+  }
+};
+
+export const getAdminResources = async (page: number = 0, size: number = 10) => {
+  try {
+    const response = await adminService.getAdminResources(page, size);
+    return response.data || response;
+  } catch (error) {
+    console.error('Get admin resources error:', error);
+    throw error;
+  }
+};
+
+export const deleteResourceAdmin = async (id: string) => {
+  try {
+    const response = await resourceService.deleteResource(id);
+    return response.data || response;
+  } catch (error) {
+    console.error('Delete resource admin error:', error);
+    throw error;
+  }
+};
+
+export const getAllAttemptsAdmin = async (page: number = 0, size: number = 10) => {
+  try {
+    const response = await adminService.getAllAttempts(page, size);
+    return response.data || response;
+  } catch (error) {
+    console.error('Get all attempts admin error:', error);
+    throw error;
+  }
+};

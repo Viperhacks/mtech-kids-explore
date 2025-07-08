@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +18,7 @@ import { getDaysAgo } from '@/utils/calculateDays';
 import { capitalize } from '@/utils/stringUtils';
 import TeacherAccountCreation from '../TeacherAccountCreation';
 import { Teacher } from '../types/apiTypes';
+import AdminContentPanel from '../admin/AdminContentPanel';
 
 
 
@@ -144,10 +144,7 @@ const AdminDashboard: React.FC = () => {
         setActiveTab('users');
         break;
       case 'content':
-        toast({
-          title: "Content Management",
-          description: "Content management features coming soon!"
-        });
+        setActiveTab('content');
         break;
       case 'classes':
         setActiveTab('classes');
@@ -265,6 +262,7 @@ const AdminDashboard: React.FC = () => {
           <TabsTrigger value="users">User Management</TabsTrigger>
           <TabsTrigger value="teachers">Teacher Management</TabsTrigger>
           <TabsTrigger value="classes">Classes</TabsTrigger>
+          <TabsTrigger value="content">Content Management</TabsTrigger>
         </TabsList>
         
         <TabsContent value="users" className="pt-4">
@@ -313,6 +311,10 @@ const AdminDashboard: React.FC = () => {
         
         <TabsContent value="classes" className="pt-4">
           <ClassroomManagement />
+        </TabsContent>
+
+        <TabsContent value="content" className="pt-4">
+          <AdminContentPanel />
         </TabsContent>
       </Tabs>
     </div>

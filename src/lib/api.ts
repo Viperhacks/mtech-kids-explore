@@ -133,6 +133,15 @@ export const adminService = {
 
   getClassroomAssignments: (classId: string) => api.get(`/assignments/classroom/${classId}`),
   deleteAssignment: (assignmentId: string) => api.delete(`/assignments/${assignmentId}`),
+  
+  // New admin content management endpoints
+  getAllQuizzes: () => api.get('/quiz/all'),
+  deleteQuiz: (id: string) => api.delete(`/quiz/${id}`),
+  updateQuiz: (id: string, data: any) => api.put(`/quiz/${id}`, data),
+  getAdminResources: (page: number = 0, size: number = 10) => 
+    api.get('/resources/admin', { params: { page, size } }),
+  getAllAttempts: (page: number = 0, size: number = 10) => 
+    api.get('/attempt/all', { params: { page, size } }),
 };
 
 // Teacher services
