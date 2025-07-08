@@ -13,11 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 import { getAllQuizzes, getQuizQuestions, submitQuizAttempt } from '@/services/apiService';
 import { useAuth } from '@/context/AuthContext';
 
-import LoadingQuizzes from './LoadingQuizzes';
+import LoadingQuizzes from '../LoadingQuizzes';
 
-import { Quiz,Question } from './types/apiTypes';
+import { Quiz,Question } from '../types/apiTypes';
 import { shuffleAnswers, shuffleArray, shuffleQuestions } from '@/utils/quizUtils';
-import QuizResultPreview from './QuizResultPreview';
+import QuizResultPreview from '../QuizResultPreview';
 
 const StudentQuizzes: React.FC = () => {
   const { user } = useAuth();

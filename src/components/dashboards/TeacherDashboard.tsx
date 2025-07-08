@@ -15,7 +15,7 @@ import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseEditor from '../CourseEditor';
 import { getResources, deleteResource, getAllUsers, getAllStudents } from '@/services/apiService';
 import { useIsMobile } from '@/hooks/use-mobile';
-import StudentAccountCreation from '../StudentAccountCreation';
+import StudentAccountCreation from '../student/StudentAccountCreation';
 import api, { teacherService } from '@/lib/api';
 import { PaginatedResponse, Student } from '../types/apiTypes';
 import { capitalize } from '@/utils/stringUtils';

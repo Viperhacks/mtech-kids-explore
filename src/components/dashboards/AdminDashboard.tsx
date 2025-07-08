@@ -10,13 +10,13 @@ import { useAuth } from '@/context/AuthContext';
 import { BarChart3, Users, Settings, Shield, Book, FileText, Building2 } from 'lucide-react';
 import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseCreation from '../CourseCreation';
-import ClassroomManagement from '../ClassroomManagement';
-import UserManagementSection from '../UserManagementSection';
+import ClassroomManagement from '../admin/ClassroomManagement';
+import UserManagementSection from '../admin/UserManagementSection';
 import { getAllUsers, getTeachers, getTotalStats } from '@/services/apiService';
 import { toast } from '../ui/use-toast';
 import { getDaysAgo } from '@/utils/calculateDays';
 import { capitalize } from '@/utils/stringUtils';
-import TeacherAccountCreation from '../TeacherAccountCreation';
+import TeacherAccountCreation from '../admin/TeacherAccountCreation';
 import { Teacher } from '../types/apiTypes';
 import AdminContentPanel from '../admin/AdminContentPanel';
 

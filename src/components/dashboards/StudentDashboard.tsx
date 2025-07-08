@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getResourcesForAnyOne } from '@/services/apiService';
 import { toast } from '@/hooks/use-toast';
 import { userTrackingService } from '@/lib/userTracking';
-import StudentQuizzes from '../StudentQuizzes';
+import StudentQuizzes from '../student/StudentQuizzes';
 import StudentQuizHistory from '../StudentQuizHistory';
 import SubjectProgressCard from '../SubjectProgressCard';
 

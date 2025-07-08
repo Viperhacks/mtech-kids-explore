@@ -29,6 +29,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { capitalize } from '@/utils/stringUtils';
 
 const AdminResourceManagement: React.FC = () => {
   const { toast } = useToast();
@@ -55,9 +56,10 @@ const AdminResourceManagement: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await getAdminResources(currentPage, 10);
-      const resourcesData = Array.isArray(response) ? response : response.content || [];
-      const totalPagesData = response.totalPages || 1;
       
+      const resourcesData = Array.isArray(response) ? response : response.resources || [];
+      const totalPagesData = response.totalPages || 1;
+      console.log( resourcesData,"admin data");
       setResources(resourcesData);
       setTotalPages(totalPagesData);
     } catch (error) {
@@ -76,20 +78,20 @@ const AdminResourceManagement: React.FC = () => {
 
     if (searchTerm) {
       filtered = filtered.filter(resource =>
-        resource.title.toLowerCase().includes(searchTerm.toLowerCase())
+        resource.response.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     if (typeFilter !== 'all') {
-      filtered = filtered.filter(resource => resource.type === typeFilter);
+      filtered = filtered.filter(resource => resource.response.type === typeFilter);
     }
 
     if (gradeFilter !== 'all') {
-      filtered = filtered.filter(resource => resource.grade === gradeFilter);
+      filtered = filtered.filter(resource => resource.response.grade === gradeFilter);
     }
 
     if (subjectFilter !== 'all') {
-      filtered = filtered.filter(resource => resource.subject === subjectFilter);
+      filtered = filtered.filter(resource => resource.response.subject === subjectFilter);
     }
 
     setFilteredResources(filtered);
@@ -114,17 +116,17 @@ const AdminResourceManagement: React.FC = () => {
 
   const getResourceIcon = (type: string) => {
     switch (type) {
-      case 'VIDEO':
+      case 'video':
         return <Video className="h-4 w-4" />;
-      case 'DOCUMENT':
+      case 'document':
         return <FileText className="h-4 w-4" />;
       default:
         return <Image className="h-4 w-4" />;
     }
   };
 
-  const grades = [...new Set(resources.map(r => r.grade))];
-  const subjects = [...new Set(resources.map(r => r.subject))];
+  const grades = [...new Set(resources.map(r => r.response.grade))];
+  const subjects = [...new Set(resources.map(r => r.response.subject))];
 
   return (
     <div className="space-y-6">
@@ -154,8 +156,8 @@ const AdminResourceManagement: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="VIDEO">Videos</SelectItem>
-                <SelectItem value="DOCUMENT">Documents</SelectItem>
+                <SelectItem value="video">Videos</SelectItem>
+                <SelectItem value="document">Documents</SelectItem>
               </SelectContent>
             </Select>
             <Select value={gradeFilter} onValueChange={setGradeFilter}>
@@ -176,7 +178,7 @@ const AdminResourceManagement: React.FC = () => {
               <SelectContent>
                 <SelectItem value="all">All Subjects</SelectItem>
                 {subjects.map(subject => (
-                  <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                  <SelectItem key={subject} value={subject}>{capitalize(subject)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -202,19 +204,19 @@ const AdminResourceManagement: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {filteredResources.map((resource) => (
-                  <TableRow key={resource.id}>
-                    <TableCell className="font-medium">{resource.title}</TableCell>
+                  <TableRow key={resource.response.id}>
+                    <TableCell className="font-medium">{resource.response.title}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        {getResourceIcon(resource.type)}
+                        {getResourceIcon(resource.response.type)}
                         <Badge variant="outline">
-                          {resource.type === 'VIDEO' ? 'Video' : 'Document'}
+                          {resource.response.type === 'video' ? 'Video' : 'Document'}
                         </Badge>
                       </div>
                     </TableCell>
-                    <TableCell>Grade {resource.grade}</TableCell>
-                    <TableCell>{resource.subject}</TableCell>
-                    <TableCell>{toReadableDate(resource.createdAt)}</TableCell>
+                    <TableCell>Grade {resource.response.grade}</TableCell>
+                    <TableCell>{capitalize(resource.response.subject)}</TableCell>
+                    <TableCell>{toReadableDate(resource.response.createdAt)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button
@@ -234,13 +236,13 @@ const AdminResourceManagement: React.FC = () => {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Delete Resource</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete "{resource.title}"? This action cannot be undone.
+                                Are you sure you want to delete "{resource.response.title}"? This action cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => handleDeleteResource(resource.id, resource.title)}
+                                onClick={() => handleDeleteResource(resource.response.id, resource.response.title)}
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               >
                                 Delete
@@ -295,28 +297,28 @@ const AdminResourceManagement: React.FC = () => {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                {getResourceIcon(selectedResource.type)}
-                {selectedResource.title}
+                {getResourceIcon(selectedResource.response.type)}
+                {selectedResource.response.title}
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium">Type:</span> {selectedResource.type}
+                  <span className="font-medium">Type:</span> {selectedResource.response.type}
                 </div>
                 <div>
-                  <span className="font-medium">Grade:</span> {selectedResource.grade}
+                  <span className="font-medium">Grade:</span> {selectedResource.response.grade}
                 </div>
                 <div>
-                  <span className="font-medium">Subject:</span> {selectedResource.subject}
+                  <span className="font-medium">Subject:</span> {capitalize(selectedResource.response.subject)}
                 </div>
                 <div>
-                  <span className="font-medium">Created:</span> {toReadableDate(selectedResource.createdAt)}
+                  <span className="font-medium">Created:</span> {toReadableDate(selectedResource.response.createdAt)}
                 </div>
               </div>
               <div className="text-center p-8 border-2 border-dashed border-muted rounded-lg">
-                <p className="text-muted-foreground">Resource preview would be displayed here</p>
-                <p className="text-xs text-muted-foreground mt-2">Path: {selectedResource.filePath}</p>
+                <p className="text-muted-foreground">Resource preview display here??? thoughts</p>
+                <p className="text-xs text-muted-foreground mt-2">Path: {selectedResource.response.content}</p>
               </div>
             </div>
           </DialogContent>

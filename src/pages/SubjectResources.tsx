@@ -17,10 +17,11 @@ import CourseEditor from '@/components/CourseEditor';
 import VideoThumbnail from './VideoThumbnail';
 import { resolve } from 'path';
 import FloatingBackButton from '@/components/FloatingBackButton';
-import QuizCreationDialog from '@/components/QuizCreationDialog';
-import QuizCreationDialog from '@/components/QuizCreationDialog';
-import StudentQuizzes from '@/components/StudentQuizzes';
+
+
+import StudentQuizzes from '@/components/student/StudentQuizzes';
 import QuizManagement from '@/components/QuizManagement';
+
 
 const SubjectResources = () => {
   //const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
