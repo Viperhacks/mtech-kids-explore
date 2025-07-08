@@ -122,9 +122,15 @@ export const adminService = {
   updateUserRole: (userId: string, role: string) => api.put(`/admin/users/${userId}/role`, { role }),
   getAllUsers: (page: number = 1, limit: number = 10, filters?: any) => 
     api.get('/admin/users', { params: { page, limit, ...filters } }),
-  getTeachers: () => api.get('/admin/users/teachers'),
-  createAssignment: (assignmentData: { teacherId: number; classroomId: number; subjectId: number }) => 
-    api.post('/assignments', assignmentData),
+  getTeachersForAssignments: () => api.get('/admin/users/teachers'),
+  getTeachers: (page: number = 1, limit: number = 10, filters?: any) => api.get('/admin/users/teachers',{ params: { page, limit, ...filters } }),
+  createAssignment: (assignmentData: {
+  teacherId: number;
+  classroomId: number;
+  subjectId?: number;
+  subjectName?: string;
+}) => api.post('/assignments', assignmentData),
+
   getClassroomAssignments: (classId: string) => api.get(`/assignments/classroom/${classId}`),
   deleteAssignment: (assignmentId: string) => api.delete(`/assignments/${assignmentId}`),
 };

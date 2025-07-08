@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { createQuiz } from '@/services/apiService';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { subjects } from '@/utils/subjectUtils';
 
 interface QuizCreationDialogProps {
   open: boolean;
@@ -122,11 +123,11 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
                   <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mathematics">Mathematics</SelectItem>
-                  <SelectItem value="science">Science</SelectItem>
-                  <SelectItem value="english">English</SelectItem>
-                  <SelectItem value="history">History</SelectItem>
-                  <SelectItem value="geography">Geography</SelectItem>
+                  {subjects.map(subject => (
+                    <SelectItem key={subject.id} value={subject.name.toLowerCase()}>
+                      {subject.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

@@ -79,13 +79,15 @@ const QuestionUploadDialog: React.FC<QuestionUploadDialogProps> = ({
       onQuestionsUploaded();
       onOpenChange(false);
       setSelectedQuizId('');
-    } catch (error) {
-      toast({
-        title: "Failed to upload questions",
-        description: "Please try again",
-        variant: "destructive"
-      });
-    } finally {
+    } catch (error: any) {
+  const errorMessage = error.message || "Please try again";
+
+  toast({
+    title: "Failed to upload questions",
+    description: errorMessage,
+    variant: "destructive",
+  });
+} finally {
       setIsLoading(false);
     }
   };

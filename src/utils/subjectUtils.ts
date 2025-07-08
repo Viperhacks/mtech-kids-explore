@@ -7,15 +7,17 @@ export const subjects = [
   { id: 5, name: 'Agriculture' },
   { id: 6, name: 'Shona' },
   { id: 7, name: 'Physical Education' },
-  { id: 8, name: 'Art' },
-  { id: 9, name: 'Music' },
-  { id: 10, name: 'Geography' },
-  { id: 11, name: 'History' },
-  { id: 12, name: 'Religious Studies' }
-];
+  { id: 8, name: 'Social Studies' } 
+]
+
 
 export const getSubjectById = (id: number) => {
   return subjects.find(subject => subject.id === id);
+};
+
+export const getSubjectNameById = (id: number): string => {
+  const subject = subjects.find(subject => subject.id === id);
+  return subject ? subject.name : '';
 };
 
 export const getSubjectByName = (name: string) => {
