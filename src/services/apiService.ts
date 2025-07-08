@@ -455,6 +455,17 @@ export const getTeachers = async (page: number = 1, limit: number = 10, filters?
   }
 };
 
+export const getTeachersForAssignment = async () => {
+  try {
+   
+    const response = await adminService.getTeachersForAssignments();
+    return response.data || response;
+  } catch (error) {
+    console.error('Get teachers error:', error);
+    throw error;
+  }
+};
+
 // Student quiz attempts
 
 export const getStudentAttempts = async (page: number = 0, limit: number = 10) => {

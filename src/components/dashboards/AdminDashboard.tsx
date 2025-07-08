@@ -56,8 +56,10 @@ const AdminDashboard: React.FC = () => {
   useEffect(()=>{
     fetchStats();
     fetchUsers();
-    fetchTeachers();
-  },[])
+    if(activeTab=="teachers"){
+      fetchTeachers();
+    }
+  },[activeTab])
 
   const fetchStats = async ()=>{
     setIsLoading(true);
@@ -288,11 +290,12 @@ const AdminDashboard: React.FC = () => {
                 ) : (
                   
                   <div className="space-y-3">
-                    {teacher.map((t,index)=>(
+                    { 
+                    teacher.map((t,index)=>(
                         <div className="flex justify-between p-3 border rounded-md" key={index}>
                       <div>
                         <p className="font-medium">{t.fullName || "Unknown Teacher"}</p>
-                        <p className="text-sm text-muted-foreground">{t.gradeLevel || "Unknown Grade Level"}</p>
+                        <p className="text-sm text-muted-foreground">{t.gradeLevel || "Unassigned"}</p>
                       </div>
                       <Badge variant="outline">Active</Badge>
                     </div>

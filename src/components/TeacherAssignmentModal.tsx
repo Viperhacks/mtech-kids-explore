@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { getTeachers, createAssignment } from '@/services/apiService';
+import { getTeachers, createAssignment, getTeachersForAssignment } from '@/services/apiService';
 import { getSubjectNameById, subjects } from '@/utils/subjectUtils';
 import { UserPlus, Loader2 } from 'lucide-react';
 
@@ -50,7 +50,7 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
   const fetchTeachers = async () => {
     setIsFetchingTeachers(true);
     try {
-      const response = await getTeachers();
+      const response = await getTeachersForAssignment();
       const teachersData = Array.isArray(response) ? response : response.content || [];
       setTeachers(teachersData);
     } catch (error) {
