@@ -327,7 +327,7 @@ export const getActiveUsers = async (period: string = 'day') => {
 export const getAllUsers = async (page: number = 1, limit: number = 10, filters?: any) => {
   try {
     const response = await adminService.getAllUsers(page, limit, filters);
-    console.log("response from api: ", response)
+    //console.log("response from api: ", response)
     return response; // Response is already unwrapped by axios interceptor
   } catch (error) {
     console.error('Get all users error:', error);
@@ -444,9 +444,10 @@ export const deleteAssignment = async (assignmentId: string) => {
   }
 };
 
-export const getTeachers = async () => {
+export const getTeachers = async (page: number = 1, limit: number = 10, filters?: any) => {
   try {
-    const response = await adminService.getTeachers();
+   
+    const response = await adminService.getTeachers(page, limit, filters);
     return response.data || response;
   } catch (error) {
     console.error('Get teachers error:', error);

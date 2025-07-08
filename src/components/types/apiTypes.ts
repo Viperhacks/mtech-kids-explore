@@ -39,3 +39,10 @@ export interface Question {
   options: string[];
   correctAnswerPosition: number;
 }
+
+
+export interface Teacher{
+  id:string;
+  fullName:string;
+  gradeLevel: string
+}

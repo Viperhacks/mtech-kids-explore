@@ -13,17 +13,22 @@ import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseCreation from '../CourseCreation';
 import ClassroomManagement from '../ClassroomManagement';
 import UserManagementSection from '../UserManagementSection';
-import { getAllUsers, getTotalStats } from '@/services/apiService';
+import { getAllUsers, getTeachers, getTotalStats } from '@/services/apiService';
 import { toast } from '../ui/use-toast';
 import { getDaysAgo } from '@/utils/calculateDays';
 import { capitalize } from '@/utils/stringUtils';
 import TeacherAccountCreation from '../TeacherAccountCreation';
+import { Teacher } from '../types/apiTypes';
+
+
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('users');
-  
+  const [currentPage, setCurrentPage] = useState(0);
+  const [teacher, setTeachers] = useState<Teacher[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
   type Stats = {
     totalUsers: number;
     totalTeachers: number;
@@ -51,6 +56,7 @@ const AdminDashboard: React.FC = () => {
   useEffect(()=>{
     fetchStats();
     fetchUsers();
+    fetchTeachers();
   },[])
 
   const fetchStats = async ()=>{
@@ -73,12 +79,15 @@ const AdminDashboard: React.FC = () => {
   const fetchUsers = async ()=>{
     setIsLoading(true);
     try {
-      const response = await getAllUsers(0,10);
+      const response = await getAllUsers(0,5);
+      
       let content = Array.isArray(response) ? response : response.content || [];
       content = content.sort((a: any, b: any) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
-      const formatted = content.map((u: any) => ({
+      const topFive = content.slice(0,5);
+
+      const formatted = topFive.map((u: any) => ({
         id: u.id,
         name: u.fullName,
         username: u.username,
@@ -86,8 +95,7 @@ const AdminDashboard: React.FC = () => {
         date: getDaysAgo(u.createdAt),
       }));
 
-      console.log(response);
-      console.log("sorted",formatted)
+      
       setRecentUsers(formatted)
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -95,6 +103,29 @@ const AdminDashboard: React.FC = () => {
       setIsLoading(false);
     }
   }
+
+  const fetchTeachers = async () => {
+      setIsLoading(true);
+      try {
+        const response = await getTeachers(currentPage, 10);
+        console.log(response);
+        const teacherData = Array.isArray(response) ? response : response.content || [];
+        const totalPagesData = response.totalPages || 1;
+
+        
+        
+        setTeachers(teacherData);
+        setTotalPages(totalPagesData);
+      } catch (error) {
+        toast({
+          title: "Failed to load users",
+          description: "Could not load user data",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
   const stats = [
     { label: "Total Users", value: totalStats.totalUsers, icon: Users },
@@ -255,21 +286,18 @@ const AdminDashboard: React.FC = () => {
                     <Skeleton className="h-10 w-full" />
                   </div>
                 ) : (
+                  
                   <div className="space-y-3">
-                    <div className="flex justify-between p-3 border rounded-md">
+                    {teacher.map((t,index)=>(
+                        <div className="flex justify-between p-3 border rounded-md" key={index}>
                       <div>
-                        <p className="font-medium">First Teacher</p>
-                        <p className="text-sm text-muted-foreground">Grade 4</p>
+                        <p className="font-medium">{t.fullName || "Unknown Teacher"}</p>
+                        <p className="text-sm text-muted-foreground">{t.gradeLevel || "Unknown Grade Level"}</p>
                       </div>
                       <Badge variant="outline">Active</Badge>
                     </div>
-                    <div className="flex justify-between p-3 border rounded-md">
-                      <div>
-                        <p className="font-medium">Second Teacher</p>
-                        <p className="text-sm text-muted-foreground">Grade 5</p>
-                      </div>
-                      <Badge variant="outline">Active</Badge>
-                    </div>
+                      ))}
+                    
                   </div>
                 )}
               </CardContent>
