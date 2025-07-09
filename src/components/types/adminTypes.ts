@@ -12,15 +12,16 @@ export interface AdminQuiz {
 }
 
 export interface AdminResource {
+  response: any;
   id: string;
   title: string;
   type: 'VIDEO' | 'DOCUMENT';
   grade: string;
   subject: string;
-  filePath: string;
+  content: string;
   thumbnailPath?: string;
   createdAt: string;
-  teacherName?: string;
+  teacher?: string;
 }
 
 export interface AdminAttempt {

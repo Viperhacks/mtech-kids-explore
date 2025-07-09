@@ -139,7 +139,7 @@ export const adminService = {
   deleteQuiz: (id: string) => api.delete(`/quiz/${id}`),
   updateQuiz: (id: string, data: any) => api.put(`/quiz/${id}`, data),
   getAdminResources: (page: number = 0, size: number = 10) => 
-    api.get('/resources/admin', { params: { page, size } }),
+    api.get('/admin/users/resource', { params: { page, size } }),
   getAllAttempts: (page: number = 0, size: number = 10) => 
     api.get('/attempt/all', { params: { page, size } }),
 };

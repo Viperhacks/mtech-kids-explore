@@ -7,16 +7,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/context/AuthContext';
-import { BarChart3, Users, Settings, Shield, Book, FileText, Building2 } from 'lucide-react';
+import { BarChart3, Users, Settings, Shield, FileText, Building2 ,BookOpenCheck, GraduationCap, Files} from 'lucide-react';
 import DefaultLoginInfo from '../DefaultLoginInfo';
 import CourseCreation from '../CourseCreation';
-import ClassroomManagement from '../ClassroomManagement';
-import UserManagementSection from '../UserManagementSection';
+import ClassroomManagement from '../admin/ClassroomManagement';
+import UserManagementSection from '../admin/UserManagementSection';
 import { getAllUsers, getTeachers, getTotalStats } from '@/services/apiService';
 import { toast } from '../ui/use-toast';
 import { getDaysAgo } from '@/utils/calculateDays';
 import { capitalize } from '@/utils/stringUtils';
-import TeacherAccountCreation from '../TeacherAccountCreation';
+import TeacherAccountCreation from '../admin/TeacherAccountCreation';
 import { Teacher } from '../types/apiTypes';
 import AdminContentPanel from '../admin/AdminContentPanel';
 
@@ -131,9 +131,9 @@ const AdminDashboard: React.FC = () => {
 
   const stats = [
     { label: "Total Users", value: totalStats.totalUsers, icon: Users },
-    { label: "Teachers", value: totalStats.totalTeachers, icon: Shield },
-    { label: "Students", value: totalStats.totalStudents, icon: Book },
-    { label: "Resources", value: totalStats.totalResources, icon: FileText },
+    { label: "Teachers", value: totalStats.totalTeachers, icon: BookOpenCheck },
+    { label: "Students", value: totalStats.totalStudents, icon: GraduationCap },
+    { label: "Resources", value: totalStats.totalResources, icon: Files },
   ];
 
   const recentUsers = joinedUsers;
@@ -258,7 +258,7 @@ const AdminDashboard: React.FC = () => {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
-        <TabsList>
+        <TabsList className='grid w-full grid-cols-3 overflow-x-auto'>
           <TabsTrigger value="users">User Management</TabsTrigger>
           <TabsTrigger value="teachers">Teacher Management</TabsTrigger>
           <TabsTrigger value="classes">Classes</TabsTrigger>

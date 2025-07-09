@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { capitalize } from '@/utils/stringUtils';
 
 const AdminQuizManagement: React.FC = () => {
   const { toast } = useToast();
@@ -77,6 +78,7 @@ const AdminQuizManagement: React.FC = () => {
     if (subjectFilter !== 'all') {
       filtered = filtered.filter(quiz => quiz.subject === subjectFilter);
     }
+    console.log(filtered)
 
     setFilteredQuizzes(filtered);
   };
@@ -141,7 +143,7 @@ const AdminQuizManagement: React.FC = () => {
               <SelectContent>
                 <SelectItem value="all">All Subjects</SelectItem>
                 {subjects.map(subject => (
-                  <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                  <SelectItem key={subject} value={subject}>{capitalize(subject)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -173,7 +175,9 @@ const AdminQuizManagement: React.FC = () => {
                     <TableCell>Grade {quiz.grade}</TableCell>
                     <TableCell>{quiz.subject}</TableCell>
                     <TableCell>{quiz.teacherName}</TableCell>
-                    <TableCell>{toReadableDate(quiz.createdAt)}</TableCell>
+                    <TableCell> {Array.isArray(quiz.createdAt)
+                            ? toReadableDate(quiz.createdAt)
+                            : "Invalid date"}</TableCell>
                     <TableCell>
                       <Badge variant={quiz.standaAlone ? "default" : "secondary"}>
                         {quiz.standaAlone ? "Standalone" : "With Resource"}
