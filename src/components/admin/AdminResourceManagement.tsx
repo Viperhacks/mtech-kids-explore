@@ -315,6 +315,9 @@ const AdminResourceManagement: React.FC = () => {
                 <div>
                   <span className="font-medium">Created:</span> {toReadableDate(selectedResource.response.createdAt)}
                 </div>
+                <div>
+                  <span className="font-medium">Teacher:</span> {selectedResource.response.teacher}
+                </div>
               </div>
               <div className="text-center p-8 border-2 border-dashed border-muted rounded-lg">
                 <p className="text-muted-foreground">Resource preview display here??? thoughts</p>

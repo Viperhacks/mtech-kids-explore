@@ -21,7 +21,7 @@ export interface AdminResource {
   content: string;
   thumbnailPath?: string;
   createdAt: string;
-  teacherName?: string;
+  teacher?: string;
 }
 
 export interface AdminAttempt {
