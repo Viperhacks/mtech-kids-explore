@@ -205,7 +205,7 @@ const AdminResourceManagement: React.FC = () => {
               <TableBody>
                 {filteredResources.map((resource) => (
                   <TableRow key={resource.response.id}>
-                    <TableCell className="font-medium">{resource.response.title}</TableCell>
+                    <TableCell className="font-medium">{capitalize(resource.response.title)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getResourceIcon(resource.response.type)}
@@ -298,7 +298,7 @@ const AdminResourceManagement: React.FC = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 {getResourceIcon(selectedResource.response.type)}
-                {selectedResource.response.title}
+                {capitalize(selectedResource.response.title)}
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">

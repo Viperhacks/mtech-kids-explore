@@ -12,6 +12,7 @@ import { Search, Download, TrendingUp } from 'lucide-react';
 import { getAllAttemptsAdmin, getAllQuizzesAdmin } from '@/services/apiService';
 import { AdminAttempt, AdminQuiz } from '../types/adminTypes';
 import toReadableDate from '@/utils/toReadableDate';
+import { capitalize } from '@/utils/stringUtils';
 
 const AdminStudentProgress: React.FC = () => {
   const { toast } = useToast();
@@ -154,7 +155,7 @@ const AdminStudentProgress: React.FC = () => {
                 <SelectItem value="all">All Quizzes</SelectItem>
                 {quizzes.map(quiz => (
                   <SelectItem key={quiz.quizId} value={quiz.quizId}>
-                    {quiz.title}
+                    {capitalize(quiz.title)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -177,7 +178,7 @@ const AdminStudentProgress: React.FC = () => {
               <SelectContent>
                 <SelectItem value="all">All Subjects</SelectItem>
                 {subjects.map(subject => (
-                  <SelectItem key={subject} value={subject!}>{subject}</SelectItem>
+                  <SelectItem key={subject} value={subject!}>{capitalize(subject)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -209,8 +210,8 @@ const AdminStudentProgress: React.FC = () => {
               <TableBody>
                 {filteredAttempts.map((attempt, index) => (
                   <TableRow key={`${attempt.id}-${index}`}>
-                    <TableCell className="font-medium">{attempt.userFullName}</TableCell>
-                    <TableCell>{attempt.quizTitle}</TableCell>
+                    <TableCell className="font-medium">{capitalize(attempt.userFullName)}</TableCell>
+                    <TableCell>{capitalize(attempt.quizTitle)}</TableCell>
                     <TableCell>{attempt.score}/{attempt.total}</TableCell>
                     <TableCell>
                       <Badge variant={getScoreBadgeVariant(attempt.score, attempt.total)}>
@@ -218,7 +219,7 @@ const AdminStudentProgress: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>{attempt.grade || 'N/A'}</TableCell>
-                    <TableCell>{attempt.subject || 'N/A'}</TableCell>
+                    <TableCell>{capitalize(attempt.subject) || 'N/A'}</TableCell>
                     <TableCell>{toReadableDate(attempt.attemptedAt)}</TableCell>
                   </TableRow>
                 ))}
