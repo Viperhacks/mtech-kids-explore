@@ -591,3 +591,15 @@ export const getAllAttemptsAdmin = async (page: number = 0, size: number = 10) =
     throw error;
   }
 };
+
+export const deleteUser = async (id: string) => {
+  try {
+    const response = await adminService.deleteUser(id);
+    return response.data || response;
+  } catch (error) {
+    console.error('Delete user admin error:', error);
+    throw error;
+  }
+};
+
+

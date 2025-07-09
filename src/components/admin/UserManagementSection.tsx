@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { getAllUsers } from '@/services/apiService';
+import { deleteUser, getAllUsers } from '@/services/apiService';
 import { getDaysAgo } from '@/utils/calculateDays';
 import { capitalize } from '@/utils/stringUtils';
 import { Users, Search, Filter, Download, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -96,6 +96,24 @@ const UserManagementSection: React.FC = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  const handleDeleteUser = async (id: string) => {
+      try {
+        await deleteUser(id);
+        toast({
+          title: "User Deleted",
+          description: "The user has been successfully deleted."
+        });
+        fetchUsers();
+      } catch (error) {
+        console.error('Delete failed', error);
+        toast({
+          title: "Delete Failed",
+          description: "Could not delete the user. Please try again.",
+          variant: "destructive"
+        });
+      }
+    };
+
   return (
     <Card>
       <CardHeader>
@@ -154,6 +172,7 @@ const UserManagementSection: React.FC = () => {
                   <TableHead>Username</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Joined</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -172,6 +191,11 @@ const UserManagementSection: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>{getDaysAgo(user.createdAt)}</TableCell>
+                    <TableCell>
+                       <Button variant="ghost" size="sm" onClick={() => handleDeleteUser(user.id)}>
+                                                    Delete 
+                                                  </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

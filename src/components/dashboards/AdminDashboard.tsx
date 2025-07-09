@@ -325,7 +325,7 @@ const AdminDashboard: React.FC = () => {
           
           <TabsContent value="teachers" id='tab-teachers' className="pt-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <TeacherAccountCreation />
+              <TeacherAccountCreation onAdd= {fetchTeachers} />
               
               <Card>
                 <CardHeader>

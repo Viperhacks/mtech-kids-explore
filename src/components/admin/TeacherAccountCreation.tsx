@@ -8,7 +8,7 @@ import { authService } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 
-const TeacherAccountCreation = () => {
+const TeacherAccountCreation = ({ onAdd }: { onAdd?: () => void }) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [formData, setFormData] = useState({
@@ -55,6 +55,8 @@ const TeacherAccountCreation = () => {
         title: "Teacher Account Created",
         description: `Successfully created account for ${formData.fullName}`,
       });
+
+      onAdd?.();
 
       // Reset form
       setFormData({

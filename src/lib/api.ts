@@ -130,7 +130,7 @@ export const adminService = {
   subjectId?: number;
   subjectName?: string;
 }) => api.post('/assignments', assignmentData),
-
+  deleteUser: (id:string)=> api.delete(`/admin/users/${id}`),
   getClassroomAssignments: (classId: string) => api.get(`/assignments/classroom/${classId}`),
   deleteAssignment: (assignmentId: string) => api.delete(`/assignments/${assignmentId}`),
   
