@@ -284,7 +284,13 @@ const AdminDashboard: React.FC = () => {
             >
               <Users className="mr-2 h-4 w-4" /> Manage Users
             </Button>
-            
+            <Button 
+              className="w-full flex items-center justify-start" 
+              variant="outline"
+              onClick={() => handleQuickAction('teachers')}
+            >
+              <BookOpenCheck className="mr-2 h-4 w-4" /> Manage Teachers
+            </Button>
             <Button 
               className="w-full flex items-center justify-start" 
               variant="outline"
