@@ -72,6 +72,16 @@ export const getResources = async (grade?: string, subject?: string) => {
   }
 };
 
+export const getResourcesForQuiz = async () => {
+  try {
+    const response = await resourceService.getResourcesForQuiz();
+    return response.data;
+  } catch (error) {
+    console.error('Get resources error:', error);
+    throw error;
+  }
+};
+
 export const getResourcesForAnyOne = async (grade?: string, subject?: string) => {
   try {
     const response = await resourceService.getResourcesForStudent(grade, subject);
@@ -597,7 +607,7 @@ export const deleteUser = async (id: string) => {
     const response = await adminService.deleteUser(id);
     return response.data || response;
   } catch (error) {
-    console.error('Delete user admin error:', error);
+    console.error('Delete user  error:', error);
     throw error;
   }
 };

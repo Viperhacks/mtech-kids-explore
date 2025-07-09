@@ -65,6 +65,8 @@ export const authService = {
 export const resourceService = {
   getResources: (grade?: string, subject?: string) => 
     api.get('/resources/my-resources', { params: { grade, subject } }),
+   getResourcesForQuiz: (grade?: string, subject?: string) => 
+    api.get('/resources/for-quiz'),
   getResourcesForStudent: (grade?: string, subject?: string) => 
     api.get('/resources', { params: { grade, subject } }),
   uploadResource: (resourceData: FormData | any) => {

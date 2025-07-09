@@ -150,7 +150,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
           ) : resources.length === 0 ? (
             <div className="text-center text-muted-foreground py-12">
               <h2 className="text-xl font-semibold mb-2">Oops, no lessons available yet!</h2>
-              <p>Check back later or explore other subjects.</p>
+              <p>Check back later or explore quizzes.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

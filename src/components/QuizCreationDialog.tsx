@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { createQuiz } from '@/services/apiService';
+import { createQuiz, getResources, getResourcesForQuiz } from '@/services/apiService';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { subjects } from '@/utils/subjectUtils';
@@ -37,6 +37,34 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
     teacherName: user?.fullName || user?.name || ''
   });
   const assignedLevels = user?.assignedLevels || [];
+  const [resources, setResources] = useState([]);
+
+  useEffect(() => {
+  if (open) {
+    fetchAvailableResources();
+  }
+}, [open]);
+
+
+  const fetchAvailableResources = async () => {
+      setIsLoading(true);
+      try {
+        const response = await getResourcesForQuiz();
+        
+        const resourcesData = Array.isArray(response) ? response : response.resources || [];
+        console.log( resourcesData,"resource data");
+        setResources(resourcesData);
+      
+      } catch (error) {
+        toast({
+          title: "Failed to load resources",
+          description: "Could not load resource data",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,6 +174,30 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
             />
             <Label htmlFor="standalone">Standalone Quiz</Label>
           </div>
+        {!formData.standaAlone && (
+  <div>
+    <Label htmlFor="resource">Attach Resource</Label>
+    <Select
+      value={formData.resourceId?.toString()}
+      onValueChange={(value) =>
+        setFormData((prev) => ({ ...prev, resourceId: value }))
+      }
+    >
+      <SelectTrigger>
+        <SelectValue placeholder="Select resource" />
+      </SelectTrigger>
+      <SelectContent>
+        {resources.map((resource) => (
+          <SelectItem key={resource.id} value={resource.id.toString()}>
+            {resource.title || `Resource ${resource.id}`}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+)}
+
+
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

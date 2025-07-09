@@ -10,6 +10,7 @@ import DocumentViewer from "./DocumentViewer";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { userTrackingService } from "@/lib/userTracking";
+import FloatingBackButton from "./FloatingBackButton";
 
 interface DocumentResourcesViewerProps {
   grade?: string;
@@ -245,6 +246,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
           )}
         </DialogContent>
       </Dialog>
+      <FloatingBackButton/>
     </div>
   );
 };
