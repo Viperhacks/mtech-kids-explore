@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -14,6 +14,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedRoles = ['STUDENT', 'TEACHER', 'ADMIN', 'PARENT']
 }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
+  const location = useLocation();
   
   if (isLoading) {
     return (
@@ -24,7 +25,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
   
   if (!isAuthenticated) {
-    return <Navigate to="/" replace state={{ showLogin: true }} />;
+    // Store the intended destination for restoration after login
+    const returnTo = location.pathname + location.search + location.hash;
+    return <Navigate to="/" replace state={{ 
+      showLogin: true, 
+      returnTo: returnTo !== '/' ? returnTo : undefined 
+    }} />;
   }
   
   if (user && !allowedRoles.includes(user.role)) {

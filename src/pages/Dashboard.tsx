@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import StudentDashboard from '@/components/dashboards/StudentDashboard';
 import TeacherDashboard from '@/components/dashboards/TeacherDashboard';
@@ -9,6 +9,23 @@ import { Loader2 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
+  const [searchParams] = useSearchParams();
+  
+  // Update document title based on active tab for admin users
+  useEffect(() => {
+    if (user?.role === 'ADMIN') {
+      const activeTab = searchParams.get('tab') || 'users';
+      const tabTitles = {
+        users: 'User Management',
+        teachers: 'Teacher Management', 
+        classes: 'Class Management',
+        content: 'Content Management'
+      };
+      document.title = `Admin Dashboard - ${tabTitles[activeTab as keyof typeof tabTitles] || 'Dashboard'} | M-Tech Kidz`;
+    } else {
+      document.title = 'Dashboard | M-Tech Kidz';
+    }
+  }, [user, searchParams]);
   
   if (isLoading) {
     return (

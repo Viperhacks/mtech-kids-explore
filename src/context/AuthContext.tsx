@@ -1,7 +1,7 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { authService } from '@/lib/api';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 // Set base URL for API requests
@@ -67,6 +67,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const checkAuth = () => {
@@ -131,6 +133,14 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           title: "Login Successful",
           description: response.data.message || "You're in!"
         });
+
+        // Handle route restoration after successful login
+        const returnTo = location.state?.returnTo;
+        if (returnTo && returnTo !== '/') {
+          navigate(returnTo, { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
       }
     } catch (error: any) {
       console.error('Login failed', error);
@@ -144,7 +154,6 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       setIsLoading(false);
     }
   };
-  
 
   const register = async (name: string, username: string, password: string, role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN', grade?: string) => {
     try {
@@ -414,6 +423,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       title: "Logged Out",
       description: "Successfully logged out"
     });
+    navigate('/', { replace: true });
   };
 
   const value = {
