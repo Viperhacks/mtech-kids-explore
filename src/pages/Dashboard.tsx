@@ -12,20 +12,35 @@ const Dashboard: React.FC = () => {
   const [searchParams] = useSearchParams();
   
   // Update document title based on active tab for admin users
-  useEffect(() => {
-    if (user?.role === 'ADMIN') {
+ useEffect(() => {
+  if (!user) {
+    document.title = 'MTech Kidz Explore'; 
+    return;
+  }
+
+  switch (user.role) {
+    case 'ADMIN': {
       const activeTab = searchParams.get('tab') || 'users';
       const tabTitles = {
         users: 'User Management',
-        teachers: 'Teacher Management', 
+        teachers: 'Teacher Management',
         classes: 'Class Management',
         content: 'Content Management'
       };
-      document.title = `Admin Dashboard - ${tabTitles[activeTab as keyof typeof tabTitles] || 'Dashboard'} | M-Tech Kidz`;
-    } else {
-      document.title = 'Dashboard | M-Tech Kidz';
+      document.title = `Admin Dashboard - ${tabTitles[activeTab as keyof typeof tabTitles] || 'Dashboard'} | MTech Kidz Explore`;
+      break;
     }
-  }, [user, searchParams]);
+    case 'TEACHER':
+      document.title = 'Teacher Dashboard | MTech Kidz Explore';
+      break;
+    case 'STUDENT':
+      document.title = 'Student Dashboard | MTech Kidz Explore';
+      break;
+    default:
+      document.title = 'MTech Kidz Explore';
+  }
+}, [user, searchParams]);
+
   
   if (isLoading) {
     return (
