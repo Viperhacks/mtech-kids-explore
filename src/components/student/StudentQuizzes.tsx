@@ -18,6 +18,7 @@ import LoadingQuizzes from '../LoadingQuizzes';
 import { Quiz,Question } from '../types/apiTypes';
 import { shuffleAnswers, shuffleArray, shuffleQuestions } from '@/utils/quizUtils';
 import QuizResultPreview from '../QuizResultPreview';
+import { capitalize } from '@/utils/stringUtils';
 
 const StudentQuizzes: React.FC = () => {
   const { user } = useAuth();
@@ -313,10 +314,10 @@ const StudentQuizzes: React.FC = () => {
                   <CheckCircle className="h-4 w-4" /> 
                   </div>
                 )}
-                  <CardTitle className="text-lg">{quiz.title} </CardTitle>
-                  <Badge variant="secondary">{quiz.subject}</Badge>
+                  <CardTitle className="text-lg">{capitalize(quiz.title)} </CardTitle>
+                  <Badge variant="secondary">{capitalize(quiz.subject)}</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">{quiz.description}</p>
+                <p className="text-sm text-muted-foreground">{capitalize(quiz.description)}</p>
               </CardHeader>
               <CardContent>
                 <div className="flex justify-between items-center mb-4">
