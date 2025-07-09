@@ -372,123 +372,160 @@ const StudentQuizzes: React.FC = () => {
           closeQuiz();
         }
       }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          {!quizCompleted ? (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center justify-between">
-                  <span>{selectedQuiz?.title}</span>
-                  <Badge variant="outline">
-                    Question {currentQuestionIndex + 1} of {quizQuestions.length}
-                  </Badge>
-                </DialogTitle>
-              </DialogHeader>
+       <DialogContent
+  className="max-w-[95vw] max-h-[95vh] w-full h-full p-4 sm:p-6 md:p-8 bg-white/90 backdrop-blur-md rounded-xl overflow-y-auto flex flex-col justify-start gap-6"
+  style={{ zIndex: 50 }}
+>
+  {!quizCompleted ? (
+    <>
+      <DialogHeader>
+        <DialogTitle className="flex items-center justify-between text-xl sm:text-2xl font-bold">
+          <span>{selectedQuiz?.title}</span>
+          <Badge variant="outline" className="text-sm sm:text-base px-3 py-1 rounded-md">
+            Q{currentQuestionIndex + 1} / {quizQuestions.length}
+          </Badge>
+        </DialogTitle>
+      </DialogHeader>
 
-              {quizQuestions.length > 0 && (
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">
-                      {quizQuestions[currentQuestionIndex]?.questionText}
-                      
-                    </h3>
-                    <div key={quizQuestions[currentQuestionIndex]?.id}>
-                      <RadioGroup
-                      key={quizQuestions[currentQuestionIndex].id}
-                      value={answers[quizQuestions[currentQuestionIndex]?.id]?.toString() || ""}
-                      onValueChange={(value) => 
-                        handleAnswerChange(quizQuestions[currentQuestionIndex].id, parseInt(value))
-                      }
-                    >
-                      {quizQuestions[currentQuestionIndex]?.options.map((option, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                          <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                          <Label htmlFor={`option-${index}`} className="cursor-pointer">
-                            {String.fromCharCode(65 + index)}. {option} 
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                    </div>
-                  </div>
+      {quizQuestions.length > 0 && (
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
+            <h3 className="text-lg sm:text-xl font-semibold leading-snug">
+              {quizQuestions[currentQuestionIndex]?.questionText}
+            </h3>
 
-                  <DialogFooter className="flex justify-between">
-                    <Button
-                      variant="outline"
-                      onClick={previousQuestion}
-                      disabled={currentQuestionIndex === 0}
-                    >
-                      Previous
-                    </Button>
-                    <div className="flex gap-2">
-                      {currentQuestionIndex === quizQuestions.length - 1 ? (
-                        <Button onClick={submitQuiz} disabled={isSubmitting}>
-                          {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
-                        </Button>
-                      ) : (
-                        <Button onClick={nextQuestion}>
-                          Next
-                        </Button>
-                      )}
-                    </div>
-                  </DialogFooter>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-center">Quiz Completed!</DialogTitle>
-              </DialogHeader>
-              
-            {
-              !showReview ? (
-                <>
-                <div className="text-center space-y-4">
-                <div className="flex justify-center">
-                  <div className="p-4 bg-green-100 rounded-full">
-                    <Award className="h-12 w-12 text-green-600" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold">Your Score</h3>
-                  <p className="text-3xl font-bold text-green-600">
-                    {score}/{quizQuestions.length}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {Math.round((score / quizQuestions.length) * 100)}% Correct
-                  </p>
-                  {Math.round((score / quizQuestions.length) * 100) >= 80 && (
-                    <Badge className="mt-2">Great Score!</Badge>
-                  )}
-                </div>
+            <div className="space-y-4">
+              <RadioGroup
+                key={quizQuestions[currentQuestionIndex].id}
+                value={answers[quizQuestions[currentQuestionIndex]?.id]?.toString() || ""}
+                onValueChange={(value) =>
+                  handleAnswerChange(
+                    quizQuestions[currentQuestionIndex].id,
+                    parseInt(value)
+                  )
+                }
+              >
+                {quizQuestions[currentQuestionIndex]?.options.map((option, index) => {
+  const isSelected =
+    answers[quizQuestions[currentQuestionIndex]?.id]?.toString() ===
+    index.toString();
+
+  return (
+    <div
+      key={index}
+      onClick={() =>
+        handleAnswerChange(quizQuestions[currentQuestionIndex].id, index)
+      }
+      className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer transition ${
+        isSelected ? 'bg-mtech-light border-mtech-primary' : 'hover:bg-muted'
+      }`}
+    >
+      <RadioGroupItem
+        value={index.toString()}
+        id={`option-${index}`}
+        className="scale-125 pointer-events-none"
+      />
+      <Label
+        htmlFor={`option-${index}`}
+        className="text-base sm:text-lg cursor-pointer w-full"
+      >
+        {String.fromCharCode(65 + index)}. {option}
+      </Label>
+    </div>
+  );
+})}
+
+              </RadioGroup>
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-col sm:flex-row justify-between gap-4">
+            <Button
+              variant="outline"
+              onClick={previousQuestion}
+              disabled={currentQuestionIndex === 0}
+              className="w-full sm:w-auto text-base sm:text-lg"
+            >
+              Previous
+            </Button>
+            <Button
+              onClick={
+                currentQuestionIndex === quizQuestions.length - 1
+                  ? submitQuiz
+                  : nextQuestion
+              }
+              disabled={isSubmitting}
+              className="w-full sm:w-auto text-base sm:text-lg"
+            >
+              {currentQuestionIndex === quizQuestions.length - 1
+                ? isSubmitting
+                  ? "Submitting..."
+                  : "Submit Quiz"
+                : "Next"}
+            </Button>
+          </DialogFooter>
+        </div>
+      )}
+    </>
+  ) : (
+    <>
+      <DialogHeader>
+        <DialogTitle className="text-center text-2xl font-bold">Quiz Completed!</DialogTitle>
+      </DialogHeader>
+
+      {!showReview ? (
+        <>
+          <div className="text-center space-y-6">
+            <div className="flex justify-center">
+              <div className="p-4 bg-green-100 rounded-full">
+                <Award className="h-12 w-12 text-green-600" />
               </div>
-               <DialogFooter>
-                <Button variant='secondary' onClick={()=> setShowReview(true)} className='w-full'>View All My Answers</Button>
-                <Button onClick={closeQuiz} className="w-full">
-                  Close
-                </Button>
-              </DialogFooter>
-              </>
-              ) :  showReview && (
-                <QuizResultPreview
-                quizQuestions={quizQuestions}
-                score={score}
-                answers={answers}
-                onClose={closeQuiz}
-                onRetry={()=>{
-                  setQuizCompleted(false);
-                  setShowReview(false);
-                  setAnswers({});
-                  setCurrentQuestionIndex(0);
-                  setAnsweredQues({});
-                }}
-                
-                />
-              )
-            }
-            </>
-          )}
-        </DialogContent>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold">Your Score</h3>
+              <p className="text-3xl font-bold text-green-600">
+                {score}/{quizQuestions.length}
+              </p>
+              <p className="text-muted-foreground text-lg">
+                {Math.round((score / quizQuestions.length) * 100)}% Correct
+              </p>
+              {Math.round((score / quizQuestions.length) * 100) >= 80 && (
+                <Badge className="mt-2 text-base">Great Score!</Badge>
+              )}
+            </div>
+          </div>
+          <DialogFooter className="flex flex-col gap-4 mt-6">
+            <Button
+              variant="secondary"
+              onClick={() => setShowReview(true)}
+              className="w-full text-lg"
+            >
+              View All My Answers
+            </Button>
+            <Button onClick={closeQuiz} className="w-full text-lg">
+              Close
+            </Button>
+          </DialogFooter>
+        </>
+      ) : (
+        <QuizResultPreview
+          quizQuestions={quizQuestions}
+          score={score}
+          answers={answers}
+          onClose={closeQuiz}
+          onRetry={() => {
+            setQuizCompleted(false);
+            setShowReview(false);
+            setAnswers({});
+            setCurrentQuestionIndex(0);
+            setAnsweredQues({});
+          }}
+        />
+      )}
+    </>
+  )}
+</DialogContent>
+
       </Dialog>
     </div>
   );
