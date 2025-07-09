@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -139,7 +139,8 @@ const AdminDashboard: React.FC = () => {
   const recentUsers = joinedUsers;
 
   const handleQuickAction = (action: string) => {
-    switch (action) {
+    handleTabChange(action);
+    /*switch (action) {
       case 'users':
         setActiveTab('users');
         break;
@@ -151,8 +152,52 @@ const AdminDashboard: React.FC = () => {
         break;
       default:
         break;
-    }
+    }*/
   };
+
+  const tabsContentRef = useRef<HTMLDivElement>(null);
+
+  const isElementInViewPort = (el: HTMLElement)=>{
+    if(!el) return false;
+
+    const rect = el.getBoundingClientRect();
+    return(
+      rect.top >= 0 &&
+      rect.left >= 0 && 
+      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+  }
+
+  const scrollToTab = useCallback((tabId:string)=>{
+     setTimeout(() => {
+      const el = document.getElementById(`tab-${tabId}`);
+      if(el){
+        el.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
+        });
+      }
+    }, 10);
+  },[]);
+
+  const handleTabChange= (tabValue:string)=>{
+    setActiveTab(tabValue);
+    //scrollToTab(tabValue)
+    setTimeout(() => {
+     if(!tabsContentRef.current) return;
+     
+     const tabContent = document.getElementById(`tab-${tabValue}`);
+     if(!tabContent) return;
+     if(!isElementInViewPort(tabsContentRef.current)){
+      tabContent.scrollIntoView({
+        behavior:"smooth",
+        block: "start",
+      });
+     }
+    }, 10);
+  }
   
   return (
     <div className="container mx-auto py-8 px-4">
@@ -242,6 +287,13 @@ const AdminDashboard: React.FC = () => {
             <Button 
               className="w-full flex items-center justify-start" 
               variant="outline"
+              onClick={() => handleQuickAction('teachers')}
+            >
+              <BookOpenCheck className="mr-2 h-4 w-4" /> Manage Teachers
+            </Button>
+            <Button 
+              className="w-full flex items-center justify-start" 
+              variant="outline"
               onClick={() => handleQuickAction('content')}
             >
               <FileText className="mr-2 h-4 w-4" /> Content Management
@@ -256,8 +308,12 @@ const AdminDashboard: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+      <div ref={tabsContentRef}>
+      <Tabs 
+      value={activeTab}
+      onValueChange={handleTabChange}
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
+      className="w-full mb-8">
         <TabsList className='grid w-full grid-cols-3 overflow-x-auto'>
           <TabsTrigger value="users">User Management</TabsTrigger>
           <TabsTrigger value="teachers">Teacher Management</TabsTrigger>
@@ -265,11 +321,15 @@ const AdminDashboard: React.FC = () => {
           <TabsTrigger value="content">Content Management</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="users" className="pt-4">
+        <TabsContent value="users"
+        id='tab-users'
+         className="pt-4">
           <UserManagementSection />
         </TabsContent>
         
-        <TabsContent value="teachers" className="pt-4">
+        <TabsContent value="teachers"
+        id='tab-teachers'
+        className="pt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <TeacherAccountCreation />
             
@@ -309,14 +369,19 @@ const AdminDashboard: React.FC = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="classes" className="pt-4">
+        <TabsContent value="classes"
+        id='tab-classes'
+        className="pt-4">
           <ClassroomManagement />
         </TabsContent>
 
-        <TabsContent value="content" className="pt-4">
+        <TabsContent value="content" 
+        id='tab-content'
+        className="pt-4">
           <AdminContentPanel />
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };
