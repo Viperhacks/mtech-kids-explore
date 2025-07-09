@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 const StudentAccountCreation = () => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const assignedLevels = user?.assignedLevels || [];
   const [formData, setFormData] = useState({
     fullName: '',
     username: '',
@@ -162,9 +163,20 @@ const StudentAccountCreation = () => {
         className="w-full p-2 border border-gray-300 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
       >
         <option value="">Select Grade Level</option>
-        {[1, 2, 3, 4, 5, 6, 7].map(grade => (
+        {user?.role === "TEACHER" ? (
+          <>
+  {assignedLevels.map(level => (
+    <option key={level} value={level}>
+      Grade {level}
+    </option>
+  ))}
+</>
+
+        ): (
+          [1, 2, 3, 4, 5, 6, 7].map(grade => (
           <option key={grade} value={grade}>Grade {grade}</option>
-        ))}
+        ))
+        )}
       </select>
     </div>
   </div>

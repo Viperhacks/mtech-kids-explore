@@ -41,8 +41,12 @@ export interface Question {
 }
 
 
-export interface Teacher{
-  id:string;
-  fullName:string;
-  gradeLevel: string
+export interface Teacher {
+  id: string;
+  fullName: string;
+  username: string;
+  gradeLevel?: string | null;
+  assignedLevels?: string[] | null;
+  role: "TEACHER" | "STUDENT" | "ADMIN";
+  createdAt: number[]; // [2025, 7, 9]
 }

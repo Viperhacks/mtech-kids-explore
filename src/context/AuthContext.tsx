@@ -14,6 +14,7 @@ interface User {
   role: 'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN';
   status?: 'PENDING' | 'APPROVED';
   gradeLevel?: string;
+  assignedLevels?: string[];
   avatar?: string;
   provider?: 'google' | 'email';
   progress?: {
@@ -82,6 +83,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             ...parsedUser,
             name: parsedUser.fullName || parsedUser.name || '',
             grade: parsedUser.gradeLevel || parsedUser.grade || '',
+            assignedLevels: parsedUser.assignedLevels || [],
             // Default empty values for optional fields
             earnedBadges: parsedUser.earnedBadges || [],
             completedLessons: parsedUser.completedLessons || [],
@@ -107,7 +109,19 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       console.log("hey",response)
   
       if (response.data.success) {
-        const { token, refreshToken, role, status, fullName,gradeLevel, createdAt, id ,earnedBadges} = response.data.data;
+       const { 
+  token,
+  refreshToken,
+  role,
+  status,
+  fullName,
+  gradeLevel,
+  assignedLevels,
+  createdAt,
+  id,
+  earnedBadges 
+} = response.data.data;
+
   
         localStorage.setItem('auth_token', token);
         localStorage.setItem('refresh_token', refreshToken);
@@ -117,6 +131,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
           name: fullName, // you can tweak this if you wanna shorten/display first name only
           username,
           grade: gradeLevel,
+          gradeLevel,
+          assignedLevels,
           createdAt : createdAt,
           id :id,
           role,

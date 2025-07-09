@@ -1,16 +1,28 @@
-
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
-import { updateQuiz } from '@/services/apiService';
-import { Loader2 } from 'lucide-react';
-import { subjects } from '@/utils/subjectUtils';
+import React, { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import { updateQuiz } from "@/services/apiService";
+import { Loader2 } from "lucide-react";
+import { subjects } from "@/utils/subjectUtils";
+import { useAuth } from "@/context/AuthContext";
 
 interface Quiz {
   quizId: string;
@@ -33,17 +45,19 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
   open,
   onOpenChange,
   quiz,
-  onQuizUpdated
+  onQuizUpdated,
 }) => {
+  const {user} = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    grade: '',
-    subject: '',
-    standaAlone: true
+    title: "",
+    description: "",
+    grade: "",
+    subject: "",
+    standaAlone: true,
   });
+  const assignedLevels = user?.assignedLevels || [];
 
   useEffect(() => {
     if (quiz) {
@@ -52,7 +66,7 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
         description: quiz.description,
         grade: quiz.grade,
         subject: quiz.subject,
-        standaAlone: quiz.standaAlone
+        standaAlone: quiz.standaAlone,
       });
     }
   }, [quiz]);
@@ -66,7 +80,7 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
       await updateQuiz(quiz.quizId, formData);
       toast({
         title: "Quiz Updated",
-        description: "Quiz has been successfully updated"
+        description: "Quiz has been successfully updated",
       });
       onQuizUpdated();
       onOpenChange(false);
@@ -74,7 +88,7 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
       toast({
         title: "Failed to update quiz",
         description: "Please try again",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -94,7 +108,9 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              }
               required
             />
           </div>
@@ -104,7 +120,12 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               rows={3}
             />
           </div>
@@ -112,13 +133,20 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="grade">Grade</Label>
-              <Select value={formData.grade} onValueChange={(value) => setFormData(prev => ({ ...prev, grade: value }))}>
+              <Select
+                value={formData.grade}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, grade: value }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select grade" />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7].map(grade => (
-                    <SelectItem key={grade} value={grade.toString()}>Grade {grade}</SelectItem>
+                  {assignedLevels.map((level) => (
+                    <SelectItem key={level} value={level}>
+                      Grade {level}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -126,17 +154,25 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
 
             <div>
               <Label htmlFor="subject">Subject</Label>
-              <Select value={formData.subject} onValueChange={(value) => setFormData(prev => ({ ...prev, subject: value }))}>
+              <Select
+                value={formData.subject}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, subject: value }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
-               <SelectContent>
-                 {subjects.map(subject => (
-                   <SelectItem key={subject.id} value={subject.name.toLowerCase()}>
-                     {subject.name}
-                   </SelectItem>
-                 ))}
-               </SelectContent>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem
+                      key={subject.id}
+                      value={subject.name.toLowerCase()}
+                    >
+                      {subject.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
           </div>
@@ -145,17 +181,27 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
             <Switch
               id="standalone"
               checked={formData.standaAlone}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, standaAlone: checked }))}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({ ...prev, standaAlone: checked }))
+              }
             />
             <Label htmlFor="standalone">Standalone Quiz</Label>
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Update Quiz'}
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Update Quiz"
+              )}
             </Button>
           </DialogFooter>
         </form>

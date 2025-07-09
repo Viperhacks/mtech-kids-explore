@@ -347,7 +347,12 @@ const AdminDashboard: React.FC = () => {
                           <div className="flex justify-between p-3 border rounded-md" key={index}>
                         <div>
                           <p className="font-medium">{t.fullName || "Unknown Teacher"}</p>
-                          <p className="text-sm text-muted-foreground">{t.gradeLevel || "Unassigned"}</p>
+                          <p className="text-sm text-muted-foreground">
+  {t.assignedLevels?.length
+    ? `Assigned to: Grade ${t.assignedLevels.join(", ")}`
+    : "Not assigned to any level"}
+</p>
+
                         </div>
                         <Badge variant="outline">Active</Badge>
                       </div>

@@ -11,6 +11,8 @@ import { Trash, Save, X } from 'lucide-react';
 import { resourceService } from '@/lib/api';
 import { title } from 'process';
 import { subjects } from '@/utils/subjectUtils';
+import { useAuth } from '@/context/AuthContext';
+import { capitalize } from '@/utils/stringUtils';
 
 interface CourseEditorProps {
   resource?: any;
@@ -39,6 +41,8 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
     content: resource?.content || '',
     thumbnail: resource?.thumbnail || '',
   });
+  const { user } = useAuth();
+const assignedLevels = user?.assignedLevels || [];
 
   // Update form data if resource or initialType changes
   useEffect(() => {
@@ -70,12 +74,15 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
     
     try {
       let formDataToSend = new FormData();
-      formDataToSend.append("title", formData.title);
-      formDataToSend.append("description", formData.description);
+      formDataToSend.append("title", capitalize(formData.title));
+      formDataToSend.append("description", capitalize(formData.description));
       formDataToSend.append("grade", formData.grade);
       formDataToSend.append("subject", formData.subject);
       formDataToSend.append("type", formData.type);
-      formDataToSend.append("content", formData.content);
+      if (formData.content instanceof File) {
+  formDataToSend.append("content", formData.content);
+}
+
       //formDataToSend.append("thumbnail" , formData.thumbnail);
       
       if (isNew) {
@@ -132,6 +139,38 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
     }
   };
 
+  const extractFileName = (value: string) => {
+  try {
+    if (value.includes('/')) {
+      return value.split('/').pop()!;
+    }
+    if (value.includes('-') && value.length > 20) {
+      return 'Uploaded File'; // Looks like a UUID or hashed filename
+    }
+    return value;
+  } catch {
+    return 'Unknown file';
+  }
+};
+
+
+
+  if (user?.role === 'TEACHER' && assignedLevels.length === 0) {
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Access Restricted</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">
+          You are not assigned to any grade level. Please contact an administrator for access.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -174,14 +213,12 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
                   <SelectValue placeholder="Select grade" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">Grade 1</SelectItem>
-                  <SelectItem value="2">Grade 2</SelectItem>
-                  <SelectItem value="3">Grade 3</SelectItem>
-                  <SelectItem value="4">Grade 4</SelectItem>
-                  <SelectItem value="5">Grade 5</SelectItem>
-                  <SelectItem value="6">Grade 6</SelectItem>
-                  <SelectItem value="7">Grade 7</SelectItem>
-                </SelectContent>
+  {assignedLevels.map(level => (
+    <SelectItem key={level} value={level}>
+      Grade {level}
+    </SelectItem>
+  ))}
+</SelectContent>
               </Select>
             </div>
             
@@ -258,12 +295,19 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
     onClick={() => document.getElementById('contentUpload')?.click()}
   >
     {formData.content ? (
-      <p className="text-sm text-green-600">Selected: {formData.content.name}</p>
-    ) : (
-      <p className="text-sm text-gray-500">
-        Drag and drop a video/document here or click to browse
-      </p>
-    )}
+  <p className="text-sm text-green-600">
+     Selected: {
+    typeof formData.content === 'string'
+      ? extractFileName(formData.content)
+      : formData.content?.name || 'No file selected'
+  }
+  </p>
+) : (
+  <p className="text-sm text-gray-500">
+    Drag and drop a video/document here or click to browse
+  </p>
+)}
+
   </div>
   <input
     id="contentUpload"

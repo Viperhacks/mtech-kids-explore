@@ -36,6 +36,7 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
     resourceId: '',
     teacherName: user?.fullName || user?.name || ''
   });
+  const assignedLevels = user?.assignedLevels || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,9 +110,13 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
                   <SelectValue placeholder="Select grade" />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7].map(grade => (
-                    <SelectItem key={grade} value={grade.toString()}>Grade {grade}</SelectItem>
-                  ))}
+                {
+                  assignedLevels.map(level => (
+                      <SelectItem key={level} value={level}>
+                        Grade {level}
+                      </SelectItem>
+                    ))
+                }
                 </SelectContent>
               </Select>
             </div>
