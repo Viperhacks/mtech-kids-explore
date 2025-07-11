@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { PaginatedResponse, Student } from '@/components/types/apiTypes';
+import { toast } from 'sonner';
 
 // Create an axios instance with the base URL
 const api = axios.create({
@@ -19,13 +20,26 @@ api.interceptors.request.use((config) => {
 });
 
 // Response interceptor for handling common errors
+
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('refresh_token');
-      window.location.href = '/?auth=expired';
+
+      toast(
+        "Oops! Your session timed out. Let’s log you back in to keep learning!",
+        {
+          duration: 4000
+        }
+      );
+      setTimeout(() => {
+
+  window.location.href = '/?auth=expired';
+}, 2000);
+
+      return new Promise(() => {}); // hang the promise to avoid further errors
     }
     return Promise.reject(error.response?.data || error);
   }

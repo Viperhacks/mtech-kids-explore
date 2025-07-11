@@ -83,7 +83,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
      
 
       const limitedResources = limit ? documentResources.slice(0, limit) : documentResources;
-       console.log("limited",limitedResources.length)
+       console.log("limited",limitedResources)
 
       setResources(limitedResources);
 

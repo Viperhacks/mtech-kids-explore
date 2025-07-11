@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import HeroCarousel from '@/components/HeroCarousel';
 import WelcomeCards from '@/components/WelcomeCards';
 import CurriculumSection from '@/components/CurriculumSection';
@@ -9,6 +9,7 @@ import { ArrowRight, Award, GraduationCap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 import { InView } from 'react-intersection-observer';
+import { useSearchParams } from 'react-router-dom';
 
 const iconVariants = {
   rest: { scale: 1 },
@@ -97,6 +98,16 @@ const stats = [
 
 const Index = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const authStatus = searchParams.get('auth');
+    if (authStatus === 'expired') {
+      setIsAuthModalOpen(true);
+      searchParams.delete('auth'); // Optional: clear query to avoid modal opening again on refresh
+      setSearchParams(searchParams);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
