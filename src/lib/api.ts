@@ -2,6 +2,7 @@ import axios from 'axios';
 import { PaginatedResponse, Student } from '@/components/types/apiTypes';
 import { toast } from 'sonner';
 
+
 // Create an axios instance with the base URL
 const api = axios.create({
   baseURL: 'http://localhost:8080/api',
@@ -102,7 +103,9 @@ export const resourceService = {
     }else {
       return api.put(`/resources/${id}`, data);
     }
-  }
+  },
+  getCompletedResources: ()=> api.get('/users/resources/completed'),
+  markResourceCompleted: (resourceId: number, type: string)=> api.post(`/users/resources/complete?resourceId=${resourceId}&type=${type}`),
 };
 
 // Quiz services
@@ -114,21 +117,7 @@ export const quizService = {
   createQuiz: (quizData: any) => api.post('/quizzes', quizData),
 };
 
-// Progress tracking services
-export const trackingService = {
-  trackActivity: (activityData: any) => api.post('/tracking/activity', activityData),
-  getUserProgress: (userId: string) => api.get(`/tracking/progress/${userId}`),
-  getCompletedLessons: (userId: string) => api.get(`/tracking/completed/${userId}`),
-  // New endpoints for user tracking
-  trackPageView: (userId: string, data: any) => api.post(`/tracking/pageview`, { userId, ...data }),
-  trackHeartbeat: (userId: string) => api.post(`/tracking/heartbeat`, { userId, timestamp: new Date().toISOString() }),
-  trackSession: (userId: string, duration: number) => 
-    api.post(`/tracking/session`, { userId, duration, endTime: new Date().toISOString() }),
-  getUserStats: (userId: string) => api.get(`/users/${userId}/activity-stats`),
-  getUserBadges: (userId: string) => api.get(`/users/${userId}/badges`),
-  getSystemStats: () => api.get('/admin/system-stats'),
-  getActiveUsers: (period: string = 'day') => api.get(`/admin/active-users`, { params: { period } }),
-};
+
 
 // Admin services
 export const adminService = {

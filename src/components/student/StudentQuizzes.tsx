@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckCircle, Clock, Award, BookOpen, Search, Filter, Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getAllQuizzes, getQuizQuestions, submitQuizAttempt } from '@/services/apiService';
+import { getAllQuizzes, getCompletedResources, getQuizQuestions, markResourceCompleted, submitQuizAttempt } from '@/services/apiService';
 import { useAuth } from '@/context/AuthContext';
 
 import LoadingQuizzes from '../LoadingQuizzes';
@@ -35,33 +35,49 @@ const StudentQuizzes: React.FC = () => {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
 
-  const [completedQuizIds,setCompletedQuizIds] = useState<string[]>([]);
+  
   const [showReview,setShowReview] = useState(false)
   const [answerdQues,setAnsweredQues] = useState<Record<string,boolean>>({})
   const [showConfirm ,setShowConfirm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [completedQuiz,setCompletedQuizIds] = useState("");
 
   const userGrade = user?.grade || user?.gradeLevel || '1';
   const userId = user?.id || user?.username || 'anonymous';
+
+    const completedQuizIds = user?.completedLessons
+  ?.filter((item: any) => item.resourceType === "QUIZ")
+  .map((item: any) => item.resourceId) || [];
+
 
   useEffect(() => {
     fetchAvailableQuizzes();
   }, []);
 
-  useEffect(
-    ()=>{
-      const stored = localStorage.getItem("completedQuizzes");
-      if (stored){
-        setCompletedQuizIds(JSON.parse(stored))
+   const fetchCompleted = async ()=>{
+    let completedLessons: any[] = [];
+    try {
+      const completedRes = await getCompletedResources();
+      console.log(completedRes, "completed");
+    
+      if (completedRes) {
+        const allCompleted = completedRes;
+    
+        completedLessons = Object.values(allCompleted)
+          .flatMap((subjectGroup: any) =>
+            Object.values(subjectGroup).flatMap((resources: any[]) => resources)
+          );
+    
+        console.log("🔥 Full Completed Lessons:", completedLessons);
+        
       }
-    },[]
-  );
+    } catch (fetchError) {
+      console.warn("Failed to fetch completed lessons after login", fetchError);
+    }
+   }
 
-  useEffect(()=>{
-    localStorage.setItem("completedQuizzes",JSON.stringify(completedQuizIds));
-  },[completedQuizIds]);
 
   // Add the missing useEffect for filtering
   useEffect(() => {
@@ -195,13 +211,8 @@ const StudentQuizzes: React.FC = () => {
       setQuizCompleted(true);
       
       //mark
-      if(selectedQuiz?.quizId){
-        setCompletedQuizIds((prev)=>
-        prev.includes(selectedQuiz.quizId)?
-        prev 
-        : [...prev, selectedQuiz.quizId]
-        );
-      }
+      await markResourceCompleted(
+        Number(selectedQuiz!.quizId), "quiz")
 
       toast({
         title: "Quiz Submitted!",
