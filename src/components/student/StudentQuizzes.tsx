@@ -208,11 +208,18 @@ const StudentQuizzes: React.FC = () => {
         description: `You scored ${correctCount} out of ${quizQuestions.length}`,
       });
     } catch (error) {
-      toast({
-        title: "Failed to submit quiz",
-        description: "Please try again",
-        variant: "destructive"
-      });
+     const rawMsg = error?.response?.data?.message || error?.message || "";
+  let friendlyMsg = "Oops! Something went wrong. Please try again.";
+
+  if (rawMsg.includes("only have 2 attempts")) {
+    friendlyMsg = "You can only try this quiz twice. No more retries!";
+  }
+
+  toast({
+    title: "Quiz submission failed",
+    description: friendlyMsg,
+    variant: "destructive",
+  });
     } finally {
       setIsSubmitting(false);
     }
