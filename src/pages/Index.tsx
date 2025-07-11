@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import HeroCarousel from '@/components/HeroCarousel';
 import WelcomeCards from '@/components/WelcomeCards';
 import CurriculumSection from '@/components/CurriculumSection';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import AuthForm from '@/components/AuthForm';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Award, GraduationCap } from 'lucide-react';
@@ -190,7 +190,11 @@ const Index = () => {
 
         {/* Auth Modal */}
         <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto p-0 font-kids">
+             <DialogTitle className="text-center text-2xl text-pink-600">🎉 Welcome Little Explorer!</DialogTitle>
+            <DialogDescription className="text-center text-blue-500 mb-4">
+              Sign in to start your learning adventure.
+            </DialogDescription>
             <AuthForm onClose={() => setIsAuthModalOpen(false)} />
           </DialogContent>
         </Dialog>
