@@ -299,8 +299,9 @@ const TeacherDashboard: React.FC = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList
-          className={`mb-6 ${isMobile ? "grid grid-cols-2 gap-2 " : ""}`}
-        >
+  className={`mb-6 ${isMobile ? "grid grid-cols-2 gap-2 !flex-none mb-12" : ""}`}
+>
+
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="materials">My Materials</TabsTrigger>
           <TabsTrigger value="quiz_management">Quiz Management</TabsTrigger>
