@@ -69,7 +69,7 @@ export const CompletionProvider: React.FC<CompletionProviderProps> = ({ children
 
   const isResourceCompleted = (resourceId: number | string) => {
     const id = typeof resourceId === 'string' ? parseInt(resourceId) : resourceId;
-    console.log()
+    console.log(id)
     return completedResources.some(resource => resource.resourceId === id);
   };
 
