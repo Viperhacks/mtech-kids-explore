@@ -27,6 +27,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import ScrollToTop from "./components/SrollToTop";
 import TitleReset from "./components/TitleReset";
+import { CompletionProvider } from "./context/CompletionContext";
 
 // 🧠 Google OAuth Client ID (replace with yours if needed)
 const googleClientId = "102147016941-lcucaktk0sioga2o5irssqcuedih5l0p.apps.googleusercontent.com";
@@ -45,6 +46,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <Router>
       <AuthProvider>
+        <CompletionProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -80,6 +82,7 @@ const App = () => (
             </Routes>
           
         </TooltipProvider>
+        </CompletionProvider>
       </AuthProvider>
       </Router>
     </QueryClientProvider>

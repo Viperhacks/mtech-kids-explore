@@ -3,12 +3,10 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Video, FileText, Award, ChevronRight } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import useQuizStats from '@/hooks/useQuizStats';
+import useSubjectQuizStats from '@/hooks/useSubjectQuizStats';
 import { Button } from './ui/button';
-
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-
 
 interface ResourceStats {
   total: number;
@@ -29,14 +27,18 @@ interface Props {
 
 const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
-
 const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
-  const progress = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
-  const { total, completed } = useQuizStats();
+  const { total: subjectQuizTotal, completed: subjectQuizCompleted } = useSubjectQuizStats(subject, grade);
   const hasVideos = stats.videos > 0;
   const navigate = useNavigate();
   const { user } = useAuth();
-   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
+  
+  // Calculate total including subject-specific quizzes
+  const totalItems = stats.videos + stats.documents + subjectQuizTotal;
+  const completedItems = stats.videosCompleted + stats.documentsCompleted + subjectQuizCompleted;
+  const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+  
+  const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
 
   return (
     <Card className='mb-5'>
@@ -57,7 +59,7 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
           <div className="flex justify-between text-sm">
             <span>Overall Progress</span>
             <span className="text-muted-foreground">
-              {stats.completed}/{stats.videos + stats.documents + total || stats.total} items
+              {completedItems}/{totalItems} items
             </span>
           </div>
           <Progress value={progress} className="h-2" />
@@ -75,29 +77,29 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
             </div>
             <div className="text-center p-2 bg-amber-50 rounded-md">
               <Award className="h-4 w-4 mx-auto mb-1 text-amber-600" />
-            <p className="text-xs font-medium">{completed}/{total}</p>
+              <p className="text-xs font-medium">{subjectQuizCompleted}/{subjectQuizTotal}</p>
               <p className="text-xs text-muted-foreground">Quizzes</p>
             </div>
           </div>
         </div>
 
         {hasVideos ? (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => navigate(`/grade/grade${getRecommendedGrade()}/subject/${subject}`)}
-                >
-                  Continue <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => navigate("/revision")}
-                >
-                  No videos available, go to revisions <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
-              )}
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => navigate(`/grade/grade${getRecommendedGrade()}/subject/${subject}`)}
+          >
+            Continue <ChevronRight className="ml-1 h-4 w-4" />
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => navigate("/revision")}
+          >
+            No videos available, go to revisions <ChevronRight className="ml-1 h-4 w-4" />
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
