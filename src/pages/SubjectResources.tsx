@@ -227,9 +227,9 @@ const SubjectResources = () => {
         });
 
         // Add to local completed set
-        setCompletedVideos((prev) =>
+       /* setCompletedVideos((prev) =>
           new Set(prev).add(selectedVideo.response.id)
-        );
+        );*/
         if (selectedVideo.response.hasQuiz) {
           setActiveTab("quizzes");
         } else {
@@ -248,33 +248,50 @@ const SubjectResources = () => {
     }
   };
 
-  // Handle watching a video
   const handleWatchVideo = (video: any) => {
-    setSelectedVideo(video);
-    setIsVideoOpen(true);
+  console.log("handleWatchVideo got:", video);
+  console.trace();
 
-    // Track the activity
-    if (user) {
-      trackActivity({
-        userId: user.id || "user",
-        type: "video_started",
-        videoId: video.response.id,
-        subjectId: grade.id,
-        gradeId: subject.id,
-        timestamp: new Date().toISOString(),
-      });
-    }
+  if (!video || !video.response || !video.response.id) {
+    console.warn("Video is undefined or malformed:", video);
+    return;
+  }
 
-    // In a real app, this would track that the user started the video
-    // For demo purposes, we'll mark it as completed
-    if (user && video.response.id) {
-      updateUserProgress(
-        subjectId as string,
-        video.response.id,
-        resources.filter((r) => r.response.type === "video").length
-      );
-    }
-  };
+  setSelectedVideo(video);
+  setIsVideoOpen(true);
+
+  if (user && grade && subject) {
+    console.log("tracking video start with:", {
+      user,
+      grade,
+      subject,
+      videoId: video.response.id,
+    });
+
+    trackActivity({
+      userId: user.id || "user",
+      type: "video_started",
+      videoId: video.response.id,
+      subjectId: grade.id,
+      gradeId: subject.id,
+      timestamp: new Date().toISOString(),
+    });
+  } else {
+    console.warn(
+      "Skipping trackActivity because user, grade or subject is missing:",
+      { user, grade, subject }
+    );
+  }
+
+  if (user && video.response.id) {
+    updateUserProgress(
+      subjectId as string,
+      video.response.id,
+      resources.filter((r) => r.response.type === "video").length
+    );
+  }
+};
+
 
   const handleEditResource = (resource: any) => {
     setEditingResource(resource.response);
@@ -527,13 +544,15 @@ const SubjectResources = () => {
                         </CardDescription>
                       </CardHeader>
                       <CardFooter className="pt-0 flex justify-between">
-                        <Button
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => handleWatchVideo(video)}
-                        >
-                          {isCompleted ? "Watch Again" : "Watch Now"}
-                        </Button>
+                        
+<Button
+  size="sm"
+  className="flex-1"
+  onClick={() => handleWatchVideo(video)}
+>
+  {isCompleted ? "Watch Again" : "Watch Now"}
+</Button>
+
 
                         {user?.role === "TEACHER" && (
                           <div className="flex gap-1 ml-2">

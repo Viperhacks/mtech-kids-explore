@@ -39,33 +39,44 @@ export const CompletionProvider: React.FC<CompletionProviderProps> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
-  const refreshCompletions = async () => {
-    if (!user) return;
-    
-    try {
-      setIsLoading(true);
-      const response = await getCompletedResources();
-      console.log("test completed",response)
-      
-      // Process the response to match our interface
-      const processed = response.map((item: any) => ({
-        resourceId: item.resourceId || item.id,
-        type: item.type,
-        completedAt: item.completedAt || new Date().toISOString(),
-        grade: item.grade,
-        subject: item.subject
-      }));
-      
-      setCompletedResources(processed);
-    } catch (error) {
-      console.error('Failed to fetch completed resources:', error);
-      // Fallback to localStorage if API fails
-      const localCompleted = JSON.parse(localStorage.getItem('completedResources') || '[]');
-      setCompletedResources(localCompleted);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const flattenNestedArrays = (obj: Record<string, any>) => {
+  return Object.values(obj)
+    .flatMap((nestedObj) => {
+      if (typeof nestedObj === 'object' && nestedObj !== null) {
+        return Object.values(nestedObj).flat();
+      }
+      return [];
+    });
+};
+
+const refreshCompletions = async () => {
+  if (!user) return;
+
+  try {
+    setIsLoading(true);
+    const response = await getCompletedResources();
+    console.log("test completed", response);
+
+    // flatten all nested arrays inside DOCUMENT, VIDEO, QUIZ
+    const allResources = flattenNestedArrays(response);
+
+    const processed = allResources.map((item: any) => ({
+      resourceId: item.resourceId || item.id,
+      type: item.type,
+      completedAt: item.completedAt || new Date().toISOString(),
+      grade: item.grade,
+      subject: item.subject,
+    }));
+
+    setCompletedResources(processed);
+  } catch (error) {
+    console.error('Failed to fetch completed resources:', error);
+    const localCompleted = JSON.parse(localStorage.getItem('completedResources') || '[]');
+    setCompletedResources(localCompleted);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const isResourceCompleted = (resourceId: number | string) => {
     const id = typeof resourceId === 'string' ? parseInt(resourceId) : resourceId;
