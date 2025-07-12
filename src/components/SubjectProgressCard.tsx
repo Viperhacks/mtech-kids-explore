@@ -40,6 +40,10 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
   
   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
 
+  const handleClickTab = (tab: 'videos' | 'documents' | 'quizzes') => {
+  navigate(`/grade/grade${getRecommendedGrade()}/subject/${subject}?tab=${tab}`);
+};
+
   return (
     <Card className='mb-5'>
       <CardHeader className="pb-2">
@@ -65,17 +69,22 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
           <Progress value={progress} className="h-2" />
 
           <div className="grid grid-cols-3 gap-2 mt-4">
-            <div className="text-center p-2 bg-blue-50 rounded-md">
+            <div className="text-center p-2 bg-blue-50 rounded-md cursor-pointer hover:bg-blue-100 transition"
+              onClick={() => handleClickTab('videos')}>
               <Video className="h-4 w-4 mx-auto mb-1 text-blue-600" />
               <p className="text-xs font-medium">{stats.videosCompleted}/{stats.videos}</p>
               <p className="text-xs text-muted-foreground">Videos</p>
             </div>
-            <div className="text-center p-2 bg-green-50 rounded-md">
-              <FileText className="h-4 w-4 mx-auto mb-1 text-green-600" />
-              <p className="text-xs font-medium">{stats.documentsCompleted}/{stats.documents}</p>
-              <p className="text-xs text-muted-foreground">Docs</p>
-            </div>
-            <div className="text-center p-2 bg-amber-50 rounded-md">
+            <div
+  className="text-center p-2 bg-green-50 rounded-md cursor-pointer hover:bg-blue-100 transition"
+  onClick={() => navigate("/revision")}
+>
+  <FileText className="h-4 w-4 mx-auto mb-1 text-green-600" />
+  <p className="text-xs font-medium">{stats.documentsCompleted}/{stats.documents}</p>
+  <p className="text-xs text-muted-foreground">Docs</p>
+</div>
+
+            <div className="text-center p-2 bg-amber-50 rounded-md cursor-pointer hover:bg-blue-100 transition" onClick={() => handleClickTab('quizzes')}>
               <Award className="h-4 w-4 mx-auto mb-1 text-amber-600" />
               <p className="text-xs font-medium">{subjectQuizCompleted}/{subjectQuizTotal}</p>
               <p className="text-xs text-muted-foreground">Quizzes</p>
