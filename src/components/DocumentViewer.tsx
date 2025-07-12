@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { useAuth } from "@/context/AuthContext";
@@ -8,6 +7,8 @@ import { toast } from "sonner";
 import { Loader2, ChevronLeft, ChevronRight, Download, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { userTrackingService } from "@/lib/userTracking";
+import { completionService } from '@/services/completionService';
+import { useCompletion } from '@/context/CompletionContext';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
@@ -33,6 +34,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   const [error, setError] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const { user, trackActivity } = useAuth();
+  const { refreshCompletions } = useCompletion();
 
   // Format document URL correctly
   const formattedDocUrl = documentUrl.startsWith("http")
@@ -93,17 +95,23 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         if (pageNumber === numPages && !viewedDocuments[documentId].completed) {
           viewedDocuments[documentId].completed = true;
         
-          if (user && documentId && onComplete) {
+          // Mark as completed using API
+          if (user && documentId) {
+            completionService.markComplete(
+              typeof documentId === 'string' ? parseInt(documentId) : documentId,
+              'document',
+              refreshCompletions
+            ).then(() => {
+              if (onComplete) onComplete();
+            });
+
             trackActivity({
               userId: user.id || "user",
               type: "document_completed",
               resourceId: documentId.toString(),
               timestamp: new Date().toISOString(),
             });
-            onComplete();
           }
-        
-          toast.success("Document completed!");
         }
         
         if (user) {
@@ -113,7 +121,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         }
       }
     }
-  }, [pageNumber, numPages, documentId, user, trackActivity, onComplete]);
+  }, [pageNumber, numPages, documentId, user, trackActivity, onComplete, refreshCompletions]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);

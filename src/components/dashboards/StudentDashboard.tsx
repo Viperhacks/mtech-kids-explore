@@ -1,7 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -10,10 +8,10 @@ import { useAuth } from '@/context/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getResourcesForAnyOne } from '@/services/apiService';
 import { toast } from '@/hooks/use-toast';
-import { userTrackingService } from '@/lib/userTracking';
 import StudentQuizzes from '../student/StudentQuizzes';
 import StudentQuizHistory from '../StudentQuizHistory';
 import SubjectProgressCard from '../SubjectProgressCard';
+import { useCompletionData } from '@/hooks/useCompletionData';
 
 interface StudentDashboardProps {
   isParent?: boolean;
@@ -38,39 +36,32 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
   const [isLoading, setIsLoading] = useState(true);
   const [resources, setResources] = useState<any[]>([]);
   const [resourceStats, setResourceStats] = useState<{[key: string]: ResourceStats}>({});
-
- 
+  const { getResourceStats, isLoading: completionLoading } = useCompletionData();
 
   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
   const displayName = user?.name || user?.fullName || (user?.email ? user.email.split('@')[0] : 'Student');
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-
   const badges = user?.earnedBadges || [];
 
   useEffect(() => {
     fetchResources();
-  }, [gradeId, subjectId]);
+  }, [gradeId, subjectId, completionLoading]);
 
   const fetchResources = async () => {
+    if (completionLoading) return;
+    
     setIsLoading(true);
     try {
       const response = await getResourcesForAnyOne(getRecommendedGrade());
       const allResources = response.resources || [];
       setResources(allResources);
       
-      // Calculate resource statistics per subject
+      // Calculate resource statistics per subject using completion data
       const stats: {[key: string]: ResourceStats} = {};
-      
-      // Get user-specific viewed documents
-      const viewedDocuments = user ? 
-        userTrackingService.getUserData(`viewedDocuments`, {}) : 
-        JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
       
       // Group resources by subject and calculate stats
       allResources.forEach(resource => {
         const subject = resource.response.subject;
-        const type = resource.response.type;
-        const isCompleted = viewedDocuments[resource.response.id]?.completed || false;
         
         if (!stats[subject]) {
           stats[subject] = {
@@ -84,25 +75,18 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
             quizzesCompleted: 0
           };
         }
+      });
+
+      // Calculate stats for each subject using the completion context
+      Object.keys(stats).forEach(subject => {
+        const subjectResources = allResources.filter(r => r.response.subject === subject);
+        const subjectStats = getResourceStats(subjectResources, subject);
         
-        stats[subject].total++;
-        
-        if (type === 'video') {
-          stats[subject].videos++;
-          if (isCompleted) stats[subject].videosCompleted++;
-        } 
-        else if (type === 'document') {
-          stats[subject].documents++;
-          if (isCompleted) stats[subject].documentsCompleted++;
-        }
-        else if (type === 'quiz') {
-          stats[subject].quizzes++;
-          if (isCompleted) stats[subject].quizzesCompleted++;
-        }
-        
-        if (isCompleted) {
-          stats[subject].completed++;
-        }
+        stats[subject] = {
+          ...subjectStats,
+          quizzes: 0, // Will be handled by useSubjectQuizStats in SubjectProgressCard
+          quizzesCompleted: 0
+        };
       });
       
       setResourceStats(stats);
@@ -137,7 +121,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
         </TabsList>
 
         <TabsContent value="progress" className="space-y-6">
-          {isLoading ? (
+          {isLoading || completionLoading ? (
             <div className="flex items-center justify-center py-20 flex-col text-center text-muted-foreground">
               <Loader2 className="animate-spin h-8 w-8 mb-4" />
               Hang tight, loading your learning world...

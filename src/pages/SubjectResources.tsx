@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,7 +21,8 @@ import FloatingBackButton from '@/components/FloatingBackButton';
 import StudentQuizzes from '@/components/student/StudentQuizzes';
 import QuizManagement from '@/components/QuizManagement';
 import { Badge } from '@/components/ui/badge';
-
+import { completionService } from '@/services/completionService';
+import { useCompletion } from '@/context/CompletionContext';
 
 const SubjectResources = () => {
   //const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
@@ -75,6 +75,8 @@ useEffect(() => {
   const grade = ResourcesData.grades.find(g => g.id === gradeIdNumber);
   const subject = grade?.subjects.find(s => s.id === subjectId);
   //console.log("subject",subject)
+  
+  const { refreshCompletions, isResourceCompleted } = useCompletion();
   
   useEffect(() => {
     fetchResources();
@@ -163,42 +165,39 @@ useEffect(() => {
     );
   }*/
 
-    const handleVideoEnded = () => {
+    const handleVideoEnded = async () => {
   if (user && selectedVideo) {
-    // Update progress by marking this specific video as completed
-    /*updateUserProgress(
-      subjectId as string, 
-      selectedVideo.response.id,
-      totalVideos
-    );*/
+    try {
+        // Mark video as completed using the API
+        await completionService.markComplete(
+          selectedVideo.response.id,
+          'video',
+          refreshCompletions
+        );
 
-   
-    
+        // Track activity
+        trackActivity({
+          userId: user.id || "user",
+          type: 'video_completed',
+          videoId: selectedVideo.response.id,
+          subjectId: subjectId,
+          gradeId: gradeIdNumber,
+          timestamp: new Date().toISOString()
+        });
 
-    // Track activity
-    trackActivity({
-      userId: user.id || "user",
-      type: 'video_completed',
-      videoId: selectedVideo.response.id,
-      subjectId: subjectId,
-      gradeId: gradeIdNumber,
-      timestamp: new Date().toISOString()
-    });
-
-    // Add to local completed set
-    setCompletedVideos(prev => new Set(prev).add(selectedVideo.response.id));
-    
-    toast({
-      title: "Video Completed!",
-      description: selectedVideo.response.hasQuiz ? `Great job watching the entire video. Now go and crush the quiz`: "Great job watching the entire video.",
-    });
-    if (selectedVideo.response.hasQuiz) {
-    setActiveTab('quizzes');
-  } else {
-    setActiveTab('videos');
-  }
-  }
-};
+        // Add to local completed set for immediate UI update
+        setCompletedVideos(prev => new Set(prev).add(selectedVideo.response.id));
+        
+        if (selectedVideo.response.hasQuiz) {
+          setActiveTab('quizzes');
+        } else {
+          setActiveTab('videos');
+        }
+      } catch (error) {
+        console.error('Failed to mark video as completed:', error);
+      }
+    }
+  };
 
   
   // Handle watching a video
@@ -323,7 +322,9 @@ const completionPercent = progress.total > 0
 
   
 
-
+  const isVideoCompleted = (videoId: string) => {
+    return isResourceCompleted(videoId) || completedVideos.has(videoId);
+  };
 
 
   if (isLoading) {
@@ -443,8 +444,7 @@ const completionPercent = progress.total > 0
   ) : resources.filter(resource => resource.response.type === "video").length > 0 ? (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {resources.filter(resource => resource.response.type === "video").map((video) => {
-    const isCompleted = completedVideos.has(video.response.id) || 
-                         user?.completedLessons?.includes(video.response.id);
+    const isCompleted = isVideoCompleted(video.response.id);
         return (
           <Card key={video.response.id} className="overflow-hidden">
             <div 
