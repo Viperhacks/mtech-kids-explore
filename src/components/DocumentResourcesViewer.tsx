@@ -1,8 +1,20 @@
-
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { getResources, getResourcesForAnyOne } from "@/services/apiService";
 import { useAuth } from "@/context/AuthContext";
 import { FileText, Eye, Loader2 } from "lucide-react";
@@ -12,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { userTrackingService } from "@/lib/userTracking";
 import FloatingBackButton from "./FloatingBackButton";
 import { useCompletion } from "@/context/CompletionContext";
+import { capitalize } from "@/utils/stringUtils";
 
 interface DocumentResourcesViewerProps {
   grade?: string;
@@ -32,11 +45,13 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
   const { user, updateUserProgress } = useAuth();
   const { isResourceCompleted } = useCompletion();
 
-  const [selectedSubject, setSelectedSubject] = useState<string | undefined>(subject);
+  const [selectedSubject, setSelectedSubject] = useState<string | undefined>(
+    subject
+  );
   const navigate = useNavigate();
 
   // Get recommended grade if not provided
-  const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
+  const getRecommendedGrade = () => user?.grade || user?.gradeLevel || "1";
 
   const handleSubjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedSubject(e.target.value);
@@ -68,7 +83,9 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
       }
 
       // Ensure the response is typed correctly
-      const resources = response.resources as { response: { type: string; subject: string } }[];
+      const resources = response.resources as {
+        response: { type: string; subject: string };
+      }[];
 
       const documentResources = resources.filter(
         (resource) => resource.response.type === "document"
@@ -76,17 +93,19 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
 
       // Extract unique subjects
       const uniqueSubjects = [
-        ...new Set(documentResources.map((resource) => resource.response.subject)),
+        ...new Set(
+          documentResources.map((resource) => resource.response.subject)
+        ),
       ];
 
       setSubjects(uniqueSubjects);
 
       // Filter for document type resources only
-      
-     
 
-      const limitedResources = limit ? documentResources.slice(0, limit) : documentResources;
-       console.log("limited",limitedResources)
+      const limitedResources = limit
+        ? documentResources.slice(0, limit)
+        : documentResources;
+      console.log("limited", limitedResources);
 
       setResources(limitedResources);
 
@@ -116,12 +135,12 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
     }
   };
 
-  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+  //const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
   // Get viewed documents from user-specific localStorage
-  const viewedDocuments = user ? 
-    userTrackingService.getUserData(`viewedDocuments`, {}) : 
-    JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
+  const viewedDocuments = user
+    ? userTrackingService.getUserData(`viewedDocuments`, {})
+    : JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
 
   return (
     <div>
@@ -135,32 +154,13 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
           <Button
             variant="default"
             className="mt-4"
-            onClick={() =>
-              navigate("/", { state: { showLogin: true } })
-            }
+            onClick={() => navigate("/", { state: { showLogin: true } })}
           >
             Log in
           </Button>
         </div>
       ) : (
         <div>
-          {/*<div className="mb-4">
-            <label htmlFor="subject-select" className="text-sm font-medium text-gray-700">Select Subject</label>
-            <select
-              id="subject-select"
-              value={selectedSubject}
-              onChange={handleSubjectChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-            >
-              <option value="">All Subjects</option>
-              {subjects.map((subject) => (
-                <option key={subject} value={subject}>
-                  {capitalize(subject.split(' ')[0])}
-                </option>
-              ))}
-            </select>
-          </div>*/}
-
           {loading ? (
             <div className="flex items-center justify-center h-40">
               <Loader2 className="h-8 w-8 animate-spin text-mtech-primary" />
@@ -170,26 +170,38 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
               {resources.length === 0 ? (
                 <div className="text-center p-10 bg-gray-50 rounded-lg">
                   <FileText className="h-12 w-12 mx-auto text-gray-400" />
-                  <h3 className="mt-4 text-lg font-medium">No documents available</h3>
+                  <h3 className="mt-4 text-lg font-medium">
+                    No documents available
+                  </h3>
                   <p className="mt-2 text-sm text-gray-500">
-                    There are no document resources available for this grade/subject combination.
+                    There are no document resources available for this
+                    grade/subject combination.
                   </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {resources.map((doc) => {
-                    const isViewed = viewedDocuments[doc.response.id]?.lastViewed;
-                   const isCompleted = isResourceCompleted(doc.response.id);
-                    const progress = viewedDocuments[doc.response.id]?.progress || 0;
-                    
+                    const isViewed =
+                      viewedDocuments[doc.response.id]?.lastViewed;
+                    const isCompleted = isResourceCompleted(doc.response.id);
+                    const progress =
+                      viewedDocuments[doc.response.id]?.progress || 0;
+
                     return (
-                      <Card key={doc.response.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                      <Card
+                        key={doc.response.id}
+                        className="overflow-hidden hover:shadow-md transition-shadow"
+                      >
                         <CardHeader className="pb-2">
                           <div className="flex justify-between items-start">
                             <div>
-                              <CardTitle className="text-base">{capitalize(doc.response.title.split(' ')[0])}</CardTitle>
+                              <CardTitle className="text-base">
+                                {capitalize(doc.response.title.split(" ")[0])}
+                              </CardTitle>
                               <CardDescription className="text-xs">
-                                {`${capitalize(doc.response.subject.split(' ')[0])} (Grade ${doc.response.grade})`} 
+                                {`${capitalize(
+                                  doc.response.subject.split(" ")[0]
+                                )} (Grade ${doc.response.grade})`}
                               </CardDescription>
                             </div>
                             {isCompleted && (
@@ -211,9 +223,9 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
                           </div>
                         </CardContent>
                         <CardFooter className="pt-2 border-t">
-                          <Button 
-                            variant="default" 
-                            className="w-full" 
+                          <Button
+                            variant="default"
+                            className="w-full"
                             onClick={() => handleViewDocument(doc)}
                           >
                             <Eye className="mr-2 h-4 w-4" />
@@ -238,7 +250,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
               {`${selectedDocument?.response?.subject} (Grade ${selectedDocument?.response?.grade})`}
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedDocument && (
             <DocumentViewer
               documentUrl={selectedDocument.response.content}
@@ -249,7 +261,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
           )}
         </DialogContent>
       </Dialog>
-      <FloatingBackButton/>
+      <FloatingBackButton />
     </div>
   );
 };
