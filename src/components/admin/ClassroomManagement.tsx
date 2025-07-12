@@ -17,6 +17,7 @@ import {
 } from '@/services/apiService';
 import TeacherAssignmentModal from './TeacherAssignmentModal';
 import ClassroomAssignmentsModal from './ClassroomAssignmentsModal';
+import { capitalize } from '@/utils/stringUtils';
 
 interface Classroom {
   id: string;
@@ -300,7 +301,7 @@ const ClassroomManagement: React.FC = () => {
               <Label htmlFor="name">Classroom Name</Label>
               <Input
                 id="name"
-                value={formData.name}
+                value={capitalize(formData.name)}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Enter classroom name"
               />
@@ -345,7 +346,7 @@ const ClassroomManagement: React.FC = () => {
               <Label htmlFor="edit-name">Classroom Name</Label>
               <Input
                 id="edit-name"
-                value={formData.name}
+                value={capitalize(formData.name)}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Enter classroom name"
               />
@@ -357,7 +358,7 @@ const ClassroomManagement: React.FC = () => {
                   <SelectValue placeholder="Select grade level" />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(grade => (
+                  {[1, 2, 3, 4, 5, 6, 7].map(grade => (
                     <SelectItem key={grade} value={grade.toString()}>
                       Grade {grade}
                     </SelectItem>

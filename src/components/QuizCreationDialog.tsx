@@ -12,6 +12,7 @@ import { createQuiz, getResources, getResourcesForQuiz } from '@/services/apiSer
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { subjects } from '@/utils/subjectUtils';
+import { capitalize } from '@/utils/stringUtils';
 
 interface QuizCreationDialogProps {
   open: boolean;
@@ -82,7 +83,7 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
     } catch (error) {
       toast({
         title: "Failed to create quiz",
-        description: "Please try again",
+        description: error.message ||"Please try again",
         variant: "destructive"
       });
     } finally {
@@ -114,7 +115,7 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
             <Label htmlFor="title">Quiz Title</Label>
             <Input
               id="title"
-              value={formData.title}
+              value={capitalize(formData.title)}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               required
             />
@@ -124,7 +125,7 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={formData.description}
+              value={capitalize(formData.description)}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               rows={3}
             />

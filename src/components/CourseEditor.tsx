@@ -225,7 +225,7 @@ const assignedLevels = user?.assignedLevels || [];
             <div className="space-y-2">
               <Label htmlFor="subject">Subject</Label>
               <Select 
-                value={capitalize(formData.subject)} 
+                value={formData.subject} 
                 onValueChange={(value) => handleSelectChange('subject', value)}
               >
                 <SelectTrigger>

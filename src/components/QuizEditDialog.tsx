@@ -23,6 +23,7 @@ import { updateQuiz } from "@/services/apiService";
 import { Loader2 } from "lucide-react";
 import { subjects } from "@/utils/subjectUtils";
 import { useAuth } from "@/context/AuthContext";
+import { capitalize } from "@/utils/stringUtils";
 
 interface Quiz {
   quizId: string;
@@ -107,7 +108,7 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
             <Label htmlFor="title">Quiz Title</Label>
             <Input
               id="title"
-              value={formData.title}
+              value={capitalize(formData.title)}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
@@ -119,7 +120,7 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={formData.description}
+              value={capitalize(formData.description)}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
