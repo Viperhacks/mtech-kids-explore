@@ -39,12 +39,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
   const [resources, setResources] = useState<any[]>([]);
   const [resourceStats, setResourceStats] = useState<{[key: string]: ResourceStats}>({});
 
-  const calculateProgress = (subject: string) => {
-    if (!resourceStats[subject]) return { progress: 0, completed: 0, total: 10 };
-    const { completed = 0, total = 10 } = resourceStats[subject];
-    const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
-    return { progress, completed, total };
-  };
+ 
 
   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
   const displayName = user?.name || user?.fullName || (user?.email ? user.email.split('@')[0] : 'Student');

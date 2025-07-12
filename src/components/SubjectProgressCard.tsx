@@ -57,7 +57,7 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
           <div className="flex justify-between text-sm">
             <span>Overall Progress</span>
             <span className="text-muted-foreground">
-              {stats.completed}/{stats.total} items
+              {stats.completed}/{stats.videos + stats.documents + total || stats.total} items
             </span>
           </div>
           <Progress value={progress} className="h-2" />
