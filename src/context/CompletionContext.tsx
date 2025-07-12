@@ -40,14 +40,18 @@ export const CompletionProvider: React.FC<CompletionProviderProps> = ({ children
   const { user } = useAuth();
 
   const flattenNestedArrays = (obj: Record<string, any>) => {
-  return Object.values(obj)
-    .flatMap((nestedObj) => {
+  return Object.entries(obj)
+    .flatMap(([type, nestedObj]) => {
       if (typeof nestedObj === 'object' && nestedObj !== null) {
-        return Object.values(nestedObj).flat();
+        return Object.values(nestedObj).flat().map((item: any) => ({
+          ...item,
+          type: type.toLowerCase() // ensure consistent lowercase: 'document', 'video', etc.
+        }));
       }
       return [];
     });
 };
+
 
 const refreshCompletions = async () => {
   if (!user) return;

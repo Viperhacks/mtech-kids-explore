@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { userTrackingService } from "@/lib/userTracking";
 import FloatingBackButton from "./FloatingBackButton";
+import { useCompletion } from "@/context/CompletionContext";
 
 interface DocumentResourcesViewerProps {
   grade?: string;
@@ -29,6 +30,8 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { user, updateUserProgress } = useAuth();
+  const { isResourceCompleted } = useCompletion();
+
   const [selectedSubject, setSelectedSubject] = useState<string | undefined>(subject);
   const navigate = useNavigate();
 
@@ -176,7 +179,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {resources.map((doc) => {
                     const isViewed = viewedDocuments[doc.response.id]?.lastViewed;
-                    const isCompleted = viewedDocuments[doc.response.id]?.completed;
+                   const isCompleted = isResourceCompleted(doc.response.id);
                     const progress = viewedDocuments[doc.response.id]?.progress || 0;
                     
                     return (

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import DocumentResourcesViewer from '@/components/DocumentResourcesViewer';
+import { subjects } from '@/utils/subjectUtils';
 
 const Revision = () => {
   const [activeTab, setActiveTab] = useState("");
@@ -21,6 +22,7 @@ const Revision = () => {
     ict: "ICT"
     // Add more subjects as needed
   };
+  
 
   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
 
@@ -48,20 +50,27 @@ const Revision = () => {
           className="w-full"
         >
           <TabsList className="flex overflow-x-auto whitespace-nowrap no-scrollbar gap-2 mb-6 pb-1 border-b border-muted h-18">
-            {Object.entries(subjectTopics).map(([key, subject]) => (
-              <TabsTrigger key={key} value={key}
-              className="shrink-0 px-4 py-2 rounded-md bg-muted text-muted-foreground hover:bg-primary hover:text-white transition-all">
-                {subject}
+             {subjects.map(subject => (
+              <TabsTrigger 
+                key={subject.id} 
+                value={subject.name.toLowerCase()}
+                className="shrink-0 px-4 py-2 rounded-md bg-muted text-muted-foreground hover:bg-primary hover:text-white transition-all"
+              >
+                {subject.name}
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {Object.entries(subjectTopics).map(([key, subject]) => (
-            <TabsContent key={key} value={key} className="mt-0 min-h-[200px]">
+          {subjects.map(subject => (
+            <TabsContent 
+              key={subject.id} 
+              value={subject.name.toLowerCase()} 
+              className="mt-0 min-h-[200px]"
+            >
               <div className="mt-8 mb-4">
-                <h2 className="text-xl font-semibold mb-4">{subject} Documents</h2>
+                <h2 className="text-xl font-semibold mb-4">{subject.name} Documents</h2>
                 <DocumentResourcesViewer 
-                  subject={key} 
+                  subject={subject.name.toLowerCase()}
                   grade={getRecommendedGrade()}
                   limit={3} 
                 />
