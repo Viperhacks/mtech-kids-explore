@@ -10,6 +10,7 @@ import DocumentViewer from "./DocumentViewer";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { userTrackingService } from "@/lib/userTracking";
+import FloatingBackButton from "./FloatingBackButton";
 
 interface DocumentResourcesViewerProps {
   grade?: string;
@@ -82,7 +83,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
      
 
       const limitedResources = limit ? documentResources.slice(0, limit) : documentResources;
-       console.log("limited",limitedResources.length)
+       console.log("limited",limitedResources)
 
       setResources(limitedResources);
 
@@ -245,6 +246,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
           )}
         </DialogContent>
       </Dialog>
+      <FloatingBackButton/>
     </div>
   );
 };

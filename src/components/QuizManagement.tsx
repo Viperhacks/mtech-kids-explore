@@ -59,6 +59,7 @@ const QuizManagement: React.FC = () => {
       const teacherQuizzes = response.data.filter((quiz: Quiz) => 
         quiz.teacherName === user?.fullName || quiz.teacherName === user?.name
       );
+      console.log("Teacher quizzes:", teacherQuizzes);
       setQuizzes(teacherQuizzes);
     } catch (error) {
       toast({

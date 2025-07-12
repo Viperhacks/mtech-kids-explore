@@ -39,12 +39,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
   const [resources, setResources] = useState<any[]>([]);
   const [resourceStats, setResourceStats] = useState<{[key: string]: ResourceStats}>({});
 
-  const calculateProgress = (subject: string) => {
-    if (!resourceStats[subject]) return { progress: 0, completed: 0, total: 10 };
-    const { completed = 0, total = 10 } = resourceStats[subject];
-    const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
-    return { progress, completed, total };
-  };
+ 
 
   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
   const displayName = user?.name || user?.fullName || (user?.email ? user.email.split('@')[0] : 'Student');
@@ -124,7 +119,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
   };
 
   return (
-    <div className="space-y-8 ">
+    <div className="space-y-8 container ">
       <div className="px-4 pt-6 md:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-left md:mb-0 mb-2">
           <h1 className="text-3xl font-bold tracking-tight">
@@ -150,7 +145,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
           ) : resources.length === 0 ? (
             <div className="text-center text-muted-foreground py-12">
               <h2 className="text-xl font-semibold mb-2">Oops, no lessons available yet!</h2>
-              <p>Check back later or explore other subjects.</p>
+              <p>Check back later or explore quizzes.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

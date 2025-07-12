@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getQuizAttempts } from '@/services/apiService';
 
 import toReadableDate from '@/utils/toReadableDate';
+import { capitalize } from '@/utils/stringUtils';
 
 interface QuizAttempt {
   id: string;
@@ -72,7 +73,7 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
       ['Student Name', 'Score', 'Total', 'Percentage', 'Date'],
       ...attempts.map(attempt => [
 
-        attempt.userFullName,
+       capitalize(attempt.userFullName),
         attempt.score.toString(),
         attempt.total.toString(),
         `${Math.round((attempt.score / attempt.total) * 100)}%`,
@@ -98,7 +99,7 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Quiz Attempts: {quizTitle}
+            Quiz Attempts: {capitalize(quizTitle)}
           </DialogTitle>
         </DialogHeader>
 
@@ -135,7 +136,7 @@ const QuizAttemptModal: React.FC<QuizAttemptModalProps> = ({
                     <TableRow key={attempt.id}>
                       <TableCell className="font-medium">
 
-                        {attempt.userFullName}
+                        {capitalize(attempt.userFullName)}
 
                       </TableCell>
                       <TableCell>

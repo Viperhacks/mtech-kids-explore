@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { PaginatedResponse, Student } from '@/components/types/apiTypes';
+import { toast } from 'sonner';
+
 
 // Create an axios instance with the base URL
 const api = axios.create({
@@ -19,13 +21,26 @@ api.interceptors.request.use((config) => {
 });
 
 // Response interceptor for handling common errors
+
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('refresh_token');
-      window.location.href = '/?auth=expired';
+
+      toast(
+        "Oops! Your session timed out. Let’s log you back in to keep learning!",
+        {
+          duration: 4000
+        }
+      );
+      setTimeout(() => {
+
+  window.location.href = '/?auth=expired';
+}, 2000);
+
+      return new Promise(() => {}); // hang the promise to avoid further errors
     }
     return Promise.reject(error.response?.data || error);
   }
@@ -65,6 +80,8 @@ export const authService = {
 export const resourceService = {
   getResources: (grade?: string, subject?: string) => 
     api.get('/resources/my-resources', { params: { grade, subject } }),
+   getResourcesForQuiz: (grade?: string, subject?: string) => 
+    api.get('/resources/for-quiz'),
   getResourcesForStudent: (grade?: string, subject?: string) => 
     api.get('/resources', { params: { grade, subject } }),
   uploadResource: (resourceData: FormData | any) => {
@@ -86,7 +103,9 @@ export const resourceService = {
     }else {
       return api.put(`/resources/${id}`, data);
     }
-  }
+  },
+  getCompletedResources: ()=> api.get('/users/resources/completed'),
+  markResourceCompleted: (resourceId: number, type: string)=> api.post(`/users/resources/complete?resourceId=${resourceId}&type=${type}`),
 };
 
 // Quiz services
@@ -98,21 +117,7 @@ export const quizService = {
   createQuiz: (quizData: any) => api.post('/quizzes', quizData),
 };
 
-// Progress tracking services
-export const trackingService = {
-  trackActivity: (activityData: any) => api.post('/tracking/activity', activityData),
-  getUserProgress: (userId: string) => api.get(`/tracking/progress/${userId}`),
-  getCompletedLessons: (userId: string) => api.get(`/tracking/completed/${userId}`),
-  // New endpoints for user tracking
-  trackPageView: (userId: string, data: any) => api.post(`/tracking/pageview`, { userId, ...data }),
-  trackHeartbeat: (userId: string) => api.post(`/tracking/heartbeat`, { userId, timestamp: new Date().toISOString() }),
-  trackSession: (userId: string, duration: number) => 
-    api.post(`/tracking/session`, { userId, duration, endTime: new Date().toISOString() }),
-  getUserStats: (userId: string) => api.get(`/users/${userId}/activity-stats`),
-  getUserBadges: (userId: string) => api.get(`/users/${userId}/badges`),
-  getSystemStats: () => api.get('/admin/system-stats'),
-  getActiveUsers: (period: string = 'day') => api.get(`/admin/active-users`, { params: { period } }),
-};
+
 
 // Admin services
 export const adminService = {
@@ -130,7 +135,7 @@ export const adminService = {
   subjectId?: number;
   subjectName?: string;
 }) => api.post('/assignments', assignmentData),
-
+  deleteUser: (id:string)=> api.delete(`/admin/users/${id}`),
   getClassroomAssignments: (classId: string) => api.get(`/assignments/classroom/${classId}`),
   deleteAssignment: (assignmentId: string) => api.delete(`/assignments/${assignmentId}`),
   

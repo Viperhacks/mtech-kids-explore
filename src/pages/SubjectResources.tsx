@@ -21,6 +21,7 @@ import FloatingBackButton from '@/components/FloatingBackButton';
 
 import StudentQuizzes from '@/components/student/StudentQuizzes';
 import QuizManagement from '@/components/QuizManagement';
+import { Badge } from '@/components/ui/badge';
 
 
 const SubjectResources = () => {
@@ -44,11 +45,10 @@ const SubjectResources = () => {
   // 3. Clean the gradeId (extract just the number)
   const gradeIdNumber = fullGradeId.replace(/\D/g, '');
 
-  console.log('URL Parameters:', {
-    originalGradeId: fullGradeId,  // "grade5"
-    cleanedGradeId: gradeIdNumber, // "5" 
-    subjectId      // "english"
-  });
+
+useEffect(() => {
+  console.log('URL Parameters:', { originalGradeId: fullGradeId, cleanedGradeId: gradeIdNumber, subjectId });
+}, [fullGradeId, gradeIdNumber, subjectId]);
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') === 'quizzes' ? 'quizzes' : 'videos';
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -172,6 +172,9 @@ const SubjectResources = () => {
       totalVideos
     );*/
 
+   
+    
+
     // Track activity
     trackActivity({
       userId: user.id || "user",
@@ -187,8 +190,13 @@ const SubjectResources = () => {
     
     toast({
       title: "Video Completed!",
-      description: "Great job watching the entire video.",
+      description: selectedVideo.response.hasQuiz ? `Great job watching the entire video. Now go and crush the quiz`: "Great job watching the entire video.",
     });
+    if (selectedVideo.response.hasQuiz) {
+    setActiveTab('quizzes');
+  } else {
+    setActiveTab('videos');
+  }
   }
 };
 
@@ -197,6 +205,7 @@ const SubjectResources = () => {
   const handleWatchVideo = (video: any) => {
     setSelectedVideo(video);
     setIsVideoOpen(true);
+    
     
     // Track the activity
     if (user) {
@@ -247,47 +256,8 @@ const SubjectResources = () => {
     });
   };
   
-  // Move to next question
-  const handleNextQuestion = () => {
-    // Mock questions for demo
-    const totalQuestions = 3;
-    
-    if (currentQuestion < totalQuestions - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    } else {
-      // Quiz is completed
-      const correctAnswers = 2; // Mock value, in a real app would calculate based on answers
-      const scorePercent = Math.round((correctAnswers / totalQuestions) * 100);
-      setScore(scorePercent);
-      setQuizCompleted(true);
-      
-      // Track quiz completion
-      if (user && selectedQuiz) {
-        trackActivity({
-          userId: user.id,
-          type: 'quiz_completed',
-          quizId: selectedQuiz.id,
-          subjectId,
-          gradeIdNumber,
-          score: scorePercent,
-          timestamp: new Date().toISOString()
-        });
-        
-        // Mark quiz as completed
-        updateUserProgress(subjectId as string, selectedQuiz.id,10);
-      }
-    }
-  };
-  
-  // Close quiz dialog and reset state
-  const handleCloseQuiz = () => {
-    setIsQuizOpen(false);
-    setSelectedQuiz(null);
-    setCurrentQuestion(0);
-    setUserAnswers({});
-    setQuizCompleted(false);
-  };
-  
+
+
   const handleEditResource = (resource: any) => {
     setEditingResource(resource.response);
     setIsEditDialogOpen(true);
@@ -345,7 +315,7 @@ const progress = {
   watched: user?.progress?.[subjectId as string]?.watched || 0
 };
 
-console.log("hey",user);
+
 
 const completionPercent = progress.total > 0 
   ? Math.round((progress.completed / progress.total) * 100) 
@@ -376,43 +346,7 @@ const completionPercent = progress.total > 0
   }
   
   
-  // Mock quiz questions
-  const quizQuestions = [
-    {
-      id: 1,
-      question: "What is 2 + 2?",
-      options: [
-        { id: "a", text: "3" },
-        { id: "b", text: "4" },
-        { id: "c", text: "5" },
-        { id: "d", text: "6" }
-      ],
-      correctAnswer: "b"
-    },
-    {
-      id: 2,
-      question: "Which planet is closest to the sun?",
-      options: [
-        { id: "a", text: "Earth" },
-        { id: "b", text: "Venus" },
-        { id: "c", text: "Mercury" },
-        { id: "d", text: "Mars" }
-      ],
-      correctAnswer: "c"
-    },
-    {
-      id: 3,
-      question: "What is the capital of France?",
-      options: [
-        { id: "a", text: "Berlin" },
-        { id: "b", text: "Madrid" },
-        { id: "c", text: "Rome" },
-        { id: "d", text: "Paris" }
-      ],
-      correctAnswer: "d"
-    }
-  ];
-  
+
  
 
   return (
@@ -540,6 +474,11 @@ const completionPercent = progress.total > 0
                 <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full">
                   <CheckCircle className="h-4 w-4" />
                 </div>
+              )}
+              {video.response.hasQuiz && (
+               <div className="absolute bottom-2 right-5 ">
+                <Badge variant='secondary' className=''>Quiz Available</Badge>
+               </div>
               )}
             </div>
             <CardHeader className="py-3">
@@ -721,109 +660,7 @@ const completionPercent = progress.total > 0
 
 
       
-      {/* Quiz Dialog */}
-      <Dialog open={isQuizOpen} onOpenChange={handleCloseQuiz}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{selectedQuiz?.title}</DialogTitle>
-            <DialogDescription>
-              {!quizCompleted 
-                ? `Question ${currentQuestion + 1} of ${quizQuestions.length}` 
-                : 'Quiz Completed'}
-            </DialogDescription>
-          </DialogHeader>
-          
-          {!quizCompleted ? (
-            <div className="py-4">
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  {quizQuestions[currentQuestion].question}
-                </h3>
-                
-                <RadioGroup
-                  value={userAnswers[currentQuestion] || ''}
-                  onValueChange={handleAnswerSelect}
-                  className="space-y-3"
-                >
-                  {quizQuestions[currentQuestion].options.map(option => (
-                    <div key={option.id} className="flex items-center space-x-2">
-                      <RadioGroupItem value={option.id} id={option.id} />
-                      <Label htmlFor={option.id} className="cursor-pointer">{option.text}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </div>
-              
-              <Button 
-                className="w-full" 
-                onClick={handleNextQuestion}
-                disabled={!userAnswers[currentQuestion]}
-              >
-                {currentQuestion < quizQuestions.length - 1 ? 'Next Question' : 'Submit Quiz'}
-              </Button>
-            </div>
-          ) : (
-            <div className="py-4 text-center">
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-mtech-primary mb-2">
-                  Quiz Results
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  You scored {score}% on this quiz
-                </p>
-                
-                <div className="w-32 h-32 mx-auto relative">
-                  <svg className="w-full h-full" viewBox="0 0 100 100">
-                    <circle 
-                      className="text-gray-200 stroke-current" 
-                      strokeWidth="10" 
-                      cx="50" 
-                      cy="50" 
-                      r="40" 
-                      fill="transparent"
-                    ></circle>
-                    <circle 
-                      className="text-mtech-primary stroke-current" 
-                      strokeWidth="10" 
-                      strokeLinecap="round" 
-                      cx="50" 
-                      cy="50" 
-                      r="40" 
-                      fill="transparent"
-                      strokeDasharray={`${Math.PI * 80 * score / 100} ${Math.PI * 80}`}
-                      strokeDashoffset={Math.PI * 20}
-                    ></circle>
-                    <text 
-                      x="50" 
-                      y="50" 
-                      fontFamily="Verdana" 
-                      fontSize="20" 
-                      textAnchor="middle" 
-                      dominantBaseline="middle"
-                      className="fill-current text-mtech-dark font-bold"
-                    >
-                      {score}%
-                    </text>
-                  </svg>
-                </div>
-                
-                {score >= 70 ? (
-                  <p className="text-green-600 font-medium mt-4">Great job! You passed the quiz.</p>
-                ) : (
-                  <p className="text-amber-600 font-medium mt-4">Keep practicing! Try again to improve your score.</p>
-                )}
-              </div>
-              
-              <Button 
-                className="w-full" 
-                onClick={handleCloseQuiz}
-              >
-                Close
-              </Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+    
       
       {/* Resource Editor Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => !open && setIsEditDialogOpen(false)}>
@@ -854,6 +691,7 @@ const completionPercent = progress.total > 0
           />
         </DialogContent>
       </Dialog>
+      
     </div>
   );
 };

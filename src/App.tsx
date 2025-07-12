@@ -26,6 +26,7 @@ import AuthProvider from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import ScrollToTop from "./components/SrollToTop";
+import TitleReset from "./components/TitleReset";
 
 // 🧠 Google OAuth Client ID (replace with yours if needed)
 const googleClientId = "102147016941-lcucaktk0sioga2o5irssqcuedih5l0p.apps.googleusercontent.com";
@@ -42,12 +43,14 @@ const queryClient = new QueryClient();
 const App = () => (
   <GoogleOAuthProvider clientId={googleClientId}>
     <QueryClientProvider client={queryClient}>
+      <Router>
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <Router>
+          
             <ScrollToTop />
+            <TitleReset/>
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<Index />} />
@@ -75,9 +78,10 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
-          </Router>
+          
         </TooltipProvider>
       </AuthProvider>
+      </Router>
     </QueryClientProvider>
   </GoogleOAuthProvider>
 );

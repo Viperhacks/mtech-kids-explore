@@ -171,10 +171,10 @@ const AdminQuizManagement: React.FC = () => {
               <TableBody>
                 {filteredQuizzes.map((quiz) => (
                   <TableRow key={quiz.quizId}>
-                    <TableCell className="font-medium">{quiz.title}</TableCell>
+                    <TableCell className="font-medium">{capitalize(quiz.title)}</TableCell>
                     <TableCell>Grade {quiz.grade}</TableCell>
-                    <TableCell>{quiz.subject}</TableCell>
-                    <TableCell>{quiz.teacherName}</TableCell>
+                    <TableCell>{capitalize(quiz.subject)}</TableCell>
+                    <TableCell>{capitalize(quiz.teacherName)}</TableCell>
                     <TableCell> {Array.isArray(quiz.createdAt)
                             ? toReadableDate(quiz.createdAt)
                             : "Invalid date"}</TableCell>

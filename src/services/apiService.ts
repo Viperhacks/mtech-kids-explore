@@ -1,8 +1,7 @@
 import api, { 
   authService, 
   resourceService, 
-  quizService, 
-  trackingService, 
+  quizService,  
   adminService, 
   teacherService
 } from '@/lib/api';
@@ -65,6 +64,16 @@ export const confirmOtp = async (email: string, otp: string) => {
 export const getResources = async (grade?: string, subject?: string) => {
   try {
     const response = await resourceService.getResources(grade, subject);
+    return response.data;
+  } catch (error) {
+    console.error('Get resources error:', error);
+    throw error;
+  }
+};
+
+export const getResourcesForQuiz = async () => {
+  try {
+    const response = await resourceService.getResourcesForQuiz();
     return response.data;
   } catch (error) {
     console.error('Get resources error:', error);
@@ -242,85 +251,27 @@ export const submitQuizAttempt = async (quizId: string, score: number, total: nu
 };
 
 
-// Tracking services
-export const trackActivity = async (activityData: any) => {
+//completed stuff
+export const markResourceCompleted = async (resourceId: number, type: string) => {
   try {
-    const response = await trackingService.trackActivity(activityData);
+    const response = await resourceService.markResourceCompleted(resourceId,type) ;
     return response.data;
   } catch (error) {
-    console.error('Track activity error:', error);
-    // Silently fail for tracking to not disrupt user experience
-    return null;
-  }
-};
-
-export const trackMediaProgress = async (userId: string, resourceId: string | number, mediaType: string, progress: number, completed: boolean) => {
-  try {
-    const response = await trackingService.trackActivity({
-      userId,
-      type: `${mediaType}_progress`,
-      resourceId: resourceId.toString(),
-      progress,
-      completed,
-      timestamp: new Date().toISOString()
-    });
-    return response.data;
-  } catch (error) {
-    console.error(`Track ${mediaType} progress error:`, error);
-    // Silently fail for tracking
-    return null;
-  }
-};
-
-export const getUserProgress = async (userId: string) => {
-  try {
-    const response = await trackingService.getUserProgress(userId);
-    return response.data;
-  } catch (error) {
-    console.error('Get user progress error:', error);
+    console.error('Mark resource completed error:', error);
     throw error;
   }
 };
 
-export const getUserStats = async (userId: string) => {
+export const getCompletedResources = async () => {
   try {
-    const response = await trackingService.getUserStats(userId);
-    return response.data;
+    const response = await resourceService.getCompletedResources();
+    return response.data; 
   } catch (error) {
-    console.error('Get user stats error:', error);
+    console.error('Get completed resources error:', error);
     throw error;
   }
 };
 
-export const getUserBadges = async (userId: string) => {
-  try {
-    const response = await trackingService.getUserBadges(userId);
-    return response.data;
-  } catch (error) {
-    console.error('Get user badges error:', error);
-    throw error;
-  }
-};
-
-export const getSystemStats = async () => {
-  try {
-    const response = await trackingService.getSystemStats();
-    return response.data;
-  } catch (error) {
-    console.error('Get system stats error:', error);
-    throw error;
-  }
-};
-
-export const getActiveUsers = async (period: string = 'day') => {
-  try {
-    const response = await trackingService.getActiveUsers(period);
-    return response.data;
-  } catch (error) {
-    console.error('Get active users error:', error);
-    throw error;
-  }
-};
 
 
 // Admin services
@@ -385,27 +336,7 @@ export const updateUserRole = async (userId: string, role: string) => {
   }
 };
 
-export const getUsageMetrics = async (timeRange: string = 'week') => {
-  try {
-    const response = await trackingService.getSystemStats();
-    // Mock data for now since the actual endpoint structure may vary
-    return {
-      data: Array.from({ length: 7 }, (_, i) => ({
-        date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        newUsers: Math.floor(Math.random() * 10) + 5,
-        activeUsers: Math.floor(Math.random() * 50) + 20,
-        sessions: Math.floor(Math.random() * 100) + 50,
-        avgSessionTime: Math.floor(Math.random() * 30) + 10,
-        resourceViews: Math.floor(Math.random() * 200) + 100,
-        quizStarts: Math.floor(Math.random() * 50) + 25,
-        quizCompletions: Math.floor(Math.random() * 30) + 15
-      }))
-    };
-  } catch (error) {
-    console.error('Get usage metrics error:', error);
-    throw error;
-  }
-};
+
 
 // Assignment management services
 export const createAssignment = async (
@@ -591,3 +522,15 @@ export const getAllAttemptsAdmin = async (page: number = 0, size: number = 10) =
     throw error;
   }
 };
+
+export const deleteUser = async (id: string) => {
+  try {
+    const response = await adminService.deleteUser(id);
+    return response.data || response;
+  } catch (error) {
+    console.error('Delete user  error:', error);
+    throw error;
+  }
+};
+
+
