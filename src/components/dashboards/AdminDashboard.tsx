@@ -223,8 +223,15 @@ const AdminDashboard: React.FC = () => {
     handleTabChange(action, "force");
   };
 
+  const adminTabs = [
+    { value: "users", label: "User Management" },
+    { value: "teachers", label: "Teacher Management" },
+    { value: "classes", label: "Classes" },
+    { value: "content", label: "Content Management" },
+  ];
+
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2] min-h-screen">
       <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -344,20 +351,24 @@ const AdminDashboard: React.FC = () => {
           onValueChange={(value) => handleTabChange(value, "none")} // No auto-scroll for direct tab clicks
           className="w-full mb-8"
         >
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
-
-
-            <TabsTrigger value="users">User Management</TabsTrigger>
-            <TabsTrigger value="teachers">Teacher Management</TabsTrigger>
-            <TabsTrigger value="classes">Classes</TabsTrigger>
-            <TabsTrigger value="content">Content Management</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-5 h-12 ">
+            {adminTabs.map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-mtech-secondary hover:border-mtech-primary bg-white text-mtech-dark hover:bg-mtech-primary hover:text-white transition 
+             data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary ml-2"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent value="users" id="tab-users" className="pt-4">
             <UserManagementSection />
           </TabsContent>
 
-          <TabsContent value="teachers" id="tab-teachers" className="pt-4">
+          <TabsContent value="teachers" id="tab-teachers" className="pt-7">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <TeacherAccountCreation onAdd={fetchTeachers} />
 
