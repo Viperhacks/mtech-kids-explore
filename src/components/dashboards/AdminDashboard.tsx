@@ -411,11 +411,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   )}
                 </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full">
-                    View All Teachers
-                  </Button>
-                </CardFooter>
+                
               </Card>
             </div>
           </TabsContent>
