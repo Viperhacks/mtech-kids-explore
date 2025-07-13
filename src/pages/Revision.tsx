@@ -27,9 +27,12 @@ const Revision = () => {
   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2] min-h-screen container mx-auto px-4 py-8  shadow-lg rounded-xl">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">Revision Resources</h1>
+        <h1 className="text-4xl font-kids font-extrabold text-mtech-secondary flex items-center gap-2">
+  📚 Revision Zone
+</h1>
+
         <p className="text-gray-600 mb-6">
           Access study materials and documents for your revision. Select a subject to begin.
         </p>
@@ -44,6 +47,7 @@ const Revision = () => {
         </div>
 
         {/* Subject-specific Document Viewers */}
+        
         <Tabs 
           value={activeTab} 
           onValueChange={setActiveTab} 
@@ -67,7 +71,7 @@ const Revision = () => {
               value={subject.name.toLowerCase()} 
               className="mt-0 min-h-[200px]"
             >
-              <div className="mt-8 mb-4">
+              <div className="mt-8 mb-4 shadow-md">
                 <h2 className="text-xl font-semibold mb-4">{subject.name} Documents</h2>
                 <DocumentResourcesViewer 
                   subject={subject.name.toLowerCase()}
@@ -79,6 +83,7 @@ const Revision = () => {
           ))}
         </Tabs>
       </div>
+    
     </div>
   );
 };
