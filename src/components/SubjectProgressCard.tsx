@@ -40,9 +40,11 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
   
   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || '1';
 
+
   const handleClickTab = (tab: 'videos' | 'documents' | 'quizzes') => {
   navigate(`/grade/grade${getRecommendedGrade()}/subject/${subject}?tab=${tab}`);
 };
+
 
   return (
     <Card className='mb-5'>
