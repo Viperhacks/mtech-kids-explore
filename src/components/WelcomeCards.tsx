@@ -49,7 +49,7 @@ const WelcomeCards: React.FC = () => {
       <div className="mtech-container">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {cards.map((card) => (
-            <div key={card.id} className="mtech-card p-6 flex flex-col h-full bg-white shadow-sm rounded-lg">
+            <div key={card.id} className="mtech-card p-6 flex flex-col h-full bg-gradient-to-br from-mtech-primary/10 to-mtech-secondary/10  shadow-sm rounded-lg">
               <motion.div
                 className="mb-4"
                 initial="rest"

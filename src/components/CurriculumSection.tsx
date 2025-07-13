@@ -131,7 +131,7 @@ const CurriculumSection: React.FC = () => {
                 {data.subjects.map((subject) => (
                   <div 
                     key={subject.id}
-                    className="mtech-card p-6 relative"
+                    className="mtech-card bg-gradient-to-br from-mtech-primary/10 to-mtech-secondary/10  p-6 relative"
                   >
                     {!isAuthenticated && (
                       <div className="absolute top-3 right-3">
@@ -153,7 +153,7 @@ const CurriculumSection: React.FC = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="flex-1 text-sm" 
+                        className="flex-1 text-sm hover:bg-mtech-accent" 
                         onClick={() => handleResourceClick(data.id, subject.id)}
                       >
                         Watch Videos
