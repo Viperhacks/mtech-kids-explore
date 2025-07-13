@@ -291,25 +291,39 @@ const TeacherDashboard: React.FC = () => {
     }
   };
 
+  const allTabs = [
+    { value: "overview", label: "Overview" },
+    { value: "materials", label: "My Materials" },
+    { value: "quiz_management", label: "Quiz Management" },
+    { value: "students", label: "Students", mobileHidden: true },
+    { value: "accounts", label: "Student Accounts", mobileHidden: true },
+    // { value: "analytics", label: "Analytics", mobileHidden: true }, // future tab maybe?
+  ];
+
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2] min-h-screen">
       <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">
         Teacher Dashboard
       </h1>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList
-  className={`mb-6 ${isMobile ? "grid grid-cols-2 gap-2 !flex-none mb-12" : ""}`}
->
-
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="materials">My Materials</TabsTrigger>
-          <TabsTrigger value="quiz_management">Quiz Management</TabsTrigger>
-          {!isMobile && <TabsTrigger value="students">Students</TabsTrigger>}
-          {!isMobile && (
-            <TabsTrigger value="accounts">Student Accounts</TabsTrigger>
-          )}
-          {/*!isMobile && <TabsTrigger value="analytics">Analytics</TabsTrigger>*/}
+          className={`mb-6 h-12 ${
+            isMobile ? "grid grid-cols-2 gap-2 !flex-none mb-12" : ""
+          }`}
+        >
+          {allTabs
+            .filter((tab) => !(isMobile && tab.mobileHidden))
+            .map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-mtech-secondary hover:border-mtech-primary bg-white text-mtech-dark hover:bg-mtech-primary hover:text-white transition 
+             data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary ml-2"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
         </TabsList>
 
         <TabsContent value="quiz_management">

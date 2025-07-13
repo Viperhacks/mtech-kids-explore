@@ -227,7 +227,7 @@ const SubjectResources = () => {
         });
 
         // Add to local completed set
-       /* setCompletedVideos((prev) =>
+        /* setCompletedVideos((prev) =>
           new Set(prev).add(selectedVideo.response.id)
         );*/
         if (selectedVideo.response.hasQuiz) {
@@ -249,49 +249,48 @@ const SubjectResources = () => {
   };
 
   const handleWatchVideo = (video: any) => {
-  console.log("handleWatchVideo got:", video);
-  console.trace();
+    console.log("handleWatchVideo got:", video);
+    console.trace();
 
-  if (!video || !video.response || !video.response.id) {
-    console.warn("Video is undefined or malformed:", video);
-    return;
-  }
+    if (!video || !video.response || !video.response.id) {
+      console.warn("Video is undefined or malformed:", video);
+      return;
+    }
 
-  setSelectedVideo(video);
-  setIsVideoOpen(true);
+    setSelectedVideo(video);
+    setIsVideoOpen(true);
 
-  if (user && grade && subject) {
-    console.log("tracking video start with:", {
-      user,
-      grade,
-      subject,
-      videoId: video.response.id,
-    });
+    if (user && grade && subject) {
+      console.log("tracking video start with:", {
+        user,
+        grade,
+        subject,
+        videoId: video.response.id,
+      });
 
-    trackActivity({
-      userId: user.id || "user",
-      type: "video_started",
-      videoId: video.response.id,
-      subjectId: grade.id,
-      gradeId: subject.id,
-      timestamp: new Date().toISOString(),
-    });
-  } else {
-    console.warn(
-      "Skipping trackActivity because user, grade or subject is missing:",
-      { user, grade, subject }
-    );
-  }
+      trackActivity({
+        userId: user.id || "user",
+        type: "video_started",
+        videoId: video.response.id,
+        subjectId: grade.id,
+        gradeId: subject.id,
+        timestamp: new Date().toISOString(),
+      });
+    } else {
+      console.warn(
+        "Skipping trackActivity because user, grade or subject is missing:",
+        { user, grade, subject }
+      );
+    }
 
-  if (user && video.response.id) {
-    updateUserProgress(
-      subjectId as string,
-      video.response.id,
-      resources.filter((r) => r.response.type === "video").length
-    );
-  }
-};
-
+    if (user && video.response.id) {
+      updateUserProgress(
+        subjectId as string,
+        video.response.id,
+        resources.filter((r) => r.response.type === "video").length
+      );
+    }
+  };
 
   const handleEditResource = (resource: any) => {
     setEditingResource(resource.response);
@@ -357,25 +356,23 @@ const SubjectResources = () => {
       ? Math.round((progress.completed / progress.total) * 100)
       : 0;
 
-
   const isVideoCompleted = (videoId: string) => {
     return isResourceCompleted(videoId) || completedVideos.has(videoId);
   };
 
   const tabOptions = [
-  {
-    value: 'videos',
-    label: 'Videos',
-    icon: Video,
-  },
-  {
-    value: 'quizzes',
-    label: 'Quizzes',
-    icon: FileText,
-  },
-];
+    {
+      value: "videos",
+      label: "Videos",
+      icon: Video,
+    },
+    {
+      value: "quizzes",
+      label: "Quizzes",
+      icon: FileText,
+    },
+  ];
 
-  
   if (isLoading) {
     return (
       <div className="mtech-container py-20 flex flex-col items-center justify-center bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2]">
@@ -420,13 +417,15 @@ const SubjectResources = () => {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           {/* Progress Summary */}
           <div>
-            <h2 className="font-medium text-mtech-primary">{/*Your Progress*/}Your Materials</h2>
-           { /*<p className="text-sm text-mtech-dark">
+            <h2 className="font-medium text-mtech-primary">
+              {/*Your Progress*/}Your Materials
+            </h2>
+            {/*<p className="text-sm text-mtech-dark">
               You've watched{" "}
               {
                 progress.watched ||
-                  progress.completed /*mind we are currently recording watched vids */
-              }{" "}{/*
+                  progress.completed /*mind we are currently recording watched vids */}{" "}
+            {/*
               videos and completed {progress.completed} out of {progress.total}{" "}
               items
             </p>*/}
@@ -461,15 +460,19 @@ const SubjectResources = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-       <TabsList>
-  {tabOptions.map(({ value, label, icon: Icon }) => (
-    <TabsTrigger key={value} value={value}  className= "flex-shrink-0 px-4 py-2 ps-2 rounded-full border border-mtech-secondary bg-white text-mtech-dark hover:bg-mtech-secondary hover:text-white transition data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary ml-2">
-      <Icon className="mr-2 h-4 w-4" />
-      {label}
-    </TabsTrigger>
-  ))}
-</TabsList>
-
+        <TabsList>
+          {tabOptions.map(({ value, label, icon: Icon }) => (
+            <TabsTrigger
+              key={value}
+              value={value}
+              className="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-mtech-secondary hover:border-mtech-primary bg-white text-mtech-dark hover:bg-mtech-primary hover:text-white transition 
+             data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary ml-2"
+            >
+              <Icon className="mr-2 h-4 w-4" />
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
         <TabsContent value="videos" className="mt-6">
           {isLoading ? (
@@ -507,7 +510,7 @@ const SubjectResources = () => {
                     completedVideos.has(video.response.id) ||
                     user?.completedLessons?.includes(video.response.id);*/
 
-                    const isCompleted = isVideoCompleted(video.response.id);
+                  const isCompleted = isVideoCompleted(video.response.id);
                   return (
                     <Card key={video.response.id} className="overflow-hidden">
                       <div
@@ -557,15 +560,13 @@ const SubjectResources = () => {
                         </CardDescription>
                       </CardHeader>
                       <CardFooter className="pt-0 flex justify-between">
-                        
-<Button
-  size="sm"
-  className="flex-1"
-  onClick={() => handleWatchVideo(video)}
->
-  {isCompleted ? "Watch Again" : "Watch Now"}
-</Button>
-
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleWatchVideo(video)}
+                        >
+                          {isCompleted ? "Watch Again" : "Watch Now"}
+                        </Button>
 
                         {user?.role === "TEACHER" && (
                           <div className="flex gap-1 ml-2">
