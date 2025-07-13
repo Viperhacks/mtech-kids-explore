@@ -361,10 +361,24 @@ const SubjectResources = () => {
   const isVideoCompleted = (videoId: string) => {
     return isResourceCompleted(videoId) || completedVideos.has(videoId);
   };
+
+  const tabOptions = [
+  {
+    value: 'videos',
+    label: 'Videos',
+    icon: Video,
+  },
+  {
+    value: 'quizzes',
+    label: 'Quizzes',
+    icon: FileText,
+  },
+];
+
   
   if (isLoading) {
     return (
-      <div className="mtech-container py-20 flex flex-col items-center justify-center">
+      <div className="mtech-container py-20 flex flex-col items-center justify-center bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2]">
         {/* Fun spinning loader */}
         <div className="loader-spin">
           <Loader2 className="h-16 w-16 text-mtech-primary" />
@@ -406,16 +420,16 @@ const SubjectResources = () => {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           {/* Progress Summary */}
           <div>
-            <h2 className="font-medium">Your Progress</h2>
-            <p className="text-sm text-mtech-dark">
+            <h2 className="font-medium text-mtech-primary">{/*Your Progress*/}Your Materials</h2>
+           { /*<p className="text-sm text-mtech-dark">
               You've watched{" "}
               {
                 progress.watched ||
                   progress.completed /*mind we are currently recording watched vids */
-              }{" "}
+              }{" "}{/*
               videos and completed {progress.completed} out of {progress.total}{" "}
               items
-            </p>
+            </p>*/}
           </div>
 
           {/* Teacher Action Buttons */}
@@ -443,20 +457,19 @@ const SubjectResources = () => {
           )}
         </div>
 
-        <Progress value={completionPercent} className="h-2 mt-4" />
+        {/*<Progress value={completionPercent} className="h-2 mt-4" />*/}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList>
-          <TabsTrigger value="videos">
-            <Video className="mr-2 h-4 w-4" />
-            Videos
-          </TabsTrigger>
-          <TabsTrigger value="quizzes">
-            <FileText className="mr-2 h-4 w-4" />
-            Quizzes
-          </TabsTrigger>
-        </TabsList>
+       <TabsList>
+  {tabOptions.map(({ value, label, icon: Icon }) => (
+    <TabsTrigger key={value} value={value}  className= "flex-shrink-0 px-4 py-2 ps-2 rounded-full border border-mtech-secondary bg-white text-mtech-dark hover:bg-mtech-secondary hover:text-white transition data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary ml-2">
+      <Icon className="mr-2 h-4 w-4" />
+      {label}
+    </TabsTrigger>
+  ))}
+</TabsList>
+
 
         <TabsContent value="videos" className="mt-6">
           {isLoading ? (

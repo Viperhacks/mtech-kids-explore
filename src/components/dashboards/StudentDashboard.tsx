@@ -103,7 +103,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ isParent = false })
   };
 
   return (
-    <div className="space-y-8 container ">
+    <div className="space-y-8 container bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2] min-h-screen ">
       <div className="px-4 pt-6 md:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="text-left md:mb-0 mb-2">
           <h1 className="text-3xl font-bold tracking-tight">
