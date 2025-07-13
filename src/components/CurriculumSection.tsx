@@ -92,26 +92,32 @@ const CurriculumSection: React.FC = () => {
   };
 
   return (
-    <section className="py-12">
+    <section className="py-12 bg-gradient-to-br from-[#F0F9FF] via-[#FEF9C3] to-[#FEE2E2]">
       <div className="mtech-container">
         <div className="text-center mb-10">
-          <h2 className="section-heading">Our Curriculum</h2>
+         <h2 className="text-4xl font-extrabold text-mtech-secondary font-kids flex items-center justify-center gap-2">
+  🎓 Our Curriculum
+</h2>
+
           <p className="text-gray-600 max-w-2xl mx-auto">
             Explore our comprehensive curriculum designed to engage and educate primary school students through interactive videos and exercises.
           </p>
         </div>
 
         <Tabs defaultValue="Grade 3" className="w-full">
-          <TabsList className="w-full flex overflow-x-auto space-x-2 pb-2 mb-6">
+          <TabsList className="w-full flex overflow-x-auto space-x-2 pb-2 mb-6 h-14">
             {Object.keys(curriculumData).map((grade) => (
-              <TabsTrigger 
-                key={grade} 
-                value={grade}
-                className="flex-shrink-0"
-              >
-                <GraduationCap className="mr-2 h-4 w-4" />
-                {grade}
-              </TabsTrigger>
+             <TabsTrigger 
+  key={grade} 
+  value={grade}
+  className="flex-shrink-0 px-4 py-2 rounded-full border border-mtech-secondary bg-white text-mtech-dark hover:bg-mtech-secondary hover:text-white transition 
+             data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary"
+>
+  <GraduationCap className="mr-2 h-4 w-4" />
+  {grade}
+</TabsTrigger>
+
+
             ))}
           </TabsList>
 
