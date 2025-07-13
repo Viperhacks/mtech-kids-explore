@@ -1,23 +1,44 @@
-
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { deleteUser, getAllUsers } from '@/services/apiService';
-import { getDaysAgo } from '@/utils/calculateDays';
-import { capitalize } from '@/utils/stringUtils';
-import { Users, Search, Filter, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import { deleteUser, getAllUsers } from "@/services/apiService";
+import { getDaysAgo } from "@/utils/calculateDays";
+import { capitalize } from "@/utils/stringUtils";
+import {
+  Users,
+  Search,
+  Filter,
+  Download,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 interface User {
   id: string;
   fullName: string;
   username: string;
   role: string;
+ gradeLevel?: string | null;
+  assignedLevels?: string[] | null;
   createdAt: string;
 }
 
@@ -28,8 +49,9 @@ const UserManagementSection: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [gradeFilter, setGradeFilter] = useState("all");
 
   useEffect(() => {
     fetchUsers();
@@ -43,76 +65,113 @@ const UserManagementSection: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await getAllUsers(currentPage, 10);
-      const usersData = Array.isArray(response) ? response : response.content || [];
+      const usersData = Array.isArray(response)
+        ? response
+        : response.content || [];
       const totalPagesData = response.totalPages || 1;
-      
+      console.log("Fetched users:", usersData, "Total pages:", totalPagesData);
+
       setUsers(usersData);
       setTotalPages(totalPagesData);
     } catch (error) {
       toast({
         title: "Failed to load users",
         description: "Could not load user data",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filterUsers = () => {
-    let filtered = users;
+  const getUserGrade = (user: User) => {
+  if (user.gradeLevel) return `Grade ${user.gradeLevel}`;
+  
+  if (user.assignedLevels && user.assignedLevels.length > 0) {
+    return `Grade ${user.assignedLevels.join(', Grade ')}`;
+  }
+  
+  return 'N/A';
+};
 
-    if (searchTerm) {
-      filtered = filtered.filter(user => 
+
+
+ const filterUsers = () => {
+  let filtered = users;
+
+  if (searchTerm) {
+    filtered = filtered.filter(
+      (user) =>
         user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.username.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+    );
+  }
 
-    if (roleFilter !== 'all') {
-      filtered = filtered.filter(user => user.role.toLowerCase() === roleFilter.toLowerCase());
-    }
+  if (roleFilter !== "all") {
+    filtered = filtered.filter(
+      (user) => user.role.toLowerCase() === roleFilter.toLowerCase()
+    );
+  }
 
-    setFilteredUsers(filtered);
-  };
+  if (gradeFilter !== "all") {
+    filtered = filtered.filter((user) => {
+      const grades = [];
+
+      if (user.gradeLevel) {
+        grades.push(user.gradeLevel);
+      }
+      if (user.assignedLevels && user.assignedLevels.length > 0) {
+        grades.push(...user.assignedLevels);
+      }
+
+      // Check if the selected gradeFilter is in user grades
+      return grades.includes(gradeFilter);
+    });
+  }
+
+  setFilteredUsers(filtered);
+};
+
 
   const exportToCSV = () => {
     const csvContent = [
-      ['Name', 'Username', 'Role', 'Date Joined'],
-      ...filteredUsers.map(user => [
+      ["Name", "Username", "Role", "Date Joined"],
+      ...filteredUsers.map((user) => [
         user.fullName,
         user.username,
         user.role,
-        getDaysAgo(user.createdAt)
-      ])
-    ].map(row => row.join(',')).join('\n');
+        getDaysAgo(user.createdAt),
+      ]),
+    ]
+      .map((row) => row.join(","))
+      .join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'users_export.csv';
+    a.download = "users_export.csv";
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
   const handleDeleteUser = async (id: string) => {
-      try {
-        await deleteUser(id);
-        toast({
-          title: "User Deleted",
-          description: "The user has been successfully deleted."
-        });
-        fetchUsers();
-      } catch (error) {
-        console.error('Delete failed', error);
-        toast({
-          title: "Delete Failed",
-          description: "Could not delete the user. Please try again.",
-          variant: "destructive"
-        });
-      }
-    };
+    try {
+      await deleteUser(id);
+      toast({
+        title: "User Deleted",
+        description: "The user has been successfully deleted.",
+      });
+      fetchUsers();
+    } catch (error) {
+      console.error("Delete failed", error);
+      toast({
+        title: "Delete Failed",
+        description: "Could not delete the user. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Card>
@@ -140,19 +199,39 @@ const UserManagementSection: React.FC = () => {
               className="pl-10"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="student">Students</SelectItem>
-                <SelectItem value="teacher">Teachers</SelectItem>
-                <SelectItem value="admin">Admins</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Select value={roleFilter} onValueChange={setRoleFilter}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="student">Students</SelectItem>
+                  <SelectItem value="teacher">Teachers</SelectItem>
+                  <SelectItem value="admin">Admins</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Select value={gradeFilter} onValueChange={setGradeFilter}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Grades</SelectItem>
+                  <SelectItem value="1">Grade 1</SelectItem>
+                  <SelectItem value="2">Grade 2</SelectItem>
+                  <SelectItem value="3">Grade 3</SelectItem>
+                  <SelectItem value="4">Grade 4</SelectItem>
+                  <SelectItem value="5">Grade 5</SelectItem>
+                  <SelectItem value="6">Grade 6</SelectItem>
+                  <SelectItem value="7">Grade 7</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -171,30 +250,41 @@ const UserManagementSection: React.FC = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Username</TableHead>
                   <TableHead>Role</TableHead>
+                  <TableHead>Grade</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map(user => (
+                {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">
                       {capitalize(user.fullName)}
                     </TableCell>
                     <TableCell>{user.username}</TableCell>
                     <TableCell>
-                      <Badge variant={
-                        user.role === 'ADMIN' ? 'default' :
-                        user.role === 'TEACHER' ? 'secondary' : 'outline'
-                      }>
+                      <Badge
+                        variant={
+                          user.role === "ADMIN"
+                            ? "default"
+                            : user.role === "TEACHER"
+                            ? "secondary"
+                            : "outline"
+                        }
+                      >
                         {user.role}
                       </Badge>
                     </TableCell>
+                    <TableCell>{getUserGrade(user)}</TableCell>
                     <TableCell>{getDaysAgo(user.createdAt)}</TableCell>
                     <TableCell>
-                       <Button variant="ghost" size="sm" onClick={() => handleDeleteUser(user.id)}>
-                                                    Delete 
-                                                  </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
+                        Delete
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -208,7 +298,7 @@ const UserManagementSection: React.FC = () => {
                   variant="outline"
                   size="sm"
                   disabled={currentPage === 0}
-                  onClick={() => setCurrentPage(prev => prev - 1)}
+                  onClick={() => setCurrentPage((prev) => prev - 1)}
                 >
                   <ChevronLeft className="h-4 w-4" />
                   Previous
@@ -220,7 +310,7 @@ const UserManagementSection: React.FC = () => {
                   variant="outline"
                   size="sm"
                   disabled={currentPage === totalPages - 1}
-                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  onClick={() => setCurrentPage((prev) => prev + 1)}
                 >
                   Next
                   <ChevronRight className="h-4 w-4" />
@@ -234,7 +324,7 @@ const UserManagementSection: React.FC = () => {
         <div className="text-sm text-muted-foreground">
           Showing {filteredUsers.length} of {users.length} users
           {searchTerm && ` matching "${searchTerm}"`}
-          {roleFilter !== 'all' && ` with role "${roleFilter}"`}
+          {roleFilter !== "all" && ` with role "${roleFilter}"`}
         </div>
       </CardContent>
     </Card>

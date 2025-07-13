@@ -92,26 +92,36 @@ const CurriculumSection: React.FC = () => {
   };
 
   return (
-    <section className="py-12">
+    <section className="py-12 bg-gradient-to-br from-[#F0F9FF] via-[#FEF9C3] to-[#FEE2E2]">
       <div className="mtech-container">
         <div className="text-center mb-10">
-          <h2 className="section-heading">Our Curriculum</h2>
+         <h2 className="text-4xl font-extrabold text-mtech-secondary font-kids flex items-center justify-center gap-2">
+  🎓 Our Curriculum
+</h2>
+
           <p className="text-gray-600 max-w-2xl mx-auto">
             Explore our comprehensive curriculum designed to engage and educate primary school students through interactive videos and exercises.
           </p>
         </div>
 
         <Tabs defaultValue="Grade 3" className="w-full">
-          <TabsList className="w-full flex overflow-x-auto space-x-2 pb-2 mb-6">
+          <TabsList
+  className="w-full flex overflow-x-auto gap-2 pb-2 mb-6 h-14 
+             no-scrollbar scroll-smooth whitespace-nowrap snap-x snap-mandatory"
+>
+
             {Object.keys(curriculumData).map((grade) => (
-              <TabsTrigger 
-                key={grade} 
-                value={grade}
-                className="flex-shrink-0"
-              >
-                <GraduationCap className="mr-2 h-4 w-4" />
-                {grade}
-              </TabsTrigger>
+             <TabsTrigger 
+  key={grade} 
+  value={grade}
+  className="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-mtech-secondary hover:border-mtech-primary bg-white text-mtech-dark hover:bg-mtech-primary hover:text-white transition 
+             data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary"
+>
+  <GraduationCap className="mr-2 h-4 w-4" />
+  {grade}
+</TabsTrigger>
+
+
             ))}
           </TabsList>
 
@@ -121,7 +131,7 @@ const CurriculumSection: React.FC = () => {
                 {data.subjects.map((subject) => (
                   <div 
                     key={subject.id}
-                    className="mtech-card p-6 relative"
+                    className="mtech-card bg-gradient-to-br from-mtech-primary/10 to-mtech-secondary/10  p-6 relative"
                   >
                     {!isAuthenticated && (
                       <div className="absolute top-3 right-3">
@@ -143,7 +153,7 @@ const CurriculumSection: React.FC = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="flex-1 text-sm" 
+                        className="flex-1 text-sm hover:bg-mtech-accent" 
                         onClick={() => handleResourceClick(data.id, subject.id)}
                       >
                         Watch Videos

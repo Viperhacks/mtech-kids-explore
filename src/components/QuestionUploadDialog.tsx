@@ -59,7 +59,7 @@ const QuestionUploadDialog: React.FC<QuestionUploadDialogProps> = ({
     } catch (error) {
       toast({
         title: "Failed to load quizzes",
-        description: "Please try again",
+        description: error.message||"Please try again",
         variant: "destructive"
       });
     }

@@ -7,6 +7,7 @@ import { Loader2, UserPlus } from 'lucide-react';
 import { authService } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
+import { capitalize } from '@/utils/stringUtils';
 
 const StudentAccountCreation = () => {
   const { toast } = useToast();
@@ -107,7 +108,7 @@ const StudentAccountCreation = () => {
         id="fullName" 
         name="fullName" 
         placeholder="Enter student's full name" 
-        value={formData.fullName} 
+        value={capitalize(formData.fullName)} 
         onChange={handleChange}
         required
       />

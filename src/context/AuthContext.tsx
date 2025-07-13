@@ -188,7 +188,7 @@ try {
 
         toast({
           title: "Login Successful",
-          description: response.data.message || "You're in!",
+          description: response.data.message || "You're in!"
         });
 
         // Handle route restoration after successful login

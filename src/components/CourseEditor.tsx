@@ -183,7 +183,7 @@ const assignedLevels = user?.assignedLevels || [];
             <Input
               id="title"
               name="title"
-              value={formData.title}
+              value={capitalize(formData.title)}
               onChange={handleChange}
               placeholder="Resource title"
               required
@@ -195,7 +195,7 @@ const assignedLevels = user?.assignedLevels || [];
             <Textarea
               id="description"
               name="description"
-              value={formData.description}
+              value={capitalize(formData.description)}
               onChange={handleChange}
               placeholder="Resource description"
               rows={3}

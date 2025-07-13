@@ -1,45 +1,50 @@
-import React, { useEffect, useState } from 'react';
-import HeroCarousel from '@/components/HeroCarousel';
-import WelcomeCards from '@/components/WelcomeCards';
-import CurriculumSection from '@/components/CurriculumSection';
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import AuthForm from '@/components/AuthForm';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Award, GraduationCap } from 'lucide-react';
-import { motion } from 'framer-motion';
-import CountUp from 'react-countup';
-import { InView } from 'react-intersection-observer';
-import { useSearchParams } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import HeroCarousel from "@/components/HeroCarousel";
+import WelcomeCards from "@/components/WelcomeCards";
+import CurriculumSection from "@/components/CurriculumSection";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import AuthForm from "@/components/AuthForm";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Award, GraduationCap } from "lucide-react";
+import { motion } from "framer-motion";
+import CountUp from "react-countup";
+import { InView } from "react-intersection-observer";
+import { useSearchParams } from "react-router-dom";
 
 const iconVariants = {
   rest: { scale: 1 },
   hover: {
     scale: 1.2,
     transition: {
-      type: 'spring',
+      type: "spring",
       stiffness: 300,
-      damping: 10
-    }
-  }
+      damping: 10,
+    },
+  },
 };
 
 // Define feature data as an array
 const features = [
   {
     icon: <Award className="h-6 w-6 text-mtech-primary" />,
-    title: 'Interactive Learning',
+    title: "Interactive Learning",
     description:
-      'Our platform transforms traditional learning into an engaging experience with interactive videos and activities that children enjoy.',
-    bgColor: 'bg-mtech-primary/10',
-    iconColor: 'text-mtech-primary'
+      "Our platform transforms traditional learning into an engaging experience with interactive videos and activities that children enjoy.",
+    bgColor: "bg-mtech-primary/10",
+    iconColor: "text-mtech-primary",
   },
   {
     icon: <GraduationCap className="h-6 w-6 text-mtech-secondary" />,
-    title: 'Curriculum Aligned',
+    title: "Curriculum Aligned",
     description:
-      'All content is aligned with the national curriculum to ensure students receive education that meets required standards.',
-    bgColor: 'bg-mtech-secondary/10',
-    iconColor: 'text-mtech-secondary'
+      "All content is aligned with the national curriculum to ensure students receive education that meets required standards.",
+    bgColor: "bg-mtech-secondary/10",
+    iconColor: "text-mtech-secondary",
   },
   {
     icon: (
@@ -58,11 +63,11 @@ const features = [
         />
       </svg>
     ),
-    title: 'Progress Tracking',
+    title: "Progress Tracking",
     description:
-      'Track student progress through our comprehensive reporting system to identify strengths and areas needing improvement.',
-    bgColor: 'bg-mtech-accent/10',
-    iconColor: 'text-mtech-accent'
+      "Track student progress through our comprehensive reporting system to identify strengths and areas needing improvement.",
+    bgColor: "bg-mtech-accent/10",
+    iconColor: "text-mtech-accent",
   },
   {
     icon: (
@@ -81,19 +86,19 @@ const features = [
         />
       </svg>
     ),
-    title: 'Learn at Your Pace',
+    title: "Learn at Your Pace",
     description:
-      'Students can learn at their own speed, revisiting concepts as needed and advancing when they\'re ready for new challenges.',
-    bgColor: 'bg-mtech-warning/10',
-    iconColor: 'text-mtech-warning'
-  }
+      "Students can learn at their own speed, revisiting concepts as needed and advancing when they're ready for new challenges.",
+    bgColor: "bg-mtech-warning/10",
+    iconColor: "text-mtech-warning",
+  },
 ];
 
 const stats = [
-  { number: 350, label: 'Students' },
-  { number: 250, label: 'Teachers' },
-  { number: 250, label: 'Video Lessons' },
-  { number: 800, label: 'Practice Questions' }
+  { number: 350, label: "Students" },
+  { number: 250, label: "Teachers" },
+  { number: 250, label: "Video Lessons" },
+  { number: 800, label: "Practice Questions" },
 ];
 
 const Index = () => {
@@ -101,10 +106,10 @@ const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    const authStatus = searchParams.get('auth');
-    if (authStatus === 'expired') {
+    const authStatus = searchParams.get("auth");
+    if (authStatus === "expired") {
       setIsAuthModalOpen(true);
-      searchParams.delete('auth'); // Optional: clear query to avoid modal opening again on refresh
+      searchParams.delete("auth"); // Optional: clear query to avoid modal opening again on refresh
       setSearchParams(searchParams);
     }
   }, []);
@@ -131,7 +136,12 @@ const Index = () => {
                     {({ inView, ref }) => (
                       <div ref={ref} className="text-4xl font-bold mb-2">
                         {inView && (
-                          <CountUp start={0} end={stat.number} duration={3} separator="," />
+                          <CountUp
+                            start={0}
+                            end={stat.number}
+                            duration={3}
+                            separator=","
+                          />
                         )}
                         <span className="text-xl">+</span>
                       </div>
@@ -145,9 +155,11 @@ const Index = () => {
         </section>
 
         {/* Benefits Section */}
-        <section className="py-16 bg-gray-50">
+        <section className="py-16 bg-gradient-to-br from-[#F0F9FF] via-[#FEF9C3] to-[#FEE2E2]">
           <div className="mtech-container">
-            <h2 className="section-heading mb-12">Why Choose MTECH Kids Explore?</h2>
+            <h2 className="section-heading mb-12 font-extrabold text-mtech-secondary">
+              Why Choose MTECH Kids Explore?
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {features.map((feature, index) => (
@@ -162,8 +174,10 @@ const Index = () => {
                     {feature.icon}
                   </motion.div>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-gray-600">{feature.description}</p>
+                    <h3 className="text-xl font-semibold mb-2 text-mtech-primary">
+                      {feature.title}
+                    </h3>
+                    <p className="text-mtech-dark/80">{feature.description}</p>
                   </div>
                 </div>
               ))}
@@ -172,15 +186,18 @@ const Index = () => {
         </section>
 
         {/* Call to Action */}
-        <section className="py-16 bg-mtech-dark text-white text-center">
+        <section className="py-16 bg-gradient-to-r from-mtech-primary to-mtech-secondary text-white text-center">
           <div className="mtech-container">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Learning?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-mtech-light">
+              Ready to Start Learning?
+            </h2>
             <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-              Join thousands of students using MTECH Kids Explore to enhance their education journey.
+              Join thousands of students using MTECH Kids Explore to enhance
+              their education journey.
             </p>
             <Button
               onClick={() => setIsAuthModalOpen(true)}
-              className="bg-mtech-accent hover:bg-green-600 text-white px-8 py-6 text-lg rounded-lg group"
+              className="bg-mtech-secondary hover:bg-blue-600 text-white px-8 py-6 text-lg rounded-lg group"
             >
               Get Started Today
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -191,10 +208,13 @@ const Index = () => {
         {/* Auth Modal */}
         <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
           <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto p-0 font-kids">
-             <DialogTitle className="text-center text-2xl text-pink-600">🎉 Welcome Little Explorer!</DialogTitle>
-            <DialogDescription className="text-center text-blue-500 mb-4">
+            <DialogTitle className="text-center text-2xl text-red-600">
+              🎉 Welcome Little Explorer!
+            </DialogTitle>
+            <DialogDescription className="text-center text-mtech-primary mb-4">
               Sign in to start your learning adventure.
             </DialogDescription>
+
             <AuthForm onClose={() => setIsAuthModalOpen(false)} />
           </DialogContent>
         </Dialog>

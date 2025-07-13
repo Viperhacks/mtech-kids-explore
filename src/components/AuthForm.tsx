@@ -295,11 +295,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
 
   return (
     <div className="p-4 sm:p-6">
-      <Tabs value={formType} onValueChange={v => setFormType(v as 'login' | 'register')} className="w-full">
-        <TabsList className="grid grid-cols-2">
-          <TabsTrigger value="login">Sign In</TabsTrigger>
-          <TabsTrigger value="register">Register</TabsTrigger>
-        </TabsList>
+      <Tabs value={"login"/*formType*/} onValueChange={v => setFormType(v as 'login' | 'register')} className="w-full">
+        <TabsList className="grid grid-cols-1">
+    <TabsTrigger value="login">Sign In</TabsTrigger>
+  </TabsList>
 
         <TabsContent value="login">
           <form onSubmit={handleSubmit} className="space-y-4">

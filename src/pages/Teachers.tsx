@@ -87,7 +87,7 @@ const TeachersPage = () => {
   };
 
   return (
-    <div className="container mx-auto py-12 px-4">
+    <div className="container mx-auto py-12 px-4 bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2]">
       <div className="text-center mb-12">
         <h1 className="text-3xl font-bold text-mtech-dark mb-4">
           Meet Our Dedicated Teachers
@@ -99,12 +99,24 @@ const TeachersPage = () => {
 
       <Tabs defaultValue="all" className="w-full mb-8">
         <div className="flex justify-center mb-8">
-          <TabsList>
-            <TabsTrigger value="all">All Teachers</TabsTrigger>
-            <TabsTrigger value="math">Mathematics</TabsTrigger>
-            <TabsTrigger value="science">Science</TabsTrigger>
-            <TabsTrigger value="english">English</TabsTrigger>
-          </TabsList>
+         <TabsList className="flex flex-wrap justify-center gap-2">
+  {[
+    { value: "all", label: "All Teachers" },
+    { value: "math", label: "Mathematics" },
+    { value: "science", label: "Science" },
+    { value: "english", label: "English" },
+  ].map((tab) => (
+    <TabsTrigger
+      key={tab.value}
+      value={tab.value}
+      className="px-4 py-2 rounded-full border border-mtech-secondary bg-white text-mtech-dark hover:bg-mtech-secondary hover:text-white transition
+      data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary"
+    >
+      {tab.label}
+    </TabsTrigger>
+  ))}
+</TabsList>
+
         </div>
 
         <TabsContent value="all">{renderTeachers("all")}</TabsContent>
@@ -113,11 +125,12 @@ const TeachersPage = () => {
         <TabsContent value="english">{renderTeachers("english")}</TabsContent>
       </Tabs>
 
-      <div className="mt-16 bg-muted rounded-lg p-8 text-center">
+      <div className="mt-16 bg-gradient-to-br from-mtech-primary/10 to-mtech-secondary/10 rounded-xl p-10 text-center">
+
         <div className="max-w-3xl mx-auto">
           <UserPlus className="mx-auto h-12 w-12 text-mtech-primary mb-4" />
-          <h2 className="text-2xl font-bold mb-4">Join Our Teaching Team</h2>
-          <p className="text-muted-foreground mb-6">
+          <h2 className="text-2xl font-bold text-mtech-dark mb-4">Join Our Teaching Team</h2>
+          <p className="text-mtech-dark/80  mb-6">
             Are you passionate about education and technology? We're always looking for dedicated educators to join our team and help shape the future of learning.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
@@ -151,7 +164,8 @@ const TeacherCard = ({ teacher }) => {
       whileTap={{ scale: 0.97 }}
       transition={{ type: "spring", stiffness: 300 }}
     >
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 ease-in-out">
+      <Card className="overflow-hidden hover:shadow-xl hover:ring-2 hover:ring-mtech-secondary transition duration-300">
+
         <div className="h-32 bg-gradient-to-r from-mtech-primary to-mtech-secondary"></div>
         <div className="flex justify-center -mt-12">
           <Avatar className="h-24 w-24 border-4 border-white bg-white">
@@ -173,13 +187,14 @@ const TeacherCard = ({ teacher }) => {
         <CardContent className="text-center space-y-4">
           <CardDescription>{teacher.bio}</CardDescription>
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="bg-muted p-2 rounded">
-              <p className="text-muted-foreground">Experience</p>
-              <p className="font-medium">{teacher.experience}</p>
-            </div>
-            <div className="bg-muted p-2 rounded">
-              <p className="text-muted-foreground">Grades</p>
-              <p className="font-medium">{teacher.grade}</p>
+            <div className="bg-mtech-primary/10 p-2 rounded">
+  <p className="text-mtech-primary text-xs uppercase">Experience</p>
+  <p className="font-semibold text-mtech-dark">{teacher.experience}</p>
+</div>
+
+            <div className="bg-mtech-primary/10 p-2 rounded">
+              <p className="text-mtech-primary text-xs uppercase">Grades</p>
+              <p className="font-semibold text-mtech-dark">{teacher.grade}</p>
             </div>
           </div>
         </CardContent>

@@ -168,10 +168,9 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   }
 
   // Get previously viewed indicator from user-specific storage
-  const viewedDocuments = user ? 
-    userTrackingService.getUserData(`viewedDocuments`, {}) : 
-    JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
-  const isCompleted = viewedDocuments[documentId]?.completed || false;
+  const { isResourceCompleted } = useCompletion();
+const isCompleted = isResourceCompleted(documentId);
+console.log(isCompleted);
 
   return (
     <Card className="w-full">

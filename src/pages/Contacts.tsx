@@ -61,34 +61,37 @@ const Contacts = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6 text-center">Contact Us</h1>
+    <div className="container mx-auto px-4 py-12 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
+
+      <h1 className="text-3xl font-bold mb-8 text-center text-mtech-dark">
+Contact Us</h1>
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Contact Form */}
         <div>
-          <Card>
+          <Card className="shadow-lg rounded-xl border border-mtech-primary/10">
+
             <CardContent className="pt-6">
               <h2 className="text-xl font-semibold mb-4">Send Us a Message</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label htmlFor="name" className="block text-sm font-medium">Full Name</label>
+                    <label htmlFor="name"className="block text-sm font-semibold text-mtech-dark">Full Name</label>
                     <Input id="name" placeholder="Enter your full name" required />
                   </div>
                   <div className="space-y-2">
-                    <label htmlFor="email" className="block text-sm font-medium">Email Address</label>
+                    <label htmlFor="email" className="block text-sm font-semibold text-mtech-dark">Email Address</label>
                     <Input id="email" type="email" placeholder="Enter your email" required />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="subject" className="block text-sm font-medium">Subject</label>
+                  <label htmlFor="subject" className="block text-sm font-semibold text-mtech-dark">Subject</label>
                   <Input id="subject" placeholder="What is this regarding?" required />
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="message" className="block text-sm font-medium">Message</label>
+                  <label htmlFor="message" className="block text-sm font-semibold text-mtech-dark">Message</label>
                   <Textarea
                     id="message"
                     placeholder="Type your message here..."
@@ -97,7 +100,8 @@ const Contacts = () => {
                   />
                 </div>
 
-                <Button type="submit" className="w-full">Send Message</Button>
+               <Button type="submit" className="w-full bg-mtech-secondary hover:bg-mtech-primary text-white">
+Send Message</Button>
               </form>
             </CardContent>
           </Card>
@@ -112,20 +116,24 @@ const Contacts = () => {
             </p>
           </div>
 
-          <div className="space-y-4 text-sm">
-            {contactItems.map(({ title, icon: Icon, bg, color, content }, index) => (
-              <div key={index} className="flex items-start space-x-4">
+         <div className="text-sm divide-y divide-gray-200 rounded-lg overflow-hidden border border-gray-100 bg-white">
+  {contactItems.map(({ title, icon: Icon, bg, color, content }, index) => (
+    <div key={index} className="flex items-start space-x-4 p-4">
+
                 <div className={`${bg} p-3 rounded-full`}>
                   <Icon className={`h-5 w-5 ${color}`} />
                 </div>
                 <div>
-                  <h3 className=" text-base font-medium">{title}</h3>
+                 <h3 className="text-base font-semibold text-mtech-dark mb-1">{title}</h3>
+
                   {content.map((line, i) => (
-                    <p key={i} className="text-muted-foreground">{line}</p>
+                    <p key={i} className="text-sm text-mtech-dark/80">{line}</p>
                   ))}
                 </div>
+                
               </div>
             ))}
+            
           </div>
         </div>
       </div>

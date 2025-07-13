@@ -14,6 +14,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import ResourcesData from '@/data/resources';
 import { uploadResource } from '@/services/apiService';
+import { capitalize } from '@/utils/stringUtils';
 
 const GradeResources = () => {
   const { gradeId } = useParams<{ gradeId: string }>();
@@ -69,8 +70,8 @@ const GradeResources = () => {
       if (uploadForm.file) {
         formData = new FormData();
         formData.append('content', uploadForm.file);
-        formData.append('title', uploadForm.title);
-        formData.append('description', uploadForm.description);
+        formData.append('title', capitalize(uploadForm.title));
+        formData.append('description', capitalize(uploadForm.description));
         formData.append('subject', uploadForm.subject);
         formData.append('type', uploadForm.type);
         formData.append('grade', gradeData.name || '');
@@ -113,7 +114,7 @@ const GradeResources = () => {
       console.error('Upload failed', error);
       toast({
         title: "Upload Failed",
-        description: "Could not upload your resource. Please try again.",
+        description: error.message || "Could not upload your resource. Please try again.",
         variant: "destructive"
       });
     } finally {
