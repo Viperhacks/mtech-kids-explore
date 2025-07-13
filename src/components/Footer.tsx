@@ -28,11 +28,12 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
           {/* About Section */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-mtech-secondary">
+            <h3 className="text-xl font-bold mb-4 text-mtech-accent drop-shadow-md">
+
               MTECH Kids Explore
             </h3>
             <p
-              className="text-white/80 hover:text-mtech-accent cursor-pointer
+              className="text-white/80
  mb-4"
             >
               Making learning fun and accessible for primary school children
@@ -55,7 +56,8 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-mtech-secondary">
+            <h3 className="text-xl font-bold mb-4 text-mtech-accent drop-shadow-md">
+
               Quick Links
             </h3>
             <ul className="space-y-2">
@@ -70,7 +72,7 @@ const Footer: React.FC = () => {
                 <li key={i}>
                   <Link
                     to={link.to}
-                    className="text-white/80 hover:text-mtech-accent transition-colors"
+                    className="text-white/80 hover:text-red-500 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -81,14 +83,15 @@ const Footer: React.FC = () => {
 
           {/* Contact Details */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-mtech-secondary">
+           <h3 className="text-xl font-bold mb-4 text-mtech-accent drop-shadow-md">
+
               Contact Us
             </h3>
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 mr-2 text-white" />
                 <span
-                  className="text-white/80 hover:text-mtech-accent cursor-pointer
+                  className="text-white/80 hover:text-red-500 cursor-pointer
 "
                 >
                   3373 Nehanda Cop. Dzivarasekwa Extension.
@@ -97,7 +100,7 @@ const Footer: React.FC = () => {
               <li className="flex items-center">
                 <Phone className="h-5 w-5 mr-2 text-white" />
                 <span
-                  className="text-white/80 hover:text-mtech-accent cursor-pointer
+                  className="text-white/80 hover:text-red-500 cursor-pointer
 "
                 >
                   +263 77 327 5834
@@ -106,7 +109,7 @@ const Footer: React.FC = () => {
               <li className="flex items-center">
                 <Mail className="h-5 w-5 mr-2 text-white" />
                 <span
-                  className="text-white/80 hover:text-mtech-accent cursor-pointer
+                  className="text-white/80 hover:text-red-500 cursor-pointer
 "
                 >
                   info@mtech.co.zw

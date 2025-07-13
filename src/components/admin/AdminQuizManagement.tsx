@@ -25,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { capitalize } from '@/utils/stringUtils';
+import AdminPreviewModal from './AdminPreviewModal';
 
 const AdminQuizManagement: React.FC = () => {
   const { toast } = useToast();
@@ -35,6 +36,7 @@ const AdminQuizManagement: React.FC = () => {
   const [gradeFilter, setGradeFilter] = useState('all');
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [selectedQuizForAttempts, setSelectedQuizForAttempts] = useState<AdminQuiz | null>(null);
+  const [previewQuiz, setPreviewQuiz] = useState<AdminQuiz | null>(null);
 
   useEffect(() => {
     fetchQuizzes();
@@ -188,7 +190,16 @@ const AdminQuizManagement: React.FC = () => {
                         <Button
                           size="sm"
                           variant="outline"
+                          onClick={() => setPreviewQuiz(quiz)}
+                          title="View Questions"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
                           onClick={() => setSelectedQuizForAttempts(quiz)}
+                          title="View Attempts"
                         >
                           <Users className="h-4 w-4" />
                         </Button>
@@ -242,6 +253,13 @@ const AdminQuizManagement: React.FC = () => {
           quizTitle={selectedQuizForAttempts.title}
         />
       )}
+
+      <AdminPreviewModal
+        open={!!previewQuiz}
+        onOpenChange={(open) => !open && setPreviewQuiz(null)}
+        content={previewQuiz}
+        type="quiz"
+      />
     </div>
   );
 };

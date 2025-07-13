@@ -30,6 +30,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { capitalize } from '@/utils/stringUtils';
+import AdminPreviewModal from './AdminPreviewModal';
 
 const AdminResourceManagement: React.FC = () => {
   const { toast } = useToast();
@@ -43,6 +44,7 @@ const AdminResourceManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedResource, setSelectedResource] = useState<AdminResource | null>(null);
+  const [previewResource, setPreviewResource] = useState<AdminResource | null>(null);
 
   useEffect(() => {
     fetchResources();
@@ -222,7 +224,8 @@ const AdminResourceManagement: React.FC = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setSelectedResource(resource)}
+                          onClick={() => setPreviewResource(resource)}
+                          title="View Resource"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -292,41 +295,12 @@ const AdminResourceManagement: React.FC = () => {
         </CardContent>
       </Card>
 
-      {selectedResource && (
-        <Dialog open={!!selectedResource} onOpenChange={() => setSelectedResource(null)}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                {getResourceIcon(selectedResource.response.type)}
-                {capitalize(selectedResource.response.title)}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="font-medium">Type:</span> {selectedResource.response.type}
-                </div>
-                <div>
-                  <span className="font-medium">Grade:</span> {selectedResource.response.grade}
-                </div>
-                <div>
-                  <span className="font-medium">Subject:</span> {capitalize(selectedResource.response.subject)}
-                </div>
-                <div>
-                  <span className="font-medium">Created:</span> {toReadableDate(selectedResource.response.createdAt)}
-                </div>
-                <div>
-                  <span className="font-medium">Teacher:</span> {selectedResource.response.teacher}
-                </div>
-              </div>
-              <div className="text-center p-8 border-2 border-dashed border-muted rounded-lg">
-                <p className="text-muted-foreground">Resource preview display here??? thoughts</p>
-                <p className="text-xs text-muted-foreground mt-2">Path: {selectedResource.response.content}</p>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
+      <AdminPreviewModal
+        open={!!previewResource}
+        onOpenChange={(open) => !open && setPreviewResource(null)}
+        content={previewResource}
+        type="resource"
+      />
     </div>
   );
 };
