@@ -172,15 +172,15 @@ const Index = () => {
         </section>
 
         {/* Call to Action */}
-        <section className="py-16 bg-mtech-dark text-white text-center">
+        <section className="py-16 bg-gradient-to-r from-mtech-primary to-mtech-secondary text-white text-center">
           <div className="mtech-container">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Learning?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-mtech-light">Ready to Start Learning?</h2>
             <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
               Join thousands of students using MTECH Kids Explore to enhance their education journey.
             </p>
             <Button
               onClick={() => setIsAuthModalOpen(true)}
-              className="bg-mtech-accent hover:bg-green-600 text-white px-8 py-6 text-lg rounded-lg group"
+              className="bg-mtech-secondary hover:bg-blue-600 text-white px-8 py-6 text-lg rounded-lg group"
             >
               Get Started Today
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />

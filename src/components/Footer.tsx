@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 import mtechAcademyLogo from "@/assets/mtech_logo.svg"
+import blextaLogo from "@/assets/blexta_black_logo.png";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -19,8 +20,8 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About Section */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-red-500">MTECH Kids Explore</h3>
-            <p className="text-white/80 hover:text-mtech-secondary cursor-pointer
+            <h3 className="text-xl font-bold mb-4 text-mtech-secondary">MTECH Kids Explore</h3>
+            <p className="text-white/80 hover:text-mtech-accent cursor-pointer
  mb-4">
               Making learning fun and accessible for primary school children with interactive educational content.
             </p>
@@ -42,7 +43,7 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-red-500">
+            <h3 className="text-xl font-bold mb-4 text-mtech-secondary">
 Quick Links</h3>
           <ul className="space-y-2">
   {[
@@ -56,7 +57,7 @@ Quick Links</h3>
     <li key={i}>
       <Link 
         to={link.to} 
-        className="text-white/80 hover:text-mtech-secondary transition-colors"
+        className="text-white/80 hover:text-mtech-accent transition-colors"
       >
         {link.label}
       </Link>
@@ -68,7 +69,7 @@ Quick Links</h3>
 
           {/* Resources */}
           <div >
-            <h3 className="text-xl font-bold mb-4 text-red-500">
+            <h3 className="text-xl font-bold mb-4 text-mtech-secondary">
 Resources</h3>
            <ul className="space-y-2">
   {[
@@ -80,7 +81,7 @@ Resources</h3>
     <li key={idx}>
       <Link 
         to={to} 
-        className={`text-white/80 hover:text-mtech-secondary ${hidden ? "hidden" : ""}`}
+        className={`text-white/80 hover:text-mtech-accent ${hidden ? "hidden" : ""}`}
       >
         {label}
       </Link>
@@ -92,40 +93,57 @@ Resources</h3>
 
           {/* Contact Details */}
           <div>
-            <h3 className="text-xl font-bold mb-4 text-red-500">
+            <h3 className="text-xl font-bold mb-4 text-mtech-secondary">
 Contact Us</h3>
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 mr-2 text-mtech-primary" />
-                <span className="text-white/80 hover:text-mtech-secondary cursor-pointer
+                <span className="text-white/80 hover:text-mtech-accent cursor-pointer
 ">3373 Nehanda Cop.
 Dzivarasekwa Extension.</span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 mr-2 text-mtech-primary" />
-                <span className="text-white/80 hover:text-mtech-secondary cursor-pointer
+                <span className="text-white/80 hover:text-mtech-accent cursor-pointer
 ">+263 77 327 5834</span>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 mr-2 text-mtech-primary" />
-                <span className="text-white/80 hover:text-mtech-secondary cursor-pointer
+                <span className="text-white/80 hover:text-mtech-accent cursor-pointer
 ">info@mtech.co.zw</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-gray-700 text-center">
-          <p className="text-sm text-gray-400">
-            © 2017-{currentYear} MTECH Kids Explore. All rights reserved.
-          </p>
-          <div
-          className='mt-2 flex justify-center items-center gap-2'>
-            <span className="text-sm text-gray-400">Powered by</span>
-          <div className="bg-white rounded-md p-3"><img src={mtechAcademyLogo} alt="Mtech Academy Logo" 
-          className='h-16'/></div>
-          </div>
+        <div className="mt-10 pt-6 border-t border-gray-700">
+  <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400 text-center md:text-left">
+    <p>© 2017–{currentYear} MTECH Kids Explore. All rights reserved.</p>
+
+    <div className="flex items-center gap-6">
+      <div className="flex items-center gap-2">
+        <span>Powered by</span>
+        <div className="bg-white rounded-md p-1">
+          <img src={mtechAcademyLogo} alt="MTECH Logo" className="h-10" />
         </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span>Developed by</span>
+        <a
+          href="https://tadiwa-blessed.tech"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-md p-2 hover:shadow-md transition"
+        >
+          <img src={blextaLogo} alt="Blexta Logo" className="h-10" />
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
       </div>
       {
         /* Developed by Blexta Technologies
