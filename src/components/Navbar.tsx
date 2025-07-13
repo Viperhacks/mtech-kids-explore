@@ -78,32 +78,36 @@ const Navbar: React.FC = () => {
   const bgClass = seasonBgClasses[season] ?? seasonBgClasses.winter;
 
   return (
-    <nav className={`bg-yellow-100 shadow-lg sticky top-0 z-50 backdrop-blur-lg`}>
+   <nav className="bg-blue-900 shadow-lg sticky top-0 z-50 backdrop-blur-md">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           {/* Logo and MTECH */}
           <Link to="/" className="flex items-center space-x-2">
-            <img
-              src={logo}  
-              alt="MTECH Logo"
-              className="w-max h-12"
-            />
-            <span className="text-3xl font-bold text-pink-500">MTECH</span>
-            <span className="hidden md:inline-block text-green-500 text-xl font-semibold">Kids Explore</span>
+           <div className="bg-white p-1 rounded-md">
+  <img
+    src={logo}
+    alt="MTECH Logo"
+    className="h-12 w-auto"
+  />
+</div>
+
+           <span className="text-3xl font-bold text-white">MTECH</span>
+<span className="hidden md:inline-block text-red-500 text-xl font-semibold">Kids Explore</span>
+
           </Link>
 
           {/* Desktop Navbar Links */}
           <div className="hidden md:flex items-center space-x-6 text-lg">
-            <Link to="/" className="text-blue-500 hover:text-purple-600 flex items-center gap-1">
+            <Link to="/" className="text-white hover:text-red-400 flex items-center gap-1">
               <Home size={18} /> Home
             </Link>
-            <Link to="/revision" className="text-blue-500 hover:text-purple-600 flex items-center gap-1">
+            <Link to="/revision" className="text-white hover:text-red-400 flex items-center gap-1">
               <BookOpenCheck size={18} /> Revision
             </Link>
-            <Link to="/teachers" className="text-blue-500 hover:text-purple-600 flex items-center gap-1">
+            <Link to="/teachers" className="text-white hover:text-red-400 flex items-center gap-1">
               <School size={18} /> Teachers
             </Link>
-            <Link to="/contacts" className="text-blue-500 hover:text-purple-600 flex items-center gap-1">
+            <Link to="/contacts" className="text-white hover:text-red-400 flex items-center gap-1">
               <PhoneCall size={18} /> Contact
             </Link>
           </div>
@@ -147,12 +151,13 @@ const Navbar: React.FC = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
-                onClick={handleAuthOpen}
-                className="bg-pink-400 text-white hover:bg-pink-500 font-kids px-6 py-2 rounded-full shadow-lg"
-              >
-                🚀 Let's Go!
-              </Button>
+             <Button 
+  onClick={handleAuthOpen}
+  className="bg-mtech-secondary hover:bg-red-700 text-white font-kids px-6 py-2 rounded-full shadow-md"
+>
+  🚀 Let's Go!
+</Button>
+
             )}
           </div>
 
@@ -160,7 +165,7 @@ const Navbar: React.FC = () => {
           <div className="md:hidden">
             <button 
               onClick={toggleMenu}
-              className="text-blue-600 hover:text-purple-600 focus:outline-none"
+              className="text-white hover:text-red-400 focus:outline-none"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -169,17 +174,17 @@ const Navbar: React.FC = () => {
 
         {/* Mobile Menu Content */}
         {isMenuOpen && (
-          <div className="md:hidden pt-4 pb-2 animate-fade-in font-kids text-lg text-blue-600 space-y-3">
-            <Link to="/" className="hover:text-pink-500 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}>
+          <div className="md:hidden pt-4 pb-2 animate-fade-in font-kids text-lg text-white space-y-3">
+            <Link to="/" className="hover:text-red-400 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}>
               <Home size={16} /> Home
             </Link>
-            <Link to="/revision" className="hover:text-pink-500 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/revision" className="hover:text-red-400 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}>
               <BookOpenCheck size={16} /> Revision
             </Link>
-            <Link to="/teachers" className="hover:text-pink-500 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/teachers" className="hover:text-red-400 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}>
               <School size={16} /> Teachers
             </Link>
-            <Link to="/contacts" className="hover:text-pink-500 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/contacts" className="hover:text-red-400 flex items-center gap-2" onClick={() => setIsMenuOpen(false)}>
               <PhoneCall size={16} /> Contacts
             </Link>
             {isAuthenticated ? (
@@ -202,7 +207,7 @@ const Navbar: React.FC = () => {
             ) : (
               <Button 
                 onClick={handleAuthOpen}
-                className="bg-pink-400 text-white hover:bg-pink-500 w-full mt-2"
+                className="bg-mtech-secondary text-white hover:bg-red-700 w-full mt-2"
               >
                 🚀 Let's Go!
               </Button>
@@ -216,7 +221,7 @@ const Navbar: React.FC = () => {
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto p-0 font-kids">
           <div className="p-6">
             <DialogTitle className="text-center text-2xl text-pink-600">🎉 Welcome Little Explorer!</DialogTitle>
-            <DialogDescription className="text-center text-blue-500 mb-4">
+            <DialogDescription className="text-center text-white mb-4">
               Sign in to start your learning adventure.
             </DialogDescription>
             <AuthForm onClose={handleAuthClose} />
