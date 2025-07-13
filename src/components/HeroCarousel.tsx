@@ -65,7 +65,7 @@ const HeroCarousel: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full max-h-[500px] overflow-hidden">
+    <div className="relative w-full max-h-[500px] overflow-hidden ">
       <div 
         className="flex transition-transform duration-700 ease-in-out"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}

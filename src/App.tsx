@@ -30,13 +30,11 @@ import TitleReset from "./components/TitleReset";
 import { CompletionProvider } from "./context/CompletionContext";
 
 // 🧠 Google OAuth Client ID (replace with yours if needed)
-const googleClientId = "102147016941-lcucaktk0sioga2o5irssqcuedih5l0p.apps.googleusercontent.com";
+const googleClientId =
+  "102147016941-lcucaktk0sioga2o5irssqcuedih5l0p.apps.googleusercontent.com";
 
-
-
-const Router = window.location.protocol === 'file:' 
-  ? HashRouter 
-  : BrowserRouter;
+const Router =
+  window.location.protocol === "file:" ? HashRouter : BrowserRouter;
 
 // 🧠 React Query setup
 const queryClient = new QueryClient();
@@ -45,45 +43,68 @@ const App = () => (
   <GoogleOAuthProvider clientId={googleClientId}>
     <QueryClientProvider client={queryClient}>
       <Router>
-      <AuthProvider>
-        <CompletionProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          
-            <ScrollToTop />
-            <TitleReset/>
-            <Routes>
-              <Route element={<Layout />}>
-                <Route path="/" element={<Index />} />
-                <Route path="/revision" element={<Revision />} />
-                <Route path="/teachers" element={<Teachers />} />
-                <Route path="/contacts" element={<Contacts />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/tutorials" element={<Tutorials />} />
-                <Route path="/exercises" element={<Exercises />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/profile" element={
-                  <ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<Profile />} />
-                } />
-                <Route path="/dashboard" element={
-                  <ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<Dashboard />} />
-                } />
-                <Route path="/grade/:gradeId" element={
-                  <ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<GradeResources />} />
-                } />
-                <Route path="/grade/:gradeId/subject/:subjectId" element={
-                  <ProtectedRoute allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]} element={<SubjectResources />} />
-                } />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
-          
-        </TooltipProvider>
-        </CompletionProvider>
-      </AuthProvider>
+        <AuthProvider>
+          <CompletionProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+
+              <ScrollToTop />
+              <TitleReset />
+              <Routes>
+                <Route element={<Layout />}>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/revision" element={<Revision />} />
+                  <Route path="/teachers" element={<Teachers />} />
+                  <Route path="/contacts" element={<Contacts />} />
+                  {/*<Route path="/about" element={<About />} />*}
+                {/*<Route path="/tutorials" element={<Tutorials />} />*/}
+                  {/*<Route path="/exercises" element={<Exercises />} />*/}
+                  <Route path="/privacy" element={<Privacy />} />
+                  {/*<Route path="/terms" element={<Terms />} />*/}
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute
+                        allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]}
+                        element={<Profile />}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute
+                        allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]}
+                        element={<Dashboard />}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/grade/:gradeId"
+                    element={
+                      <ProtectedRoute
+                        allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]}
+                        element={<GradeResources />}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/grade/:gradeId/subject/:subjectId"
+                    element={
+                      <ProtectedRoute
+                        allowedRoles={["STUDENT", "TEACHER", "ADMIN", "PARENT"]}
+                        element={<SubjectResources />}
+                      />
+                    }
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+              </Routes>
+            </TooltipProvider>
+          </CompletionProvider>
+        </AuthProvider>
       </Router>
     </QueryClientProvider>
   </GoogleOAuthProvider>
