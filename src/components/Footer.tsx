@@ -17,7 +17,8 @@ const Footer: React.FC = () => {
   return (
    <footer className="bg-gradient-to-br from-blue-900 to-mtech-primary text-white pt-12 pb-8">
       <div className="mtech-container">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+
           {/* About Section */}
           <div>
             <h3 className="text-xl font-bold mb-4 text-mtech-secondary">MTECH Kids Explore</h3>
@@ -67,29 +68,7 @@ Quick Links</h3>
 
           </div>
 
-          {/* Resources */}
-          <div >
-            <h3 className="text-xl font-bold mb-4 text-mtech-secondary">
-Resources</h3>
-           <ul className="space-y-2">
-  {[
-    { to: "/tutorials", label: "Video Tutorials" },
-    { to: "/exercises", label: "Practice Exercises" },
-    { to: "/quizzes", label: "Interactive Quizzes" },
-    { to: "/subjects", label: "Subject Materials", hidden: true },
-  ].map(({ to, label, hidden }, idx) => (
-    <li key={idx}>
-      <Link 
-        to={to} 
-        className={`text-white/80 hover:text-mtech-accent ${hidden ? "hidden" : ""}`}
-      >
-        {label}
-      </Link>
-    </li>
-  ))}
-</ul>
-
-          </div>
+         
 
           {/* Contact Details */}
           <div>
@@ -97,18 +76,18 @@ Resources</h3>
 Contact Us</h3>
             <ul className="space-y-3">
               <li className="flex items-start">
-                <MapPin className="h-5 w-5 mr-2 text-mtech-primary" />
+                <MapPin className="h-5 w-5 mr-2 text-white" />
                 <span className="text-white/80 hover:text-mtech-accent cursor-pointer
 ">3373 Nehanda Cop.
 Dzivarasekwa Extension.</span>
               </li>
               <li className="flex items-center">
-                <Phone className="h-5 w-5 mr-2 text-mtech-primary" />
+                <Phone className="h-5 w-5 mr-2 text-white" />
                 <span className="text-white/80 hover:text-mtech-accent cursor-pointer
 ">+263 77 327 5834</span>
               </li>
               <li className="flex items-center">
-                <Mail className="h-5 w-5 mr-2 text-mtech-primary" />
+                <Mail className="h-5 w-5 mr-2 text-white" />
                 <span className="text-white/80 hover:text-mtech-accent cursor-pointer
 ">info@mtech.co.zw</span>
               </li>
