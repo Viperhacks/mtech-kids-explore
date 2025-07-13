@@ -45,7 +45,7 @@ const WelcomeCards: React.FC = () => {
   ];
 
   return (
-    <section className="py-12 bg-gray-50">
+    <section className="py-12 bg-gradient-to-br from-[#F0F9FF] via-[#FEF9C3] to-[#FEE2E2]">
       <div className="mtech-container">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {cards.map((card) => (
@@ -57,17 +57,25 @@ const WelcomeCards: React.FC = () => {
                 animate="rest"
               >
                 <motion.div
-                  variants={iconVariants}
-                  className="inline-flex items-center justify-center p-3 bg-mtech-primary/10 rounded-lg"
-                >
-                  <card.icon className="h-6 w-6 text-mtech-primary" />
-                </motion.div>
+  variants={iconVariants}
+  className="inline-flex items-center justify-center p-4 bg-mtech-primary/10 rounded-full shadow-sm"
+>
+  <card.icon className="h-6 w-6 text-mtech-primary" />
+</motion.div>
+
               </motion.div>
 
-              <h3 className="text-xl font-semibold mb-3 text-mtech-dark">{card.title}</h3>
-              <p className="text-gray-600 flex-grow mb-6">{card.description}</p>
+              <h3 className="text-xl font-bold mb-3 text-mtech-primary">
+  {card.title}
+</h3>
+<p className="text-mtech-dark/80 flex-grow mb-6">{card.description}</p>
+
               <div>
-                <Button asChild className="mtech-button-primary">
+               <Button 
+  asChild 
+  className="bg-mtech-secondary text-white hover:bg-blue-600 transition-colors rounded-full px-6 py-2"
+>
+
                   <Link to={card.link}>{card.linkText}</Link>
                 </Button>
               </div>

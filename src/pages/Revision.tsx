@@ -58,7 +58,7 @@ const Revision = () => {
               <TabsTrigger 
                 key={subject.id} 
                 value={subject.name.toLowerCase()}
-                className="flex-shrink-0 px-4 py-2 rounded-full border border-mtech-secondary bg-white text-mtech-dark hover:bg-mtech-secondary hover:text-white transition 
+                className="flex-shrink-0 px-4 py-2 ps-2 rounded-full border border-mtech-secondary bg-white text-mtech-dark hover:bg-mtech-secondary hover:text-white transition 
              data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary"
 >
                 {subject.name}

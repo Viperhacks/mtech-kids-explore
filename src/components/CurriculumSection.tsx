@@ -105,12 +105,16 @@ const CurriculumSection: React.FC = () => {
         </div>
 
         <Tabs defaultValue="Grade 3" className="w-full">
-          <TabsList className="w-full flex overflow-x-auto space-x-2 pb-2 mb-6 h-14">
+          <TabsList
+  className="w-full flex overflow-x-auto gap-2 pb-2 mb-6 h-14 
+             no-scrollbar scroll-smooth whitespace-nowrap snap-x snap-mandatory"
+>
+
             {Object.keys(curriculumData).map((grade) => (
              <TabsTrigger 
   key={grade} 
   value={grade}
-  className="flex-shrink-0 px-4 py-2 rounded-full border border-mtech-secondary bg-white text-mtech-dark hover:bg-mtech-secondary hover:text-white transition 
+  className="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-mtech-secondary bg-white text-mtech-dark hover:bg-mtech-secondary hover:text-white transition 
              data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary"
 >
   <GraduationCap className="mr-2 h-4 w-4" />
