@@ -45,8 +45,8 @@ const privacyData = {
 
 const Privacy = () => {
   return (
-    <div className="container mx-auto px-4 py-8 bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2]">
-      <h1 className="text-3xl font-bold mb-6 text-center text-mtech-secondary">
+    <div className="container mx-auto px-4 py-8 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
+      <h1 className="text-3xl font-bold mb-6 text-center text-mtech-dark">
         Privacy Policy
       </h1>
 

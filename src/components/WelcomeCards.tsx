@@ -45,7 +45,7 @@ const WelcomeCards: React.FC = () => {
   ];
 
   return (
-    <section className="py-12 bg-gradient-to-br from-[#F0F9FF] via-[#FEF9C3] to-[#FEE2E2]">
+    <section className="py-12 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
       <div className="mtech-container">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {cards.map((card) => (

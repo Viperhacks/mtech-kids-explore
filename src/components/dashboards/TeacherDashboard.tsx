@@ -301,7 +301,7 @@ const TeacherDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2] min-h-screen">
+    <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5 min-h-screen">
       <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">
         Teacher Dashboard
       </h1>

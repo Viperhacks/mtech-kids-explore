@@ -92,7 +92,7 @@ const CurriculumSection: React.FC = () => {
   };
 
   return (
-    <section className="py-12 bg-gradient-to-br from-[#F0F9FF] via-[#FEF9C3] to-[#FEE2E2]">
+    <section className="py-12 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
       <div className="mtech-container">
         <div className="text-center mb-10">
          <h2 className="text-4xl font-extrabold text-mtech-secondary font-kids flex items-center justify-center gap-2">

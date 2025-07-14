@@ -155,7 +155,7 @@ const Index = () => {
         </section>
 
         {/* Benefits Section */}
-        <section className="py-16 bg-gradient-to-br from-[#F0F9FF] via-[#FEF9C3] to-[#FEE2E2]">
+        <section className="py-16 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
           <div className="mtech-container">
             <h2 className="section-heading mb-12 font-extrabold text-mtech-secondary">
               Why Choose MTECH Kids Explore?

@@ -87,7 +87,7 @@ const TeachersPage = () => {
   };
 
   return (
-    <div className="container mx-auto py-12 px-4 bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2]">
+    <div className="container mx-auto py-12 px-4 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
       <div className="text-center mb-12">
         <h1 className="text-3xl font-bold text-mtech-dark mb-4">
           Meet Our Dedicated Teachers
