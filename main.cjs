@@ -1,17 +1,22 @@
 const path = require('path');
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, screen } = require('electron');
 
 const isDev = process.env.ELECTRON_IS_DEV === 'true' || !app.isPackaged;
 
 function createWindow() {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+
   const win = new BrowserWindow({
-    width: 1280,
-    height: 800,
+    width,
+    height,
     webPreferences: {
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js') // Optional but recommended
-    }
+      preload: path.join(__dirname, 'preload.js'),
+    },
   });
+
+  // Kill the menu bar, Blexta-style
+  win.setMenuBarVisibility(false); // or win.removeMenu() if you wanna go nuclear
 
   if (isDev) {
     win.loadURL('http://localhost:8081');

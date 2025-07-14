@@ -18,7 +18,7 @@
   },
   "build": {
     "appId": "com.mtechkids.app",
-    "productName": "MMtechKidsExplore",
+    "productName": "MtechKidsExplore",
     "files": [
       "dist/**/*",
       "main.cjs",
@@ -28,6 +28,7 @@
       "buildResources": "assets"
     },
     "win": {
+      "target": "nsis",
       "icon": "mtech.ico"
     }
   },
@@ -102,8 +103,8 @@
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
-    "electron": "^26.0.12",
-    "electron-builder": "^26.0.12",
+    "electron": "24.4.0",
+    "electron-builder": "^24.6.4",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
