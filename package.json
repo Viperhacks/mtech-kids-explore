@@ -28,7 +28,7 @@
       "buildResources": "assets"
     },
     "win": {
-      "target": "nsis",
+      "target": "zip",
       "icon": "mtech.ico"
     }
   },
