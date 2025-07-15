@@ -61,14 +61,14 @@ const StudentQuizzes: React.FC = () => {
   const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
   const [showQuizDialog, setShowQuizDialog] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [answers, setAnswers] = useState<Record<string, string | number>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
 
   const [showReview, setShowReview] = useState(false);
-  const [answerdQues, setAnsweredQues] = useState<Record<string, boolean>>({});
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [answeredQues, setAnsweredQues] = useState<Record<string, boolean>>({});
+  const [confirmingQuizId, setConfirmingQuizId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -85,8 +85,6 @@ const StudentQuizzes: React.FC = () => {
   useEffect(() => {
     fetchAvailableQuizzes();
   }, []);
-
-
 
   // Add the missing useEffect for filtering
   useEffect(() => {
@@ -147,6 +145,7 @@ const StudentQuizzes: React.FC = () => {
       const response = await getQuizQuestions(quiz.quizId);
       const shuffledQuestions = shuffleQuestions(response.data);
       setQuizQuestions(shuffledQuestions);
+      console.log("Shuffled Questions:", shuffledQuestions);
 
       setSelectedQuiz(quiz);
       setCurrentQuestionIndex(0);
@@ -162,22 +161,23 @@ const StudentQuizzes: React.FC = () => {
     }
   };
 
-  const handleAnswerChange = (questionId: string, answerIndex: number) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: answerIndex,
-    }));
+  const handleAnswerChange = (questionId: string, answer: string | number) => {
+  setAnswers((prev) => ({
+    ...prev,
+    [questionId]: answer,
+  }));
 
-    setAnsweredQues((prev) => ({
-      ...prev,
-      [questionId]: true,
-    }));
-  };
+  setAnsweredQues((prev) => ({
+    ...prev,
+    [questionId]: true,
+  }));
+};
+
 
   const nextQuestion = () => {
     const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
 
-    if (!answerdQues[currentQuestionId]) {
+    if (!answeredQues[currentQuestionId]) {
       toast({
         title: "Please select an answer",
         variant: "destructive",
@@ -196,7 +196,7 @@ const StudentQuizzes: React.FC = () => {
   const submitQuiz = async () => {
     const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
 
-    if (!answerdQues[currentQuestionId]) {
+    if (!answeredQues[currentQuestionId]) {
       toast({
         title: "Please select an answer",
         variant: "destructive",
@@ -207,11 +207,28 @@ const StudentQuizzes: React.FC = () => {
     setIsSubmitting(true);
     try {
       let correctCount = 0;
-      quizQuestions.forEach((question) => {
-        if (answers[question.id] === question.correctAnswerPosition - 1) {
-          correctCount++;
-        }
-      });
+
+quizQuestions.forEach((question) => {
+  const answer = answers[question.id];
+
+  switch (question.type) {
+    case "MULTIPLE_CHOICE":
+    case "TRUE_FALSE":
+      if (Number(answer) === question.correctAnswerPosition - 1) {
+        correctCount++;
+      }
+      break;
+    case "SHORT_ANSWER":
+      if (
+        typeof answer === "string" &&
+        answer.trim().toLowerCase() === question.correctAnswerText?.trim().toLowerCase()
+      ) {
+        correctCount++;
+      }
+      break;
+  }
+});
+
 
       await submitQuizAttempt(
         selectedQuiz!.quizId,
@@ -221,25 +238,28 @@ const StudentQuizzes: React.FC = () => {
       //mark
       //await markResourceCompleted(Number(selectedQuiz!.quizId), "quiz");
 
-      await completionService.markComplete(Number(selectedQuiz!.quizId), "quiz",
-    refreshCompletions);
+      await completionService.markComplete(
+        Number(selectedQuiz!.quizId),
+        "quiz",
+        refreshCompletions
+      );
 
       //await refreshCompletions();
 
       setScore(correctCount);
       setQuizCompleted(true);
 
-       // Update local storage for completed quizzes
-      let completedQuizzes = JSON.parse(localStorage.getItem('completedQuizzes') || '[]');
+      // Update local storage for completed quizzes
+      let completedQuizzes = JSON.parse(
+        localStorage.getItem("completedQuizzes") || "[]"
+      );
       if (!completedQuizzes.includes(selectedQuiz.quizId)) {
         completedQuizzes.push(selectedQuiz.quizId);
-        localStorage.setItem('completedQuizzes', JSON.stringify(completedQuizzes));
+        localStorage.setItem(
+          "completedQuizzes",
+          JSON.stringify(completedQuizzes)
+        );
       }
-
-
-      
-
-      
     } catch (error) {
       const rawMsg = error?.response?.data?.message || error?.message || "";
       let friendlyMsg = "Oops! Something went wrong. Please try again.";
@@ -269,6 +289,81 @@ const StudentQuizzes: React.FC = () => {
     setShowReview(false);
     setAnsweredQues({});
   };
+
+  const currentQuestion = quizQuestions[currentQuestionIndex];
+  const type = currentQuestion?.type;
+
+  const renderQuestionInput = () => {
+  switch (type) {
+    case "MULTIPLE_CHOICE":
+      return currentQuestion.options.map((option, index) => {
+        const isSelected = answers[currentQuestion.id]?.toString() === index.toString();
+        return (
+          <div
+            key={index}
+            onClick={() => handleAnswerChange(currentQuestion.id, index)}
+            className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer transition ${
+              isSelected ? "bg-mtech-light border-mtech-primary" : "hover:bg-muted"
+            }`}
+          >
+            <RadioGroupItem
+              value={index.toString()}
+              id={`option-${index}`}
+              className="scale-125 pointer-events-none"
+            />
+            <Label
+              htmlFor={`option-${index}`}
+              className="text-base sm:text-lg cursor-pointer w-full"
+            >
+              {String.fromCharCode(65 + index)}. {option}
+            </Label>
+          </div>
+        );
+      });
+
+    case "TRUE_FALSE":
+      return ["True", "False"].map((option, index) => {
+        const isSelected = answers[currentQuestion.id]?.toString() === index.toString();
+        return (
+          <div
+            key={index}
+            onClick={() => handleAnswerChange(currentQuestion.id, index)}
+            className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer transition ${
+              isSelected ? "bg-mtech-light border-mtech-primary" : "hover:bg-muted"
+            }`}
+          >
+            <RadioGroupItem
+              value={index.toString()}
+              id={`tf-${index}`}
+              className="scale-125 pointer-events-none"
+            />
+            <Label
+              htmlFor={`tf-${index}`}
+              className="text-base sm:text-lg cursor-pointer w-full"
+            >
+              {option}
+            </Label>
+          </div>
+        );
+      });
+
+    case "SHORT_ANSWER":
+      return (
+        <Input
+          type="text"
+          placeholder="Type your answer..."
+          value={answers[currentQuestion.id]?.toString() || ""}
+          onChange={(e) =>
+            handleAnswerChange(currentQuestion.id, e.target.value)
+          }
+        />
+      );
+
+    default:
+      return <div className="text-red-500">Unsupported question type</div>;
+  }
+};
+
 
   if (isLoading) {
     return <LoadingQuizzes />;
@@ -383,7 +478,7 @@ const StudentQuizzes: React.FC = () => {
                 {completedQuizIds.includes(quiz.quizId) ? (
                   <Button
                     variant="destructive"
-                    onClick={() => setShowConfirm(true)}
+                    onClick={() => setConfirmingQuizId(quiz.quizId)}
                     className="w-full"
                   >
                     {" "}
@@ -396,33 +491,34 @@ const StudentQuizzes: React.FC = () => {
                   </Button>
                 )}
 
-                {showConfirm && (
-                  <>
-                    <div className="text-sm text-center text-muted-foreground">
-                      Are you sure? Your latest score will be used, if you get a
-                      lesser score, that one will be used as the final mark.
-                    </div>
-                    <div className="flex gap-2 w-full">
-                      <Button
-                        variant="secondary"
-                        className="w-full"
-                        onClick={() => setShowConfirm(false)}
-                      >
-                        No, go back
-                      </Button>
-                      <Button
-                        variant="default"
-                        className="w-full"
-                        onClick={() => {
-                          startQuiz(quiz);
-                          setShowConfirm(false);
-                        }}
-                      >
-                        Yes, Retry
-                      </Button>
-                    </div>
-                  </>
-                )}
+                {confirmingQuizId === quiz.quizId && (
+  <>
+    <div className="text-sm text-center text-muted-foreground">
+      Are you sure? Your latest score will be used, if you get a lesser score,
+      that one will be used as the final mark.
+    </div>
+    <div className="flex gap-2 w-full">
+      <Button
+        variant="secondary"
+        className="w-full"
+        onClick={() => setConfirmingQuizId(null)}
+      >
+        No, go back
+      </Button>
+      <Button
+        variant="default"
+        className="w-full"
+        onClick={() => {
+          startQuiz(quiz);
+          setConfirmingQuizId(null);
+        }}
+      >
+        Yes, Retry
+      </Button>
+    </div>
+  </>
+)}
+
               </CardContent>
             </Card>
           ))}
@@ -463,59 +559,21 @@ const StudentQuizzes: React.FC = () => {
                     </h3>
 
                     <div className="space-y-4">
-                      <RadioGroup
-                        key={quizQuestions[currentQuestionIndex].id}
-                        value={
-                          answers[
-                            quizQuestions[currentQuestionIndex]?.id
-                          ]?.toString() || ""
-                        }
-                        onValueChange={(value) =>
-                          handleAnswerChange(
-                            quizQuestions[currentQuestionIndex].id,
-                            parseInt(value)
-                          )
-                        }
-                      >
-                        {quizQuestions[currentQuestionIndex]?.options.map(
-                          (option, index) => {
-                            const isSelected =
-                              answers[
-                                quizQuestions[currentQuestionIndex]?.id
-                              ]?.toString() === index.toString();
+  {(type === "MULTIPLE_CHOICE" || type === "TRUE_FALSE") ? (
+    <RadioGroup
+      key={currentQuestion.id}
+      value={answers[currentQuestion.id]?.toString() || ""}
+      onValueChange={(value) =>
+        handleAnswerChange(currentQuestion.id, parseInt(value))
+      }
+    >
+      {renderQuestionInput()}
+    </RadioGroup>
+  ) : (
+    renderQuestionInput()
+  )}
+</div>
 
-                            return (
-                              <div
-                                key={index}
-                                onClick={() =>
-                                  handleAnswerChange(
-                                    quizQuestions[currentQuestionIndex].id,
-                                    index
-                                  )
-                                }
-                                className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer transition ${
-                                  isSelected
-                                    ? "bg-mtech-light border-mtech-primary"
-                                    : "hover:bg-muted"
-                                }`}
-                              >
-                                <RadioGroupItem
-                                  value={index.toString()}
-                                  id={`option-${index}`}
-                                  className="scale-125 pointer-events-none"
-                                />
-                                <Label
-                                  htmlFor={`option-${index}`}
-                                  className="text-base sm:text-lg cursor-pointer w-full"
-                                >
-                                  {String.fromCharCode(65 + index)}. {option}
-                                </Label>
-                              </div>
-                            );
-                          }
-                        )}
-                      </RadioGroup>
-                    </div>
                   </div>
 
                   <DialogFooter className="flex flex-col sm:flex-row justify-between gap-4">
