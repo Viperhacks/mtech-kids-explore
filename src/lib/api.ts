@@ -147,6 +147,8 @@ export const adminService = {
     api.get('/admin/users/resource', { params: { page, size } }),
   getAllAttempts: (page: number = 0, size: number = 10) => 
     api.get('/attempt/all', { params: { page, size } }),
+  updateUserDetails: (userId: string, updatedData: any) =>
+  api.put(`/users/${userId}`, updatedData),
 };
 
 // Teacher services
@@ -179,7 +181,8 @@ export const teacherService = {
     }
   },
 
-  // Add other teacher-specific endpoints as needed
+  updateUserDetails: (userId: string, updatedData: any) =>
+  api.put(`/users/${userId}`, updatedData),
 };
 
 export default api;

@@ -54,7 +54,7 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState(urlTab);
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [teacher, setTeachers] = useState<Teacher[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [totalPages, setTotalPages] = useState(1);
 
   type Stats = {
@@ -96,9 +96,9 @@ const AdminDashboard: React.FC = () => {
     fetchStats();
     fetchUsers();
     if (activeTab == "teachers") {
-      fetchTeachers();
+      fetchTeachers(currentPage);
     }
-  }, [activeTab]);
+  }, [activeTab, currentPage]);
 
   const fetchStats = async () => {
     setIsLoading(true);
@@ -146,28 +146,29 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const fetchTeachers = async () => {
-    setIsLoading(true);
-    try {
-      const response = await getTeachers(currentPage, 10);
-      console.log(response);
-      const teacherData = Array.isArray(response)
-        ? response
-        : response.content || [];
-      const totalPagesData = response.totalPages || 1;
+  const fetchTeachers = async (page = 0) => {
+  setIsLoading(true);
+  try {
+    const response = await getTeachers(page, 5); 
+    const teacherData = Array.isArray(response)
+      ? response
+      : response.content || [];
+    const totalPagesData = response.totalPages || 1;
 
-      setTeachers(teacherData);
-      setTotalPages(totalPagesData);
-    } catch (error) {
-      toast({
-        title: "Failed to load users",
-        description: "Could not load user data",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setTeachers(teacherData);
+    setTotalPages(totalPagesData);
+    setCurrentPage(page);
+  } catch (error) {
+    toast({
+      title: "Failed to load teachers",
+      description: "Could not load teacher data",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const stats = [
     { label: "Total Users", value: totalStats.totalUsers, icon: Users },
@@ -229,6 +230,13 @@ const AdminDashboard: React.FC = () => {
     { value: "classes", label: "Classes" },
     { value: "content", label: "Content Management" },
   ];
+
+
+  const handleViewStudents = (teacherId: string) => {
+    // Navigate to the teacher's student management page
+    setSearchParams({ tab: "teachers", teacherId });
+    handleTabChange("teachers", "force");
+  }
 
   return (
     <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5 min-h-screen">
@@ -372,47 +380,61 @@ const AdminDashboard: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <TeacherAccountCreation onAdd={fetchTeachers} />
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Active Teachers</CardTitle>
-                  <CardDescription>
-                    Currently active teachers in the system
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <div className="space-y-3">
-                      <Skeleton className="h-10 w-full" />
-                      <Skeleton className="h-10 w-full" />
-                      <Skeleton className="h-10 w-full" />
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {teacher.map((t, index) => (
-                        <div
-                          className="flex justify-between p-3 border rounded-md"
-                          key={index}
-                        >
-                          <div>
-                            <p className="font-medium">
-                              {t.fullName || "Unknown Teacher"}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {t.assignedLevels?.length
-                                ? `Assigned to: Grade ${t.assignedLevels.join(
-                                    ", "
-                                  )}`
-                                : "Not assigned to any level"}
-                            </p>
-                          </div>
-                          <Badge variant="outline">Active</Badge>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-                
-              </Card>
+              <CardContent>
+  {isLoading ? (
+    <div className="space-y-3">
+      {[...Array(3)].map((_, i) => (
+        <Skeleton key={i} className="h-10 w-full" />
+      ))}
+    </div>
+  ) : (
+    <div className="space-y-3">
+      {teachers.map((t, index) => (
+        <div
+          className="flex justify-between items-center p-3 border rounded-md"
+          key={index}
+        >
+          <div>
+            <p className="font-medium">{t.fullName || "Unknown Teacher"}</p>
+            <p className="text-sm text-muted-foreground">
+              {t.assignedLevels?.length
+                ? `Assigned to: Grade ${t.assignedLevels.join(", ")}`
+                : "Not assigned to any level"}
+            </p>
+          </div>
+          <div className="flex gap-2 items-center">
+            <Badge variant="outline">Active</Badge>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleViewStudents(t.userId)}
+            >
+              View Students
+            </Button>
+          </div>
+        </div>
+      ))}
+
+      <div className="flex justify-center gap-3 mt-4">
+        <Button
+          disabled={currentPage === 0}
+          onClick={() => setCurrentPage((prev) => prev - 1)}
+          variant="secondary"
+        >
+          Prev
+        </Button>
+        <Button
+          disabled={currentPage + 1 >= totalPages}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+          variant="secondary"
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  )}
+</CardContent>
+
             </div>
           </TabsContent>
 
