@@ -375,7 +375,7 @@ const SubjectResources = () => {
 
   if (isLoading) {
     return (
-      <div className="mtech-container py-20 flex flex-col items-center justify-center bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2]">
+      <div className="mtech-container py-20 flex flex-col items-center justify-center bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
         {/* Fun spinning loader */}
         <div className="loader-spin">
           <Loader2 className="h-16 w-16 text-mtech-primary" />

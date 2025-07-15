@@ -9,9 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { userTrackingService } from "@/lib/userTracking";
 import { completionService } from '@/services/completionService';
 import { useCompletion } from '@/context/CompletionContext';
+import workerSrcUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+
 
 interface DocumentViewerProps {
   documentUrl: string;
@@ -124,6 +125,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   }, [pageNumber, numPages, documentId, user, trackActivity, onComplete, refreshCompletions]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+    console.log("PDF Loaded. Pages:", numPages);
     setNumPages(numPages);
     setLoading(false);
     
@@ -170,7 +172,103 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   // Get previously viewed indicator from user-specific storage
   const { isResourceCompleted } = useCompletion();
 const isCompleted = isResourceCompleted(documentId);
-console.log(isCompleted);
+//console.log(isCompleted);
+
+function getFileTypeFromUrl(url: string): string {
+  const extension = url.split('.').pop()?.toLowerCase();
+  if (!extension) return 'unknown';
+
+  if (['pdf'].includes(extension)) return 'pdf';
+  if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(extension)) return 'image';
+  if (['doc', 'docx'].includes(extension)) return 'word';
+  if (['mp4', 'webm', 'ogg'].includes(extension)) return 'video';
+
+  return 'unknown';
+}
+
+
+function renderDocumentContent() {
+  console.log("Formatted Document URL:", formattedDocUrl);
+
+  const inferredType = getFileTypeFromUrl(formattedDocUrl);
+  console.log("Inferred Type:", inferredType);
+
+
+  if (inferredType !== "pdf" && loading) {
+    setLoading(false); // immediately stop the loading spinner for non-PDF files
+  }
+
+  if (inferredType === "pdf") {
+    return (
+      <Document
+        file={formattedDocUrl}
+        onLoadSuccess={onDocumentLoadSuccess}
+        onLoadError={onDocumentLoadError}
+        loading={
+          <div className="flex items-center justify-center h-full">
+            <Loader2 className="h-8 w-8 animate-spin text-mtech-primary" />
+          </div>
+        }
+        className="max-w-full"
+      >
+        <Page
+          pageNumber={pageNumber}
+          width={600}
+          renderTextLayer={false}
+          renderAnnotationLayer={false}
+        />
+      </Document>
+    );
+  }
+
+  if (inferredType === "image") {
+    return (
+      <img
+        src={formattedDocUrl}
+        alt={documentTitle}
+        className="max-h-[500px] mx-auto"
+      />
+    );
+  }
+
+  if (inferredType === "word") {
+    return (
+      <div className="text-center p-6">
+        <FileText className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+        <p className="text-sm text-gray-600">
+          Preview not supported. Please download to view.
+        </p>
+        <Button onClick={handleDownload} className="mt-2">
+          <Download className="mr-2 h-4 w-4" />
+          Download Word Document
+        </Button>
+      </div>
+    );
+  }
+
+  if (inferredType === "video") {
+    return (
+      <video controls className="max-h-[500px] mx-auto">
+        <source src={formattedDocUrl} />
+        Your browser does not support the video tag.
+      </video>
+    );
+  }
+
+  return (
+    <div className="text-center p-6">
+      <FileText className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+      <p className="text-sm text-gray-600">Unsupported format.</p>
+      <Button onClick={handleDownload} className="mt-2">
+        <Download className="mr-2 h-4 w-4" />
+        Download File
+      </Button>
+    </div>
+  );
+}
+
+
+
 
   return (
     <Card className="w-full">
@@ -184,7 +282,7 @@ console.log(isCompleted);
           )}
         </div>
         <CardDescription>
-          {numPages ? `${pageNumber} of ${numPages} pages` : "Loading document..."}
+          {numPages ? `${pageNumber } of ${numPages} pages` : "Loading document..."}
         </CardDescription>
         <Progress value={progress} className="h-2" />
       </CardHeader>
@@ -196,40 +294,24 @@ console.log(isCompleted);
             </div>
           )}
           
-          {error ? (
-            <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-              <FileText className="h-12 w-12 text-gray-400 mb-2" />
-              <p className="text-lg font-semibold text-gray-700">
-                Unable to display this document
-              </p>
-              <p className="text-sm text-gray-500 mb-4">
-                The document may be in a format we can't preview
-              </p>
-              <Button onClick={handleDownload}>
-                <Download className="mr-2 h-4 w-4" />
-                Download Instead
-              </Button>
-            </div>
-          ) : (
-            <Document
-              file={formattedDocUrl}
-              onLoadSuccess={onDocumentLoadSuccess}
-              onLoadError={onDocumentLoadError}
-              loading={
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="h-8 w-8 animate-spin text-mtech-primary" />
-                </div>
-              }
-              className="max-w-full"
-            >
-              <Page 
-                pageNumber={pageNumber} 
-                width={600}
-                renderTextLayer={false}
-                renderAnnotationLayer={false}
-              />
-            </Document>
-          )}
+         {error ? (
+  <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+    <FileText className="h-12 w-12 text-gray-400 mb-2" />
+    <p className="text-lg font-semibold text-gray-700">
+      Unable to display this document
+    </p>
+    <p className="text-sm text-gray-500 mb-4">
+      The document may be in a format we can't preview
+    </p>
+    <Button onClick={handleDownload}>
+      <Download className="mr-2 h-4 w-4" />
+      Download Instead
+    </Button>
+  </div>
+) : (
+  renderDocumentContent()
+)}
+
         </div>
       </CardContent>
       <CardFooter className="flex justify-between border-t pt-4">

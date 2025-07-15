@@ -39,7 +39,7 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
     subject: resource?.subject || '',
     type: resource?.type || initialType || 'video',
     content: resource?.content || '',
-    thumbnail: resource?.thumbnail || '',
+   
   });
   const { user } = useAuth();
 const assignedLevels = user?.assignedLevels || [];
@@ -54,7 +54,6 @@ const assignedLevels = user?.assignedLevels || [];
       subject: resource?.subject || prev.subject,
       type: resource?.type || initialType || prev.type,
       content: resource?.content || prev.content,
-      thumbnail: resource?.thumbnail || prev.thumbnail,
     }));
   }, [resource, initialType]);
 
@@ -281,7 +280,8 @@ const assignedLevels = user?.assignedLevels || [];
             />
           </div>*/}
           <div className="space-y-2">
-  <Label>Upload Content (Video or Document)</Label>
+  <Label>Upload Content (PDF, Image, Word Doc, or Video)</Label>
+
   <div
     className="border border-dashed border-gray-400 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50"
     onDragOver={(e) => e.preventDefault()}
@@ -302,17 +302,31 @@ const assignedLevels = user?.assignedLevels || [];
       : formData.content?.name || 'No file selected'
   }
   </p>
+  
 ) : (
   <p className="text-sm text-gray-500">
     Drag and drop a video/document here or click to browse
   </p>
+)}
+{formData.content && formData.content.type?.startsWith("image/") && (
+  <img
+    src={URL.createObjectURL(formData.content)}
+    alt="Preview"
+    className="mx-auto mt-2 max-h-[200px] rounded-md"
+  />
 )}
 
   </div>
   <input
     id="contentUpload"
     type="file"
-    accept="video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    accept="
+  application/pdf,
+  application/msword,
+  application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+  image/*,
+  video/*"
+
     onChange={(e) => {
       const file = e.target.files?.[0];
       if (file) {

@@ -16,12 +16,14 @@ import CountUp from "react-countup";
 import { InView } from "react-intersection-observer";
 import { useSearchParams } from "react-router-dom";
 
-const iconVariants = {
+import type { Variants } from "framer-motion";
+
+const iconVariants: Variants = {
   rest: { scale: 1 },
   hover: {
     scale: 1.2,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 300,
       damping: 10,
     },
