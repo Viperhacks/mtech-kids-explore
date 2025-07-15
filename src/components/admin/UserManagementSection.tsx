@@ -59,7 +59,7 @@ const UserManagementSection: React.FC = () => {
 
   useEffect(() => {
     filterUsers();
-  }, [users, searchTerm, roleFilter]);
+  }, [users, searchTerm, roleFilter,gradeFilter]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -114,20 +114,20 @@ const UserManagementSection: React.FC = () => {
   }
 
   if (gradeFilter !== "all") {
-    filtered = filtered.filter((user) => {
-      const grades = [];
+  filtered = filtered.filter((user) => {
+    const grades: string[] = [];
 
-      if (user.gradeLevel) {
-        grades.push(user.gradeLevel);
-      }
-      if (user.assignedLevels && user.assignedLevels.length > 0) {
-        grades.push(...user.assignedLevels);
-      }
+    if (user.gradeLevel) {
+      grades.push(user.gradeLevel);
+    }
+    if (user.assignedLevels && user.assignedLevels.length > 0) {
+      grades.push(...user.assignedLevels);
+    }
 
-      // Check if the selected gradeFilter is in user grades
-      return grades.includes(gradeFilter);
-    });
-  }
+    return grades.includes(gradeFilter);
+  });
+}
+
 
   setFilteredUsers(filtered);
 };
