@@ -35,3 +35,14 @@ export interface AdminAttempt {
   grade?: string;
   subject?: string;
 }
+
+
+export interface AdminUserResponseDto {
+  fullName: string;
+  username: string;
+  gradeLevel?: string | null;
+  assignedLevels?: string[] | null;
+  role: 'STUDENT';
+  id: number;
+  createdAt: string; 
+}
