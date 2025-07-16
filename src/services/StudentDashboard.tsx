@@ -22,10 +22,11 @@ import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getResourcesForAnyOne } from "@/services/apiService";
 import { toast } from "@/hooks/use-toast";
-import StudentQuizzes from "../student/StudentQuizzes";
-import StudentQuizHistory from "../StudentQuizHistory";
-import SubjectProgressCard from "../SubjectProgressCard";
+import StudentQuizzes from "../components/student/StudentQuizzes";
+import StudentQuizHistory from "../components/StudentQuizHistory";
+import SubjectProgressCard from "../components/SubjectProgressCard";
 import { useCompletionData } from "@/hooks/useCompletionData";
+import { getSubjectsWithQuizzes } from "@/services/quizService";
 
 interface StudentDashboardProps {
   isParent?: boolean;
@@ -73,70 +74,96 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
     fetchResources();
   }, [gradeId, subjectId, completionLoading]);
 
-  const fetchResources = async () => {
-    if (completionLoading) return;
 
-    setIsLoading(true);
-    try {
-      const response = await getResourcesForAnyOne(getRecommendedGrade());
-      const allResources = response.resources || [];
-      setResources(allResources);
 
-      // Calculate resource statistics per subject using completion data
-      const stats: { [key: string]: ResourceStats } = {};
+const fetchResources = async () => {
+  if (completionLoading) return;
 
-      // Group resources by subject and calculate stats
-      allResources.forEach((resource) => {
-        const subject = resource.response.subject;
+  setIsLoading(true);
+  try {
+    const response = await getResourcesForAnyOne(getRecommendedGrade());
+    const allResources = response.resources || [];
+    setResources(allResources);
 
-        if (!stats[subject]) {
-          stats[subject] = {
-            total: 0,
-            completed: 0,
-            videos: 0,
-            documents: 0,
-            quizzes: 0,
-            videosCompleted: 0,
-            documentsCompleted: 0,
-            quizzesCompleted: 0,
-          };
-        }
-      });
+    const stats: { [key: string]: ResourceStats } = {};
 
-      // Calculate stats for each subject using the completion context
-      Object.keys(stats).forEach((subject) => {
-        const subjectResources = allResources.filter(
-          (r) => r.response.subject === subject
-        );
-        const subjectStats = getResourceStats(subjectResources, subject);
-
+    // Group videos & docs
+    allResources.forEach((resource) => {
+      const subject = resource.response.subject;
+      if (!stats[subject]) {
         stats[subject] = {
-          ...subjectStats,
-          quizzes: 0, // Will be handled by useSubjectQuizStats in SubjectProgressCard
+          total: 0,
+          completed: 0,
+          videos: 0,
+          documents: 0,
+          quizzes: 0,
+          videosCompleted: 0,
+          documentsCompleted: 0,
           quizzesCompleted: 0,
         };
-      });
+      }
+    });
 
-      setResourceStats(stats);
-    } catch (error) {
-      toast({
-        title: "Failed to load resources",
-        description:
-          "Could not load learning materials. Using sample data instead.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // 🔥 Include quiz-only subjects (like Shona)
+    const quizSubjects = await getSubjectsWithQuizzes(getRecommendedGrade());
+    quizSubjects.forEach((subject) => {
+      if (!stats[subject]) {
+        stats[subject] = {
+          total: 0,
+          completed: 0,
+          videos: 0,
+          documents: 0,
+          quizzes: 0,
+          videosCompleted: 0,
+          documentsCompleted: 0,
+          quizzesCompleted: 0,
+        };
+      }
+    });
 
-  const studentTabs = [{ value: "progress", label: "My Progress" }, {
-    value: "quizzes", label: "Quizzes"
-  }, {
-    value: "quiz-history", label: "Quiz History"
-  }, {
-    value: "achievements", label: "Achievements"
-  }];
+    // Apply completions
+    Object.keys(stats).forEach((subject) => {
+      const subjectResources = allResources.filter(
+        (r) => r.response.subject === subject
+      );
+      const subjectStats = getResourceStats(subjectResources, subject);
+
+      stats[subject] = {
+        ...stats[subject], // keep quizzes 0 (they're handled in SubjectProgressCard)
+        ...subjectStats,
+        quizzes: 0,
+        quizzesCompleted: 0,
+      };
+    });
+
+    setResourceStats(stats);
+  } catch (error) {
+    toast({
+      title: "Failed to load resources",
+      description: "Try again or contact support.",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+  const studentTabs = [
+    { value: "progress", label: "My Progress" },
+    {
+      value: "quizzes",
+      label: "Quizzes",
+    },
+    {
+      value: "quiz-history",
+      label: "Quiz History",
+    },
+    {
+      value: "achievements",
+      label: "Achievements",
+    },
+  ];
 
   return (
     <div className="space-y-8 container bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5 min-h-screen ">
@@ -150,21 +177,17 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
       <Tabs defaultValue="progress">
         <TabsList className=" w-full md:w-auto">
-          {
-            studentTabs.map((tab)=>(
-                          <TabsTrigger
-                            key={tab.value}
-                            value={tab.value}
-                            className="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-mtech-secondary hover:border-mtech-primary bg-white text-mtech-dark hover:bg-mtech-primary hover:text-white transition 
+          {studentTabs.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-mtech-secondary hover:border-mtech-primary bg-white text-mtech-dark hover:bg-mtech-primary hover:text-white transition 
                          data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary ml-2"
-                          >
-                            {tab.label}
-                          </TabsTrigger>
-                        ))
-          }
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
-
-
 
         <TabsContent value="progress" className="space-y-6">
           {isLoading || completionLoading ? (

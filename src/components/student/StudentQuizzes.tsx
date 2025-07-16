@@ -162,17 +162,16 @@ const StudentQuizzes: React.FC = () => {
   };
 
   const handleAnswerChange = (questionId: string, answer: string | number) => {
-  setAnswers((prev) => ({
-    ...prev,
-    [questionId]: answer,
-  }));
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: answer,
+    }));
 
-  setAnsweredQues((prev) => ({
-    ...prev,
-    [questionId]: true,
-  }));
-};
-
+    setAnsweredQues((prev) => ({
+      ...prev,
+      [questionId]: true,
+    }));
+  };
 
   const nextQuestion = () => {
     const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
@@ -208,27 +207,27 @@ const StudentQuizzes: React.FC = () => {
     try {
       let correctCount = 0;
 
-quizQuestions.forEach((question) => {
-  const answer = answers[question.id];
+      quizQuestions.forEach((question) => {
+        const answer = answers[question.id];
 
-  switch (question.type) {
-    case "MULTIPLE_CHOICE":
-    case "TRUE_FALSE":
-      if (Number(answer) === question.correctAnswerPosition - 1) {
-        correctCount++;
-      }
-      break;
-    case "SHORT_ANSWER":
-      if (
-        typeof answer === "string" &&
-        answer.trim().toLowerCase() === question.correctAnswerText?.trim().toLowerCase()
-      ) {
-        correctCount++;
-      }
-      break;
-  }
-});
-
+        switch (question.type) {
+          case "MULTIPLE_CHOICE":
+          case "TRUE_FALSE":
+            if (Number(answer) === question.correctAnswerPosition - 1) {
+              correctCount++;
+            }
+            break;
+          case "SHORT_ANSWER":
+            if (
+              typeof answer === "string" &&
+              answer.trim().toLowerCase() ===
+                question.correctAnswerText?.trim().toLowerCase()
+            ) {
+              correctCount++;
+            }
+            break;
+        }
+      });
 
       await submitQuizAttempt(
         selectedQuiz!.quizId,
@@ -294,76 +293,81 @@ quizQuestions.forEach((question) => {
   const type = currentQuestion?.type;
 
   const renderQuestionInput = () => {
-  switch (type) {
-    case "MULTIPLE_CHOICE":
-      return currentQuestion.options.map((option, index) => {
-        const isSelected = answers[currentQuestion.id]?.toString() === index.toString();
-        return (
-          <div
-            key={index}
-            onClick={() => handleAnswerChange(currentQuestion.id, index)}
-            className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer transition ${
-              isSelected ? "bg-mtech-light border-mtech-primary" : "hover:bg-muted"
-            }`}
-          >
-            <RadioGroupItem
-              value={index.toString()}
-              id={`option-${index}`}
-              className="scale-125 pointer-events-none"
-            />
-            <Label
-              htmlFor={`option-${index}`}
-              className="text-base sm:text-lg cursor-pointer w-full"
+    switch (type) {
+      case "MULTIPLE_CHOICE":
+        return currentQuestion.options.map((option, index) => {
+          const isSelected =
+            answers[currentQuestion.id]?.toString() === index.toString();
+          return (
+            <div
+              key={index}
+              onClick={() => handleAnswerChange(currentQuestion.id, index)}
+              className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer transition ${
+                isSelected
+                  ? "bg-mtech-light border-mtech-primary"
+                  : "hover:bg-muted"
+              }`}
             >
-              {String.fromCharCode(65 + index)}. {option}
-            </Label>
-          </div>
-        );
-      });
+              <RadioGroupItem
+                value={index.toString()}
+                id={`option-${index}`}
+                className="scale-125 pointer-events-none"
+              />
+              <Label
+                htmlFor={`option-${index}`}
+                className="text-base sm:text-lg cursor-pointer w-full"
+              >
+                {String.fromCharCode(65 + index)}. {option}
+              </Label>
+            </div>
+          );
+        });
 
-    case "TRUE_FALSE":
-      return ["True", "False"].map((option, index) => {
-        const isSelected = answers[currentQuestion.id]?.toString() === index.toString();
-        return (
-          <div
-            key={index}
-            onClick={() => handleAnswerChange(currentQuestion.id, index)}
-            className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer transition ${
-              isSelected ? "bg-mtech-light border-mtech-primary" : "hover:bg-muted"
-            }`}
-          >
-            <RadioGroupItem
-              value={index.toString()}
-              id={`tf-${index}`}
-              className="scale-125 pointer-events-none"
-            />
-            <Label
-              htmlFor={`tf-${index}`}
-              className="text-base sm:text-lg cursor-pointer w-full"
+      case "TRUE_FALSE":
+        return ["True", "False"].map((option, index) => {
+          const isSelected =
+            answers[currentQuestion.id]?.toString() === index.toString();
+          return (
+            <div
+              key={index}
+              onClick={() => handleAnswerChange(currentQuestion.id, index)}
+              className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer transition ${
+                isSelected
+                  ? "bg-mtech-light border-mtech-primary"
+                  : "hover:bg-muted"
+              }`}
             >
-              {option}
-            </Label>
-          </div>
+              <RadioGroupItem
+                value={index.toString()}
+                id={`tf-${index}`}
+                className="scale-125 pointer-events-none"
+              />
+              <Label
+                htmlFor={`tf-${index}`}
+                className="text-base sm:text-lg cursor-pointer w-full"
+              >
+                {option}
+              </Label>
+            </div>
+          );
+        });
+
+      case "SHORT_ANSWER":
+        return (
+          <Input
+            type="text"
+            placeholder="Type your answer..."
+            value={answers[currentQuestion.id]?.toString() || ""}
+            onChange={(e) =>
+              handleAnswerChange(currentQuestion.id, e.target.value)
+            }
+          />
         );
-      });
 
-    case "SHORT_ANSWER":
-      return (
-        <Input
-          type="text"
-          placeholder="Type your answer..."
-          value={answers[currentQuestion.id]?.toString() || ""}
-          onChange={(e) =>
-            handleAnswerChange(currentQuestion.id, e.target.value)
-          }
-        />
-      );
-
-    default:
-      return <div className="text-red-500">Unsupported question type</div>;
-  }
-};
-
+      default:
+        return <div className="text-red-500">Unsupported question type</div>;
+    }
+  };
 
   if (isLoading) {
     return <LoadingQuizzes />;
@@ -492,33 +496,32 @@ quizQuestions.forEach((question) => {
                 )}
 
                 {confirmingQuizId === quiz.quizId && (
-  <>
-    <div className="text-sm text-center text-muted-foreground">
-      Are you sure? Your latest score will be used, if you get a lesser score,
-      that one will be used as the final mark.
-    </div>
-    <div className="flex gap-2 w-full">
-      <Button
-        variant="secondary"
-        className="w-full"
-        onClick={() => setConfirmingQuizId(null)}
-      >
-        No, go back
-      </Button>
-      <Button
-        variant="default"
-        className="w-full"
-        onClick={() => {
-          startQuiz(quiz);
-          setConfirmingQuizId(null);
-        }}
-      >
-        Yes, Retry
-      </Button>
-    </div>
-  </>
-)}
-
+                  <>
+                    <div className="text-sm text-center text-muted-foreground">
+                      Are you sure? Your latest score will be used, if you get a
+                      lesser score, that one will be used as the final mark.
+                    </div>
+                    <div className="flex gap-2 w-full">
+                      <Button
+                        variant="secondary"
+                        className="w-full"
+                        onClick={() => setConfirmingQuizId(null)}
+                      >
+                        No, go back
+                      </Button>
+                      <Button
+                        variant="default"
+                        className="w-full"
+                        onClick={() => {
+                          startQuiz(quiz);
+                          setConfirmingQuizId(null);
+                        }}
+                      >
+                        Yes, Retry
+                      </Button>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -559,21 +562,23 @@ quizQuestions.forEach((question) => {
                     </h3>
 
                     <div className="space-y-4">
-  {(type === "MULTIPLE_CHOICE" || type === "TRUE_FALSE") ? (
-    <RadioGroup
-      key={currentQuestion.id}
-      value={answers[currentQuestion.id]?.toString() || ""}
-      onValueChange={(value) =>
-        handleAnswerChange(currentQuestion.id, parseInt(value))
-      }
-    >
-      {renderQuestionInput()}
-    </RadioGroup>
-  ) : (
-    renderQuestionInput()
-  )}
-</div>
-
+                      {type === "MULTIPLE_CHOICE" || type === "TRUE_FALSE" ? (
+                        <RadioGroup
+                          key={currentQuestion.id}
+                          value={answers[currentQuestion.id]?.toString() || ""}
+                          onValueChange={(value) =>
+                            handleAnswerChange(
+                              currentQuestion.id,
+                              parseInt(value)
+                            )
+                          }
+                        >
+                          {renderQuestionInput()}
+                        </RadioGroup>
+                      ) : (
+                        renderQuestionInput()
+                      )}
+                    </div>
                   </div>
 
                   <DialogFooter className="flex flex-col sm:flex-row justify-between gap-4">
