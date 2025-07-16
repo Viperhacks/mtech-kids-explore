@@ -57,7 +57,9 @@ const AdminDashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null);
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(
+    null
+  );
 
   type Stats = {
     totalUsers: number;
@@ -149,29 +151,28 @@ const AdminDashboard: React.FC = () => {
   };
 
   const fetchTeachers = async (page = 0) => {
-  setIsLoading(true);
-  try {
-    const response = await getTeachers(page, 5); 
-    const teacherData = Array.isArray(response)
-      ? response
-      : response.content || [];
+    setIsLoading(true);
+    try {
+      const response = await getTeachers(page, 5);
+      const teacherData = Array.isArray(response)
+        ? response
+        : response.content || [];
       console.log("API Response for Teachers:", response);
-    const totalPagesData = response.totalPages || 1;
+      const totalPagesData = response.totalPages || 1;
 
-    setTeachers(teacherData);
-    setTotalPages(totalPagesData);
-    setCurrentPage(page);
-  } catch (error) {
-    toast({
-      title: "Failed to load teachers",
-      description: "Could not load teacher data",
-      variant: "destructive",
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+      setTeachers(teacherData);
+      setTotalPages(totalPagesData);
+      setCurrentPage(page);
+    } catch (error) {
+      toast({
+        title: "Failed to load teachers",
+        description: "Could not load teacher data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const stats = [
     { label: "Total Users", value: totalStats.totalUsers, icon: Users },
@@ -234,12 +235,11 @@ const AdminDashboard: React.FC = () => {
     { value: "content", label: "Content Management" },
   ];
 
-
   const handleViewStudents = (teacherId: string) => {
     // Navigate to the teacher's student management page
     setSearchParams({ tab: "teachers", teacherId });
     handleTabChange("teachers", "force");
-  }
+  };
 
   return (
     <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5 min-h-screen">
@@ -384,70 +384,72 @@ const AdminDashboard: React.FC = () => {
               <TeacherAccountCreation onAdd={fetchTeachers} />
 
               <CardContent>
-  {isLoading ? (
-    <div className="space-y-3">
-      {[...Array(3)].map((_, i) => (
-        <Skeleton key={i} className="h-10 w-full" />
-      ))}
-    </div>
-  ) : (
-    <div className="space-y-3">
-  {teachers.map((t, index) => (
-    <div
-      className="flex justify-between items-center p-3 border rounded-md"
-      key={index}
-    >
-      <div>
-        <p className="font-medium">{t.fullName || "Unknown Teacher"}</p>
-        <p className="text-sm text-muted-foreground">
-          {t.assignedLevels?.length
-            ? `Assigned to: Grade ${t.assignedLevels.join(", ")}`
-            : "Not assigned to any level"}
-        </p>
-      </div>
-      <div className="flex gap-2 items-center">
-        <Badge variant="outline">Active</Badge>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setSelectedTeacherId(Number(t.id))}
-        >
-          View Students
-        </Button>
-      </div>
-    </div>
-  ))}
+                {isLoading ? (
+                  <div className="space-y-3">
+                    {[...Array(3)].map((_, i) => (
+                      <Skeleton key={i} className="h-10 w-full" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {teachers.map((t, index) => (
+                      <div
+                        className="flex justify-between items-center p-3 border rounded-md"
+                        key={index}
+                      >
+                        <div>
+                          <p className="font-medium">
+                            {t.fullName || "Unknown Teacher"}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {t.assignedLevels?.length
+                              ? `Assigned to: Grade ${t.assignedLevels.join(
+                                  ", "
+                                )}`
+                              : "Not assigned to any level"}
+                          </p>
+                        </div>
+                        <div className="flex gap-2 items-center">
+                          <Badge variant="outline">Active</Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setSelectedTeacherId(Number(t.id))}
+                          >
+                            View Students
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
 
-  {/* Move the modal OUTSIDE the map */}
-  {selectedTeacherId !== null && (
-    <TeacherStudentsModal
-      teacherId={selectedTeacherId}
-      open={true}
-      onClose={() => setSelectedTeacherId(null)}
-    />
-  )}
+                    {/* Move the modal OUTSIDE the map */}
+                    {selectedTeacherId !== null && (
+                      <TeacherStudentsModal
+                        teacherId={selectedTeacherId}
+                        open={true}
+                        onClose={() => setSelectedTeacherId(null)}
+                      />
+                    )}
 
-  <div className="flex justify-center gap-3 mt-4">
-    <Button
-      disabled={currentPage === 0}
-      onClick={() => setCurrentPage((prev) => prev - 1)}
-      variant="secondary"
-    >
-      Prev
-    </Button>
-    <Button
-      disabled={currentPage + 1 >= totalPages}
-      onClick={() => setCurrentPage((prev) => prev + 1)}
-      variant="secondary"
-    >
-      Next
-    </Button>
-  </div>
-</div>
-
-  )}
-</CardContent>
-
+                    <div className="flex justify-center gap-3 mt-4">
+                      <Button
+                        disabled={currentPage === 0}
+                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                        variant="secondary"
+                      >
+                        Prev
+                      </Button>
+                      <Button
+                        disabled={currentPage + 1 >= totalPages}
+                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                        variant="secondary"
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
             </div>
           </TabsContent>
 
@@ -459,8 +461,6 @@ const AdminDashboard: React.FC = () => {
             <AdminContentPanel />
           </TabsContent>
         </Tabs>
-
-        
       </div>
     </div>
   );

@@ -62,16 +62,15 @@ const TeacherStudentsDialog: React.FC<TeacherStudentsModalProps> = ({
   }, [teacherId, open, currentPage]);
 
   return (
-    <Dialog open={open} onOpenChange={onClose} >
-     <DialogContent className="w-full max-w-2xl sm:max-w-3xl">
-
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="w-full max-w-2xl sm:max-w-3xl">
         <DialogHeader>
-  <DialogTitle>Students under Teacher</DialogTitle>
-  <DialogDescription>
-    Total Students: {totalStudents} | Page {currentPage + 1} of {totalPages}
-  </DialogDescription>
-</DialogHeader>
-
+          <DialogTitle>Students under Teacher</DialogTitle>
+          <DialogDescription>
+            Total Students: {totalStudents} | Page {currentPage + 1} of{" "}
+            {totalPages}
+          </DialogDescription>
+        </DialogHeader>
 
         {isLoading ? (
           <>
@@ -85,13 +84,16 @@ const TeacherStudentsDialog: React.FC<TeacherStudentsModalProps> = ({
           <p>No students found for this teacher.</p>
         ) : (
           <ul className="space-y-2 max-h-64 overflow-auto">
-            {students.map((student,idx) => (
+            {students.map((student, idx) => (
               <li
                 key={student.id}
                 className="border p-2 rounded flex justify-between items-center"
               >
                 <div>
-                  <p className="font-medium"> {idx + 1 + currentPage * 10}. {student.fullName}</p>
+                  <p className="font-medium">
+                    {" "}
+                    {idx + 1 + currentPage * 10}. {student.fullName}
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     Grade {student.gradeLevel}
                   </p>
