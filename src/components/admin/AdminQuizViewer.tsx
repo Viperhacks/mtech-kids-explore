@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle, XCircle, FileText } from 'lucide-react';
-import { AdminQuiz } from '../types/adminTypes';
-import { getQuizQuestions } from '@/services/apiService';
-import { useToast } from '@/hooks/use-toast';
-import { capitalize } from '@/utils/stringUtils';
-import toReadableDate from '@/utils/toReadableDate';
+
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CheckCircle, XCircle, FileText } from "lucide-react";
+import { AdminQuiz } from "../types/adminTypes";
+import { getQuizQuestions } from "@/services/apiService";
+import { useToast } from "@/hooks/use-toast";
+import { capitalize } from "@/utils/stringUtils";
+import toReadableDate from "@/utils/toReadableDate";
+
 
 interface AdminQuizViewerProps {
   quiz: AdminQuiz;
@@ -17,8 +19,11 @@ interface QuizQuestion {
   id: string;
   question: string;
   options: string[];
-  correctAnswer: string;
-  type: 'multiple_choice' | 'true_false';
+
+  correctAnswerPosition: string;
+  correctAnswerText: string;
+  type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "SHORT_ANSWER";
+
 }
 
 const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
@@ -34,45 +39,44 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
     setIsLoading(true);
     try {
       const response = await getQuizQuestions(quiz.quizId);
+ 
+      console.log("Quiz questions response:", response);
       // Handle axios response - response.data should contain the questions
       const questionsData = response.data || response || [];
-      
+
       // Format questions to match our interface
-      const formattedQuestions = Array.isArray(questionsData) 
+      const formattedQuestions = Array.isArray(questionsData)
         ? questionsData.map((q: any) => ({
             id: q.id || q.questionId || Math.random().toString(),
-            question: q.question || q.questionText || 'No question text',
+            question: q.question || q.questionText || "No question text",
             options: q.options || q.answerOptions || [],
-            correctAnswer: q.correctAnswer || q.correct || '',
-            type: q.type || 'multiple_choice'
+            correctAnswerPosition: q.correctAnswerPosition || q.correct || "",
+            correctAnswerText: q.correctAnswerText || "",
+            type: q.type || "MULTIPLE_CHOICE",
           }))
         : [];
-      
+
       setQuestions(formattedQuestions);
     } catch (error) {
-      console.error('Error fetching quiz questions:', error);
-      // Use mock data on error for demonstration
-      setQuestions([
-        {
-          id: '1',
-          question: 'Sample question from quiz',
-          options: ['Option A', 'Option B', 'Option C', 'Option D'],
-          correctAnswer: 'Option A',
-          type: 'multiple_choice'
-        }
-      ]);
+      console.error("Error fetching quiz questions:", error);
       toast({
         title: "Using sample data",
         description: "Could not load quiz questions, showing sample",
-        variant: "default"
+        variant: "default",
+
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getOptionIcon = (option: string, correctAnswer: string) => {
-    return option === correctAnswer ? (
+
+  const getOptionIcon = (
+    optionIndex: number,
+    correctAnswerPosition: number
+  ) => {
+    return optionIndex + 1 === correctAnswerPosition ? (
+
       <CheckCircle className="h-4 w-4 text-green-500" />
     ) : (
       <XCircle className="h-4 w-4 text-red-500" />
@@ -97,20 +101,25 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <span className="font-medium">Grade:</span> {quiz.grade}
+ 
+              <span className="font-medium"></span> {quiz.grade === "0"
+                            ? "ECD"
+                            : `Grade:  ${quiz.grade}`}
             </div>
             <div>
-              <span className="font-medium">Subject:</span> {capitalize(quiz.subject)}
+              <span className="font-medium">Subject:</span>{" "}
+              {capitalize(quiz.subject)}
             </div>
             <div>
-              <span className="font-medium">Created By:</span> {capitalize(quiz.teacherName)}
+              <span className="font-medium">Created By:</span>{" "}
+              {capitalize(quiz.teacherName)}
             </div>
             <div>
-              <span className="font-medium">Created:</span> {
-                Array.isArray(quiz.createdAt) 
-                  ? toReadableDate(quiz.createdAt) 
-                  : "Invalid date"
-              }
+              <span className="font-medium">Created:</span>{" "}
+              {Array.isArray(quiz.createdAt)
+                ? toReadableDate(quiz.createdAt)
+                : "Invalid date"}
+
             </div>
           </div>
           {quiz.description && (
@@ -150,7 +159,12 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
           ) : (
             <div className="space-y-6">
               {questions.map((question, index) => (
-                <Card key={question.id} className="border-l-4 border-l-mtech-primary">
+
+                <Card
+                  key={question.id}
+                  className="border-l-4 border-l-mtech-primary"
+                >
+
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg">
                       Question {index + 1}
@@ -160,44 +174,75 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
                     <p className="font-medium text-mtech-dark">
                       {question.question}
                     </p>
-                    
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Answer Options:
-                      </p>
-                      <div className="grid gap-2">
-                        {question.options.map((option, optionIndex) => (
-                          <div
-                            key={optionIndex}
-                            className={`flex items-center gap-3 p-3 rounded-lg border ${
-                              option === question.correctAnswer
-                                ? 'bg-green-50 border-green-200'
-                                : 'bg-red-50 border-red-200'
-                            }`}
-                          >
-                            {getOptionIcon(option, question.correctAnswer)}
-                            <span className="flex-1">{option}</span>
-                            {option === question.correctAnswer && (
-                              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                                Correct Answer
-                              </Badge>
-                            )}
-                          </div>
-                        ))}
+ 
+
+                    {question.type === "SHORT_ANSWER" ? (
+                      <div className="p-4 rounded-lg border bg-yellow-50 border-yellow-300">
+                        <p className="font-medium text-yellow-800">
+                          Expected Answer:
+                        </p>
+                        <p>
+                          {question.correctAnswerText || "No answer provided"}
+                        </p>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Answer Options:
+                        </p>
+                        <div className="grid gap-2">
+                          {question.options.map((option, optionIndex) => (
+                            <div
+                              key={optionIndex}
+                              className={`flex items-center gap-3 p-3 rounded-lg border ${
+                                optionIndex + 1 ===
+                                Number(question.correctAnswerPosition)
+                                  ? "bg-green-50 border-green-200"
+                                  : "bg-red-50 border-red-200"
+                              }`}
+                            >
+                              {getOptionIcon(
+                                optionIndex,
+                                Number(question.correctAnswerPosition)
+                              )}
+                              <span className="flex-1">{option}</span>
+                              {optionIndex + 1 ===
+                                Number(question.correctAnswerPosition) && (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-green-100 text-green-800 border-green-300"
+                                >
+                                  Correct Answer
+                                </Badge>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
 
                     <div className="pt-2 border-t">
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span>
-                          <span className="font-medium">Type:</span> {
-                            question.type === 'multiple_choice' ? 'Multiple Choice' : 'True/False'
-                          }
+ 
+                          <span className="font-medium">Type:</span>{" "}
+                          {question.type === "MULTIPLE_CHOICE"
+                            ? "Multiple Choice"
+                            : question.type === "TRUE_FALSE"
+                            ? "True/False"
+                            : question.type === "SHORT_ANSWER"
+                            ? "Short Answer"
+                            : "Unknown"}
                         </span>
                         <span>
-                          <span className="font-medium">Correct Answer:</span> 
+                          <span className="font-medium">Correct Answer:</span>
                           <span className="ml-1 font-medium text-green-600">
-                            {question.correctAnswer}
+                            {question.type === "SHORT_ANSWER"
+                              ? question.correctAnswerText ||
+                                "Not specified"
+                              : question.correctAnswerPosition}
+
                           </span>
                         </span>
                       </div>
@@ -213,4 +258,6 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
   );
 };
 
+ 
 export default AdminQuizViewer;
+

@@ -1,23 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, Edit, Trash2, Building2, Users, Loader2, UserPlus, Eye } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  getClassrooms, 
-  createClassroom, 
-  updateClassroom, 
-  deleteClassroom 
-} from '@/services/apiService';
-import TeacherAssignmentModal from './TeacherAssignmentModal';
-import ClassroomAssignmentsModal from './ClassroomAssignmentsModal';
-import { capitalize } from '@/utils/stringUtils';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  PlusCircle,
+  Edit,
+  Trash2,
+  Building2,
+  Users,
+  Loader2,
+  UserPlus,
+  Eye,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import {
+  getClassrooms,
+  createClassroom,
+  updateClassroom,
+  deleteClassroom,
+} from "@/services/apiService";
+import TeacherAssignmentModal from "./TeacherAssignmentModal";
+import ClassroomAssignmentsModal from "./ClassroomAssignmentsModal";
+import { capitalize } from "@/utils/stringUtils";
 
 interface Classroom {
   id: string;
@@ -34,8 +62,10 @@ const ClassroomManagement: React.FC = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
   const [showAssignmentsModal, setShowAssignmentsModal] = useState(false);
-  const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(null);
-  const [formData, setFormData] = useState({ name: '', gradeLevel: '' });
+  const [selectedClassroom, setSelectedClassroom] = useState<Classroom | null>(
+    null
+  );
+  const [formData, setFormData] = useState({ name: "", gradeLevel: "" });
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -47,15 +77,17 @@ const ClassroomManagement: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await getClassrooms(currentPage, 10);
-      const classroomsData = response.content || response.data?.content || response || [];
-      const totalPagesData = response.totalPages || response.data?.totalPages || 1;
+      const classroomsData =
+        response.content || response.data?.content || response || [];
+      const totalPagesData =
+        response.totalPages || response.data?.totalPages || 1;
       setClassrooms(Array.isArray(classroomsData) ? classroomsData : []);
       setTotalPages(totalPagesData);
     } catch (error) {
       toast({
         title: "Failed to load classrooms",
         description: "Could not load classroom data",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -67,7 +99,7 @@ const ClassroomManagement: React.FC = () => {
       toast({
         title: "Validation Error",
         description: "Please fill in all fields",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -76,16 +108,16 @@ const ClassroomManagement: React.FC = () => {
       await createClassroom(formData);
       toast({
         title: "Classroom Created",
-        description: "New classroom has been created successfully"
+        description: "New classroom has been created successfully",
       });
       setShowCreateDialog(false);
-      setFormData({ name: '', gradeLevel: '' });
+      setFormData({ name: "", gradeLevel: "" });
       fetchClassrooms();
     } catch (error) {
       toast({
         title: "Failed to create classroom",
         description: "Please try again",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -95,7 +127,7 @@ const ClassroomManagement: React.FC = () => {
       toast({
         title: "Validation Error",
         description: "Please fill in all fields",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -104,17 +136,17 @@ const ClassroomManagement: React.FC = () => {
       await updateClassroom(selectedClassroom.id, formData);
       toast({
         title: "Classroom Updated",
-        description: "Classroom has been updated successfully"
+        description: "Classroom has been updated successfully",
       });
       setShowEditDialog(false);
       setSelectedClassroom(null);
-      setFormData({ name: '', gradeLevel: '' });
+      setFormData({ name: "", gradeLevel: "" });
       fetchClassrooms();
     } catch (error) {
       toast({
         title: "Failed to update classroom",
         description: "Please try again",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -126,7 +158,7 @@ const ClassroomManagement: React.FC = () => {
       await deleteClassroom(selectedClassroom.id);
       toast({
         title: "Classroom Deleted",
-        description: "Classroom has been deleted successfully"
+        description: "Classroom has been deleted successfully",
       });
       setShowDeleteDialog(false);
       setSelectedClassroom(null);
@@ -135,13 +167,13 @@ const ClassroomManagement: React.FC = () => {
       toast({
         title: "Failed to delete classroom",
         description: "Please try again",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const openCreateDialog = () => {
-    setFormData({ name: '', gradeLevel: '' });
+    setFormData({ name: "", gradeLevel: "" });
     setShowCreateDialog(true);
   };
 
@@ -205,7 +237,9 @@ const ClassroomManagement: React.FC = () => {
             <div className="text-center py-8">
               <Building2 className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium mb-2">No classrooms found</h3>
-              <p className="text-muted-foreground mb-4">Create your first classroom to get started</p>
+              <p className="text-muted-foreground mb-4">
+                Create your first classroom to get started
+              </p>
               <Button onClick={openCreateDialog}>
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Create Classroom
@@ -231,29 +265,41 @@ const ClassroomManagement: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">Grade {classroom.gradeLevel}</Badge>
+                        <Badge variant="outline">
+                          {classroom.gradeLevel === "0"
+                            ? "ECD"
+                            : `Grade ${classroom.gradeLevel}`}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-right space-x-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => openAssignmentModal(classroom)}
                           title="Assign Teacher"
                         >
                           <UserPlus className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => openAssignmentsModal(classroom)}
                           title="View Assignments"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => openEditDialog(classroom)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEditDialog(classroom)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(classroom)}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openDeleteDialog(classroom)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>
@@ -268,7 +314,7 @@ const ClassroomManagement: React.FC = () => {
                     variant="outline"
                     size="sm"
                     disabled={currentPage === 0}
-                    onClick={() => setCurrentPage(prev => prev - 1)}
+                    onClick={() => setCurrentPage((prev) => prev - 1)}
                   >
                     Previous
                   </Button>
@@ -279,7 +325,7 @@ const ClassroomManagement: React.FC = () => {
                     variant="outline"
                     size="sm"
                     disabled={currentPage === totalPages - 1}
-                    onClick={() => setCurrentPage(prev => prev + 1)}
+                    onClick={() => setCurrentPage((prev) => prev + 1)}
                   >
                     Next
                   </Button>
@@ -302,20 +348,26 @@ const ClassroomManagement: React.FC = () => {
               <Input
                 id="name"
                 value={capitalize(formData.name)}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="Enter classroom name"
               />
             </div>
             <div>
               <Label htmlFor="gradeLevel">Grade Level</Label>
-              <Select value={formData.gradeLevel} onValueChange={(value) => setFormData(prev => ({ ...prev, gradeLevel: value }))}>
+              <Select
+                value={formData.gradeLevel}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, gradeLevel: value }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select grade level" />
                 </SelectTrigger>
                 <SelectContent>
-
-                  {[1, 2, 3, 4, 5, 6, 7].map(grade => (
-
+                  <SelectItem value="0">ECD</SelectItem>
+                  {[1, 2, 3, 4, 5, 6, 7].map((grade) => (
                     <SelectItem key={grade} value={grade.toString()}>
                       Grade {grade}
                     </SelectItem>
@@ -325,12 +377,13 @@ const ClassroomManagement: React.FC = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreateDialog(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handleCreateClassroom}>
-              Create Classroom
-            </Button>
+            <Button onClick={handleCreateClassroom}>Create Classroom</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -347,18 +400,26 @@ const ClassroomManagement: React.FC = () => {
               <Input
                 id="edit-name"
                 value={capitalize(formData.name)}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="Enter classroom name"
               />
             </div>
             <div>
               <Label htmlFor="edit-gradeLevel">Grade Level</Label>
-              <Select value={formData.gradeLevel} onValueChange={(value) => setFormData(prev => ({ ...prev, gradeLevel: value }))}>
+              <Select
+                value={formData.gradeLevel}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, gradeLevel: value }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select grade level" />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7].map(grade => (
+                  <SelectItem value="0">ECD</SelectItem>
+                  {[1, 2, 3, 4, 5, 6, 7].map((grade) => (
                     <SelectItem key={grade} value={grade.toString()}>
                       Grade {grade}
                     </SelectItem>
@@ -371,9 +432,7 @@ const ClassroomManagement: React.FC = () => {
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleEditClassroom}>
-              Update Classroom
-            </Button>
+            <Button onClick={handleEditClassroom}>Update Classroom</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -385,10 +444,16 @@ const ClassroomManagement: React.FC = () => {
             <DialogTitle>Delete Classroom</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <p>Are you sure you want to delete "{selectedClassroom?.name}"? This action cannot be undone.</p>
+            <p>
+              Are you sure you want to delete "{selectedClassroom?.name}"? This
+              action cannot be undone.
+            </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDeleteClassroom}>

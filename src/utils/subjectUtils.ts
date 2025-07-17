@@ -1,13 +1,11 @@
 
 export const subjects = [
-  { id: 1, name: 'Mathematics' },
-  { id: 2, name: 'English' },
-  { id: 3, name: 'Science' },
-  { id: 4, name: 'ICT' },
-  { id: 5, name: 'Agriculture' },
-  { id: 6, name: 'Shona' },
-  { id: 7, name: 'Physical Education' },
-  { id: 8, name: 'Social Studies' } 
+  { id: 1, name: 'Mathematics' }, 
+  { id: 2, name: 'English' }, 
+  { id: 3, name: 'Social Science' }, 
+  { id: 4, name: 'Agriculture Science and Technology' },  
+  { id: 5, name: 'Shona' },
+  { id: 6, name: 'PE & VPA' } 
 ]
 
 

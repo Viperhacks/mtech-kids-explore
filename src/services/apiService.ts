@@ -286,6 +286,33 @@ export const getAllUsers = async (page: number = 1, limit: number = 10, filters?
   }
 };
 
+export const getStudentsCreatedByTeacher = async (
+  teacherId: string,
+  page: number = 0,
+  limit: number = 10
+) => {
+  try {
+    const response = await adminService.getStudentsCreatedByTeacher(teacherId, page, limit);
+    return response; // axios interceptor unwraps data
+  } catch (error) {
+    console.error('Get students created by teacher error:', error);
+    throw error;
+  }
+};
+
+
+// userService.ts (shared by admin and teacher)
+export const updateUserDetails = async (userId: string, updatedData: any) => {
+  try {
+    const response = await api.put(`/users/${userId}`, updatedData);
+    return response;
+  } catch (error) {
+    console.error('Update user details error:', error);
+    throw error;
+  }
+};
+
+
 export const getAllStudents = async (): Promise<any> => {
   try {
     const response = await api.get('/teacher/students');
@@ -305,6 +332,16 @@ export const getTotalStats = async()=>{
     throw error;
   }
 }
+
+export const getTeacherSubjects = async () => {
+  try {
+    const response = await teacherService.getTeacherSubjects();
+    return response;
+  } catch (error) {
+    console.error('Get teacher subjects error:', error);
+    throw error;
+  }
+};
 
 export const getResourceStats = async () => {
   try {

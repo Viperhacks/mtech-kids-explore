@@ -10,24 +10,14 @@ const Revision = () => {
   const [activeTab, setActiveTab] = useState("");
   const { isAuthenticated, user } = useAuth();
 
-  // Subject Topics with their display names
-  const subjectTopics = {
-    mathematics: "Mathematics",
-    english: "English",
-    science: "Science",
-    history: "History",
-    social: "Social Studies",
-    shona: "Shona",
-    ict: "ICT",
-    // Add more subjects as needed
-  };
+ 
 
   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || "1";
 
   return (
-    <div className="bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2] min-h-screen container mx-auto px-4 py-8  shadow-lg rounded-xl">
+    <div className="bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5 min-h-screen container mx-auto px-4 py-8  shadow-lg rounded-xl">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-4xl font-kids font-extrabold text-mtech-secondary flex items-center gap-2">
+        <h1 className="text-4xl font-kids font-extrabold text-mtech-dark flex items-center gap-2">
           📚 Revision Zone
         </h1>
 

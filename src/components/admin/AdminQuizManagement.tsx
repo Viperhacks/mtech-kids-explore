@@ -134,7 +134,9 @@ const AdminQuizManagement: React.FC = () => {
               <SelectContent>
                 <SelectItem value="all">All Grades</SelectItem>
                 {grades.map(grade => (
-                  <SelectItem key={grade} value={grade}>Grade {grade}</SelectItem>
+                  <SelectItem key={grade} value={grade}>{grade === "0"
+                            ? "ECD"
+                            : `Grade ${grade}`}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -174,7 +176,9 @@ const AdminQuizManagement: React.FC = () => {
                 {filteredQuizzes.map((quiz) => (
                   <TableRow key={quiz.quizId}>
                     <TableCell className="font-medium">{capitalize(quiz.title)}</TableCell>
-                    <TableCell>Grade {quiz.grade}</TableCell>
+                    <TableCell> {quiz.grade === "0"
+                            ? "ECD"
+                            : `Grade ${quiz.grade}`}</TableCell>
                     <TableCell>{capitalize(quiz.subject)}</TableCell>
                     <TableCell>{capitalize(quiz.teacherName)}</TableCell>
                     <TableCell> {Array.isArray(quiz.createdAt)

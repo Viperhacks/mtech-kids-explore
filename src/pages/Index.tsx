@@ -16,12 +16,14 @@ import CountUp from "react-countup";
 import { InView } from "react-intersection-observer";
 import { useSearchParams } from "react-router-dom";
 
-const iconVariants = {
+import type { Variants } from "framer-motion";
+
+const iconVariants: Variants = {
   rest: { scale: 1 },
   hover: {
     scale: 1.2,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 300,
       damping: 10,
     },
@@ -155,7 +157,7 @@ const Index = () => {
         </section>
 
         {/* Benefits Section */}
-        <section className="py-16 bg-gradient-to-br from-[#F0F9FF] via-[#FEF9C3] to-[#FEE2E2]">
+        <section className="py-16 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
           <div className="mtech-container">
             <h2 className="section-heading mb-12 font-extrabold text-mtech-secondary">
               Why Choose MTECH Kids Explore?

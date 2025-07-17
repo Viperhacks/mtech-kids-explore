@@ -169,7 +169,9 @@ const AdminResourceManagement: React.FC = () => {
               <SelectContent>
                 <SelectItem value="all">All Grades</SelectItem>
                 {grades.map(grade => (
-                  <SelectItem key={grade} value={grade}>Grade {grade}</SelectItem>
+                  <SelectItem key={grade} value={grade}> {grade === "0"
+                            ? "ECD"
+                            : `Grade ${grade}`}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -216,7 +218,9 @@ const AdminResourceManagement: React.FC = () => {
                         </Badge>
                       </div>
                     </TableCell>
-                    <TableCell>Grade {resource.response.grade}</TableCell>
+                    <TableCell> {resource.response.grade === "0"
+                            ? "ECD"
+                            : `Grade ${resource.response.grade}`}</TableCell>
                     <TableCell>{capitalize(resource.response.subject)}</TableCell>
                     <TableCell>{toReadableDate(resource.response.createdAt)}</TableCell>
                     <TableCell>

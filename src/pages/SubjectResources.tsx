@@ -381,7 +381,7 @@ const SubjectResources = () => {
 
   if (isLoading) {
     return (
-      <div className="mtech-container py-20 flex flex-col items-center justify-center bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2]">
+      <div className="mtech-container py-20 flex flex-col items-center justify-center bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
         {/* Fun spinning loader */}
         <div className="loader-spin">
           <Loader2 className="h-16 w-16 text-mtech-primary" />
@@ -406,7 +406,7 @@ const SubjectResources = () => {
         <FloatingBackButton />
         <div>
           <h1 className="text-2xl font-bold text-mtech-dark">
-            Grade {gradeIdNumber} -{" "}
+            {gradeIdNumber === "0" ? "ECD" : `Grade ${gradeIdNumber}`} -{" "}
             {subject?.name ||
               subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}
           </h1>
@@ -414,7 +414,7 @@ const SubjectResources = () => {
             Learn{" "}
             {subject?.name ||
               subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}{" "}
-            for Grade {gradeIdNumber}
+            for  {gradeIdNumber === "0" ? "ECD" : `Grade ${gradeIdNumber}`}
           </p>
         </div>
       </div>

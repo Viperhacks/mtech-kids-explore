@@ -1,21 +1,45 @@
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  PlusCircle,
+  Eye,
+  Trash2,
+  FileQuestion,
+  Upload,
+  Edit,
+  Users,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import {
+  getAllQuizzes,
+  deleteQuiz,
+  getQuizQuestions,
+  deleteQuestion,
+} from "@/services/apiService";
+import { useAuth } from "@/context/AuthContext";
+import QuizCreationDialog from "./QuizCreationDialog";
+import QuestionUploadDialog from "./QuestionUploadDialog";
+import QuizEditDialog from "./QuizEditDialog";
+import QuizAttemptModal from "./QuizAttemptModal";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { PlusCircle, Eye, Trash2, FileQuestion, Upload, Edit, Users } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { getAllQuizzes, deleteQuiz, getQuizQuestions, deleteQuestion } from '@/services/apiService';
-import { useAuth } from '@/context/AuthContext';
-import QuizCreationDialog from './QuizCreationDialog';
-import QuestionUploadDialog from './QuestionUploadDialog';
-import QuizEditDialog from './QuizEditDialog';
-import QuizAttemptModal from './QuizAttemptModal';
-
-import LoadingQuizzes from './LoadingQuizzes';
-
+import LoadingQuizzes from "./LoadingQuizzes";
+import { capitalize } from "@/utils/stringUtils";
 
 interface Quiz {
   quizId: string;
@@ -32,6 +56,8 @@ interface Question {
   questionText: string;
   options: string[];
   correctIndex: number;
+  correctAnswerText: string;
+  type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "SHORT_ANSWER";
 }
 
 const QuizManagement: React.FC = () => {
@@ -56,8 +82,9 @@ const QuizManagement: React.FC = () => {
     try {
       const response = await getAllQuizzes();
 
-      const teacherQuizzes = response.data.filter((quiz: Quiz) => 
-        quiz.teacherName === user?.fullName || quiz.teacherName === user?.name
+      const teacherQuizzes = response.data.filter(
+        (quiz: Quiz) =>
+          quiz.teacherName === user?.fullName || quiz.teacherName === user?.name
       );
       console.log("Teacher quizzes:", teacherQuizzes);
       setQuizzes(teacherQuizzes);
@@ -65,7 +92,7 @@ const QuizManagement: React.FC = () => {
       toast({
         title: "Failed to load quizzes",
         description: "Please try again",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -73,7 +100,11 @@ const QuizManagement: React.FC = () => {
   };
 
   const handleDeleteQuiz = async (quizId: string) => {
-    if (!confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this quiz? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
@@ -81,14 +112,14 @@ const QuizManagement: React.FC = () => {
       await deleteQuiz(quizId);
       toast({
         title: "Quiz Deleted",
-        description: "Quiz has been successfully deleted"
+        description: "Quiz has been successfully deleted",
       });
       fetchQuizzes();
     } catch (error) {
       toast({
         title: "Failed to delete quiz",
         description: "Please try again",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -103,7 +134,7 @@ const QuizManagement: React.FC = () => {
       toast({
         title: "Failed to load questions",
         description: "Please try again",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -114,7 +145,7 @@ const QuizManagement: React.FC = () => {
   };
 
   const handleDeleteQuestion = async (questionId: string) => {
-    if (!confirm('Are you sure you want to delete this question?')) {
+    if (!confirm("Are you sure you want to delete this question?")) {
       return;
     }
 
@@ -122,7 +153,7 @@ const QuizManagement: React.FC = () => {
       await deleteQuestion(questionId);
       toast({
         title: "Question Deleted",
-        description: "Question has been removed from the quiz"
+        description: "Question has been removed from the quiz",
       });
       if (selectedQuiz) {
         handleViewQuestions(selectedQuiz);
@@ -131,7 +162,7 @@ const QuizManagement: React.FC = () => {
       toast({
         title: "Failed to delete question",
         description: "Please try again",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -147,7 +178,7 @@ const QuizManagement: React.FC = () => {
   };
 
   if (isLoading) {
-    return <LoadingQuizzes/>
+    return <LoadingQuizzes />;
   }
 
   return (
@@ -158,7 +189,10 @@ const QuizManagement: React.FC = () => {
             <CardTitle>My Quizzes</CardTitle>
 
             <div className="flex gap-2 overflow-auto">
-              <Button variant="outline" onClick={() => setShowUploadDialog(true)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowUploadDialog(true)}
+              >
                 <Upload className="h-4 w-4 mr-2" />
                 Upload Questions
               </Button>
@@ -173,8 +207,12 @@ const QuizManagement: React.FC = () => {
           {quizzes.length === 0 ? (
             <div className="text-center py-8">
               <FileQuestion className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">You haven't created any quizzes yet</h3>
-              <p className="text-muted-foreground mb-4">Start creating engaging quizzes for your students</p>
+              <h3 className="text-lg font-medium mb-2">
+                You haven't created any quizzes yet
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Start creating engaging quizzes for your students
+              </p>
               <Button onClick={() => setShowCreateDialog(true)}>
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Create Your First Quiz
@@ -195,27 +233,49 @@ const QuizManagement: React.FC = () => {
                 {quizzes.map((quiz) => (
                   <TableRow key={quiz.quizId}>
                     <TableCell className="font-medium">{quiz.title}</TableCell>
-                    <TableCell>{quiz.subject}</TableCell>
-                    <TableCell>Grade {quiz.grade}</TableCell>
+                    <TableCell>{capitalize(quiz.subject)}</TableCell>
+                    <TableCell> {quiz.grade === "0" ? "ECD" : `Grade ${quiz.grade}`}</TableCell>
                     <TableCell>
-                      <Badge variant={quiz.standaAlone ? "default" : "secondary"}>
+                      <Badge
+                        variant={quiz.standaAlone ? "default" : "secondary"}
+                      >
                         {quiz.standaAlone ? "Standalone" : "Linked"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-2">
-                      <Button variant="ghost" size="sm" onClick={() => handleViewQuestions(quiz)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewQuestions(quiz)}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleViewAttempts(quiz)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewAttempts(quiz)}
+                      >
                         <Users className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleUploadQuestions(quiz)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleUploadQuestions(quiz)}
+                      >
                         <Upload className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleEditQuiz(quiz)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditQuiz(quiz)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDeleteQuiz(quiz.quizId)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteQuiz(quiz.quizId)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -263,44 +323,58 @@ const QuizManagement: React.FC = () => {
           </DialogHeader>
           <div className="max-h-96 overflow-y-auto space-y-4">
             {quizQuestions.length === 0 ? (
-    <p className="text-center text-muted-foreground py-10">
-      No questions available for this quiz.
-    </p>
-  ) : (
-            quizQuestions.map((question, index) => (
-              <Card key={question.id}>
-                <CardContent className="pt-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h4 className="font-medium mb-2">Question {index + 1}</h4>
-                      <p className="mb-3">{question.questionText}</p>
-                      <div className="space-y-1">
-                        {question.options.map((option, optIndex) => (
-                          <div
-                            key={optIndex}
-                            className={`p-2 rounded text-sm ${
-                              optIndex === question.correctIndex
-                                ? 'bg-green-100 text-green-800 font-medium'
-                                : 'bg-muted'
-                            }`}
-                          >
-                            {String.fromCharCode(65 + optIndex)}. {option}
-                            {optIndex === question.correctIndex && ' ✓'}
+              <p className="text-center text-muted-foreground py-10">
+                No questions available for this quiz.
+              </p>
+            ) : (
+              quizQuestions.map((question, index) => (
+                <Card key={question.id}>
+                  <CardContent className="pt-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h4 className="font-medium mb-2">
+                          Question {index + 1}
+                        </h4>
+                        <p className="mb-3">{question.questionText}</p>
+                        {question.type === "SHORT_ANSWER" && (
+                          <div className="p-4 rounded-lg border bg-yellow-50 border-yellow-300">
+                            <p className="font-medium text-yellow-800">
+                              Expected Answer:
+                            </p>
+                            <p>
+                              {question.correctAnswerText ||
+                                "No answer provided"}
+                            </p>
                           </div>
-                        ))}
+                        )}
+
+                        <div className="space-y-1">
+                          {question.options.map((option, optIndex) => (
+                            <div
+                              key={optIndex}
+                              className={`p-2 rounded text-sm ${
+                                optIndex === question.correctIndex
+                                  ? "bg-green-100 text-green-800 font-medium"
+                                  : "bg-muted"
+                              }`}
+                            >
+                              {String.fromCharCode(65 + optIndex)}. {option}
+                              {optIndex === question.correctIndex && " ✓"}
+                            </div>
+                          ))}
+                        </div>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteQuestion(question.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteQuestion(question.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              ))
             )}
           </div>
         </DialogContent>

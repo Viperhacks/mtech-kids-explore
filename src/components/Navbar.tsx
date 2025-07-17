@@ -169,7 +169,7 @@ const Navbar: React.FC = () => {
                     <ChevronDown size={16} />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 font-kids bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2]">
+                <DropdownMenuContent align="end" className="w-56 font-kids bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
                   <div className="flex items-center justify-start p-2">
                     <div className="flex flex-col space-y-1">
                       <p className="font-semibold text-sm">{userName}</p>

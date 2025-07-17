@@ -147,15 +147,17 @@ export const adminService = {
     api.get('/admin/users/resource', { params: { page, size } }),
   getAllAttempts: (page: number = 0, size: number = 10) => 
     api.get('/attempt/all', { params: { page, size } }),
+
+  getStudentsCreatedByTeacher: (teacherId: string, page: number = 0, size: number = 10) =>
+  api.get(`/admin/users/teacher/${teacherId}/created-students`, { params: { page, size } }),
+
 };
 
-// Teacher services
 export const teacherService = {
   getAllStudents: async (): Promise<PaginatedResponse<Student>> => {
     try {
       const { data } = await api.get('/teacher/students');
   
-      // Log the response for inspection
       console.log('API Raw Response:', data);
   
       if (!data || !Array.isArray(data.content)) {
@@ -167,7 +169,7 @@ export const teacherService = {
       console.error('Get all students error:', error);
       throw error;
     }
-  },  
+  },
 
   getStudentProgress: async (studentId: string) => {
     try {
@@ -179,7 +181,29 @@ export const teacherService = {
     }
   },
 
-  // Add other teacher-specific endpoints as needed
+ getTeacherSubjects: async (): Promise<string[]> => {
+  try {
+    const response = await api.get('/teacher/subjects');
+    console.log('Fetched teacher subjects:', response);
+
+    const subjects = response.data || response;  // make sure you're accessing data properly
+
+    if (!Array.isArray(subjects)) {
+      throw new Error('Invalid subjects response');
+    }
+
+    // If "All Subjects" is in the list, return only that
+    if (subjects.includes('All Subjects')) {
+      return ['All Subjects'];
+    }
+
+    return subjects;
+  } catch (error) {
+    console.error('Get teacher subjects error:', error);
+    throw error;
+  }
+},
+
 };
 
 export default api;

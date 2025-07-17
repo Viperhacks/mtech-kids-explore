@@ -11,8 +11,8 @@ const FAQ = () => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="container mx-auto px-3 py-4 bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2]">
-      <h1 className="text-xl md:text-2xl font-semibold mb-4 text-center text-mtech-secondary">
+    <div className="container mx-auto px-3 py-4 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
+      <h1 className="text-xl md:text-2xl font-semibold mb-4 text-center text-mtech-dark">
         FAQs
       </h1>
 

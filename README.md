@@ -121,7 +121,10 @@ public/
    ```sh
    npm run dist
    ```
-   The appId is `com.mtechkids.app` and the bundled product is `MTechKidsExplore`.
+   The appId is `com.mtechkids.app` and the bundled product is `MTechKidsExplore
+   
+   to be safe run  npm run dist -- --config.electronDownload.force=true 
+   `.
 
 ---
 

@@ -57,17 +57,19 @@ const StudentQuizzes: React.FC = () => {
   const { toast } = useToast();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [answers, setAnswers] = useState<{ [key: number]: string }>({});
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+ 
+  const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
+  const [showQuizDialog, setShowQuizDialog] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string | number>>({});
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
 
   const [showReview, setShowReview] = useState(false);
-  const [answerdQues, setAnsweredQues] = useState<Record<string, boolean>>({});
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [answeredQues, setAnsweredQues] = useState<Record<string, boolean>>({});
+  const [confirmingQuizId, setConfirmingQuizId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -85,9 +87,12 @@ const StudentQuizzes: React.FC = () => {
     fetchQuizzes();
   }, []);
 
+ 
 
 
 
+
+ 
   // Add the missing useEffect for filtering
   useEffect(() => {
     filterQuizzes();
@@ -169,10 +174,10 @@ const StudentQuizzes: React.FC = () => {
     }
   };
 
-  const handleAnswerChange = (questionId: string, answerIndex: number) => {
+  const handleAnswerChange = (questionId: string, answer: string | number) => {
     setAnswers((prev) => ({
       ...prev,
-      [questionId]: answerIndex,
+      [questionId]: answer,
     }));
 
     setAnsweredQues((prev) => ({
@@ -184,7 +189,7 @@ const StudentQuizzes: React.FC = () => {
   const nextQuestion = () => {
     const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
 
-    if (!answerdQues[currentQuestionId]) {
+    if (!answeredQues[currentQuestionId]) {
       toast({
         title: "Please select an answer",
         variant: "destructive",
@@ -203,7 +208,7 @@ const StudentQuizzes: React.FC = () => {
   const submitQuiz = async () => {
     const currentQuestionId = quizQuestions[currentQuestionIndex]?.id;
 
-    if (!answerdQues[currentQuestionId]) {
+    if (!answeredQues[currentQuestionId]) {
       toast({
         title: "Please select an answer",
         variant: "destructive",
@@ -214,9 +219,26 @@ const StudentQuizzes: React.FC = () => {
     setIsSubmitting(true);
     try {
       let correctCount = 0;
+
       quizQuestions.forEach((question) => {
-        if (answers[question.id] === question.correctAnswerPosition - 1) {
-          correctCount++;
+        const answer = answers[question.id];
+
+        switch (question.type) {
+          case "MULTIPLE_CHOICE":
+          case "TRUE_FALSE":
+            if (Number(answer) === question.correctAnswerPosition - 1) {
+              correctCount++;
+            }
+            break;
+          case "SHORT_ANSWER":
+            if (
+              typeof answer === "string" &&
+              answer.trim().toLowerCase() ===
+                question.correctAnswerText?.trim().toLowerCase()
+            ) {
+              correctCount++;
+            }
+            break;
         }
       });
 
@@ -228,25 +250,28 @@ const StudentQuizzes: React.FC = () => {
       //mark
       //await markResourceCompleted(Number(selectedQuiz!.quizId), "quiz");
 
-      await completionService.markComplete(Number(selectedQuiz!.quizId), "quiz",
-    refreshCompletions);
+      await completionService.markComplete(
+        Number(selectedQuiz!.quizId),
+        "quiz",
+        refreshCompletions
+      );
 
       //await refreshCompletions();
 
       setScore(correctCount);
       setQuizCompleted(true);
 
-       // Update local storage for completed quizzes
-      let completedQuizzes = JSON.parse(localStorage.getItem('completedQuizzes') || '[]');
+      // Update local storage for completed quizzes
+      let completedQuizzes = JSON.parse(
+        localStorage.getItem("completedQuizzes") || "[]"
+      );
       if (!completedQuizzes.includes(selectedQuiz.quizId)) {
         completedQuizzes.push(selectedQuiz.quizId);
-        localStorage.setItem('completedQuizzes', JSON.stringify(completedQuizzes));
+        localStorage.setItem(
+          "completedQuizzes",
+          JSON.stringify(completedQuizzes)
+        );
       }
-
-
-      
-
-      
     } catch (error) {
       const rawMsg = error?.response?.data?.message || error?.message || "";
       let friendlyMsg = "Oops! Something went wrong. Please try again.";
@@ -270,6 +295,87 @@ const StudentQuizzes: React.FC = () => {
     navigate(-1);
   };
 
+ 
+  const currentQuestion = quizQuestions[currentQuestionIndex];
+  const type = currentQuestion?.type;
+
+  const renderQuestionInput = () => {
+    switch (type) {
+      case "MULTIPLE_CHOICE":
+        return currentQuestion.options.map((option, index) => {
+          const isSelected =
+            answers[currentQuestion.id]?.toString() === index.toString();
+          return (
+            <div
+              key={index}
+              onClick={() => handleAnswerChange(currentQuestion.id, index)}
+              className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer transition ${
+                isSelected
+                  ? "bg-mtech-light border-mtech-primary"
+                  : "hover:bg-muted"
+              }`}
+            >
+              <RadioGroupItem
+                value={index.toString()}
+                id={`option-${index}`}
+                className="scale-125 pointer-events-none"
+              />
+              <Label
+                htmlFor={`option-${index}`}
+                className="text-base sm:text-lg cursor-pointer w-full"
+              >
+                {String.fromCharCode(65 + index)}. {option}
+              </Label>
+            </div>
+          );
+        });
+
+      case "TRUE_FALSE":
+        return ["True", "False"].map((option, index) => {
+          const isSelected =
+            answers[currentQuestion.id]?.toString() === index.toString();
+          return (
+            <div
+              key={index}
+              onClick={() => handleAnswerChange(currentQuestion.id, index)}
+              className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer transition ${
+                isSelected
+                  ? "bg-mtech-light border-mtech-primary"
+                  : "hover:bg-muted"
+              }`}
+            >
+              <RadioGroupItem
+                value={index.toString()}
+                id={`tf-${index}`}
+                className="scale-125 pointer-events-none"
+              />
+              <Label
+                htmlFor={`tf-${index}`}
+                className="text-base sm:text-lg cursor-pointer w-full"
+              >
+                {option}
+              </Label>
+            </div>
+          );
+        });
+
+      case "SHORT_ANSWER":
+        return (
+          <Input
+            type="text"
+            placeholder="Type your answer..."
+            value={answers[currentQuestion.id]?.toString() || ""}
+            onChange={(e) =>
+              handleAnswerChange(currentQuestion.id, e.target.value)
+            }
+          />
+        );
+
+      default:
+        return <div className="text-red-500">Unsupported question type</div>;
+    }
+  };
+
 
   if (isLoading) {
     return <LoadingQuizzes />;
@@ -280,7 +386,7 @@ const StudentQuizzes: React.FC = () => {
       <div>
         <h2 className="text-2xl font-bold mb-2">Available Quizzes</h2>
         <p className="text-muted-foreground">
-          Test your knowledge with these quizzes for Grade {userGrade}
+          Test your knowledge with these quizzes for  {userGrade === "0" ? "ECD" : `Grade ${userGrade}`}
         </p>
         <div className="mt-4 p-4 bg-muted/30 rounded-lg">
           <div className="flex items-center gap-4 text-sm">
@@ -384,7 +490,7 @@ const StudentQuizzes: React.FC = () => {
                 {completedQuizIds.includes(quiz.quizId) ? (
                   <Button
                     variant="destructive"
-                    onClick={() => setShowConfirm(true)}
+                    onClick={() => setConfirmingQuizId(quiz.quizId)}
                     className="w-full"
                   >
                     {" "}
@@ -397,7 +503,7 @@ const StudentQuizzes: React.FC = () => {
                   </Button>
                 )}
 
-                {showConfirm && (
+                {confirmingQuizId === quiz.quizId && (
                   <>
                     <div className="text-sm text-center text-muted-foreground">
                       Are you sure? Your latest score will be used, if you get a
@@ -407,7 +513,7 @@ const StudentQuizzes: React.FC = () => {
                       <Button
                         variant="secondary"
                         className="w-full"
-                        onClick={() => setShowConfirm(false)}
+                        onClick={() => setConfirmingQuizId(null)}
                       >
                         No, go back
                       </Button>
@@ -416,7 +522,7 @@ const StudentQuizzes: React.FC = () => {
                         className="w-full"
                         onClick={() => {
                           startQuiz(quiz);
-                          setShowConfirm(false);
+                          setConfirmingQuizId(null);
                         }}
                       >
                         Yes, Retry
@@ -467,58 +573,22 @@ const StudentQuizzes: React.FC = () => {
                     </h3>
 
                     <div className="space-y-4">
-                      <RadioGroup
-                        key={quizQuestions[currentQuestionIndex].id}
-                        value={
-                          answers[
-                            quizQuestions[currentQuestionIndex]?.id
-                          ]?.toString() || ""
-                        }
-                        onValueChange={(value) =>
-                          handleAnswerChange(
-                            quizQuestions[currentQuestionIndex].id,
-                            parseInt(value)
-                          )
-                        }
-                      >
-                        {quizQuestions[currentQuestionIndex]?.options.map(
-                          (option, index) => {
-                            const isSelected =
-                              answers[
-                                quizQuestions[currentQuestionIndex]?.id
-                              ]?.toString() === index.toString();
-
-                            return (
-                              <div
-                                key={index}
-                                onClick={() =>
-                                  handleAnswerChange(
-                                    quizQuestions[currentQuestionIndex].id,
-                                    index
-                                  )
-                                }
-                                className={`flex items-center space-x-3 border rounded-lg p-3 cursor-pointer transition ${
-                                  isSelected
-                                    ? "bg-mtech-light border-mtech-primary"
-                                    : "hover:bg-muted"
-                                }`}
-                              >
-                                <RadioGroupItem
-                                  value={index.toString()}
-                                  id={`option-${index}`}
-                                  className="scale-125 pointer-events-none"
-                                />
-                                <Label
-                                  htmlFor={`option-${index}`}
-                                  className="text-base sm:text-lg cursor-pointer w-full"
-                                >
-                                  {String.fromCharCode(65 + index)}. {option}
-                                </Label>
-                              </div>
-                            );
+                      {type === "MULTIPLE_CHOICE" || type === "TRUE_FALSE" ? (
+                        <RadioGroup
+                          key={currentQuestion.id}
+                          value={answers[currentQuestion.id]?.toString() || ""}
+                          onValueChange={(value) =>
+                            handleAnswerChange(
+                              currentQuestion.id,
+                              parseInt(value)
+                            )
                           }
-                        )}
-                      </RadioGroup>
+                        >
+                          {renderQuestionInput()}
+                        </RadioGroup>
+                      ) : (
+                        renderQuestionInput()
+                      )}
                     </div>
                   </div>
 

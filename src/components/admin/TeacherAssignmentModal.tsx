@@ -1,13 +1,28 @@
-
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { getTeachers, createAssignment, getTeachersForAssignment } from '@/services/apiService';
-import { getSubjectNameById, subjects } from '@/utils/subjectUtils';
-import { UserPlus, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import {
+  getTeachers,
+  createAssignment,
+  getTeachersForAssignment,
+} from "@/services/apiService";
+import { getSubjectNameById, subjects } from "@/utils/subjectUtils";
+import { UserPlus, Loader2 } from "lucide-react";
 
 interface Teacher {
   id: number;
@@ -32,12 +47,12 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
   open,
   onOpenChange,
   classroom,
-  onAssignmentCreated
+  onAssignmentCreated,
 }) => {
   const { toast } = useToast();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [selectedTeacher, setSelectedTeacher] = useState<string>('');
-  const [selectedSubject, setSelectedSubject] = useState<string>('');
+  const [selectedTeacher, setSelectedTeacher] = useState<string>("");
+  const [selectedSubject, setSelectedSubject] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingTeachers, setIsFetchingTeachers] = useState(false);
 
@@ -51,13 +66,15 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
     setIsFetchingTeachers(true);
     try {
       const response = await getTeachersForAssignment();
-      const teachersData = Array.isArray(response) ? response : response.content || [];
+      const teachersData = Array.isArray(response)
+        ? response
+        : response.content || [];
       setTeachers(teachersData);
     } catch (error) {
       toast({
         title: "Failed to load teachers",
         description: "Could not load teacher data",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsFetchingTeachers(false);
@@ -65,76 +82,48 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
   };
 
   const handleSubmit = async () => {
-  if (!selectedTeacher || !selectedSubject) {
-    toast({
-      title: "Validation Error",
-      description: "Please select both teacher and subject",
-      variant: "destructive",
-    });
-    return;
-  }
+    if (!selectedTeacher || !selectedSubject) {
+      toast({
+        title: "Validation Error",
+        description: "Please select both teacher and subject",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  setIsLoading(true);
+    setIsLoading(true);
 
-  try {
-    await createAssignment(
-      parseInt(selectedTeacher),
-      parseInt(classroom.id),
-      parseInt(selectedSubject)
-    );
+    const isAll = selectedSubject === "all";
+    const subjectId = isAll ? undefined : parseInt(selectedSubject);
+    const subjectName = isAll ? "all" : getSubjectNameById(subjectId);
 
-    toast({
-      title: "Assignment Created",
-      description: "Teacher has been assigned to classroom successfully",
-    });
+    try {
+      await createAssignment(
+        parseInt(selectedTeacher),
+        parseInt(classroom.id),
+        subjectId,
+        subjectName
+      );
 
-    onAssignmentCreated();
-    onOpenChange(false);
-    setSelectedTeacher("");
-    setSelectedSubject("");
-  } catch (error: any) {
-    const message = error.message;
-   
-    const subjectIdNum = parseInt(selectedSubject);
-    const selectedSubjectName = getSubjectNameById(subjectIdNum);
+      toast({
+        title: "Assignment Created",
+        description: "Teacher has been assigned to classroom successfully",
+      });
 
-    if (message === "Subject not found" && selectedSubjectName) {
-      try {
-        await createAssignment(
-          parseInt(selectedTeacher),
-          parseInt(classroom.id),
-          undefined,
-          selectedSubjectName
-        );
-
-        toast({
-          title: "Assignment Created",
-          description: "Teacher has been assigned to classroom successfully",
-        });
-
-        onAssignmentCreated();
-        onOpenChange(false);
-        setSelectedTeacher("");
-        setSelectedSubject("");
-      } catch (err) {
-        toast({
-          title: "Failed to create assignment",
-          description: "Could not assign teacher to classroom",
-          variant: "destructive",
-        });
-      }
-    } else {
+      onAssignmentCreated();
+      onOpenChange(false);
+      setSelectedTeacher("");
+      setSelectedSubject("");
+    } catch (error) {
       toast({
         title: "Failed to create assignment",
         description: "Could not assign teacher to classroom",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -152,10 +141,15 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
             {isFetchingTeachers ? (
               <div className="flex items-center gap-2 p-3 border rounded-md">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm text-muted-foreground">Loading teachers...</span>
+                <span className="text-sm text-muted-foreground">
+                  Loading teachers...
+                </span>
               </div>
             ) : (
-              <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
+              <Select
+                value={selectedTeacher}
+                onValueChange={setSelectedTeacher}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a teacher" />
                 </SelectTrigger>
@@ -177,6 +171,7 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
                 <SelectValue placeholder="Choose a subject" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">All Subjects</SelectItem>
                 {subjects.map((subject) => (
                   <SelectItem key={subject.id} value={subject.id.toString()}>
                     {subject.name}
@@ -188,7 +183,11 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
 
           <div className="p-3 bg-muted rounded-md">
             <p className="text-sm text-muted-foreground">
-              <strong>Classroom:</strong> {classroom.name} (Grade {classroom.gradeLevel})
+              <strong>Classroom:</strong> {classroom.name} (
+              {classroom.gradeLevel === "0"
+                ? "ECD"
+                : `Grade ${classroom.gradeLevel}`}
+              )
             </p>
           </div>
         </div>
@@ -204,7 +203,7 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
                 Assigning...
               </>
             ) : (
-              'Assign Teacher'
+              "Assign Teacher"
             )}
           </Button>
         </DialogFooter>

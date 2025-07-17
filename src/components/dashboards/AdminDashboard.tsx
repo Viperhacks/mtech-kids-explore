@@ -31,6 +31,7 @@ import {
   BookOpenCheck,
   GraduationCap,
   Files,
+  UserX,
 } from "lucide-react";
 import DefaultLoginInfo from "../DefaultLoginInfo";
 import CourseCreation from "../CourseCreation";
@@ -43,6 +44,7 @@ import { capitalize } from "@/utils/stringUtils";
 import TeacherAccountCreation from "../admin/TeacherAccountCreation";
 import { Teacher } from "../types/apiTypes";
 import AdminContentPanel from "../admin/AdminContentPanel";
+import TeacherStudentsModal from "../admin/TeacherStudentsModal";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -54,8 +56,11 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState(urlTab);
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [teacher, setTeachers] = useState<Teacher[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(
+    null
+  );
 
   type Stats = {
     totalUsers: number;
@@ -96,9 +101,9 @@ const AdminDashboard: React.FC = () => {
     fetchStats();
     fetchUsers();
     if (activeTab == "teachers") {
-      fetchTeachers();
+      fetchTeachers(currentPage);
     }
-  }, [activeTab]);
+  }, [activeTab, currentPage]);
 
   const fetchStats = async () => {
     setIsLoading(true);
@@ -146,22 +151,23 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const fetchTeachers = async () => {
+  const fetchTeachers = async (page = 0) => {
     setIsLoading(true);
     try {
-      const response = await getTeachers(currentPage, 10);
-      console.log(response);
+      const response = await getTeachers(page, 5);
       const teacherData = Array.isArray(response)
         ? response
         : response.content || [];
+      console.log("API Response for Teachers:", response);
       const totalPagesData = response.totalPages || 1;
 
       setTeachers(teacherData);
       setTotalPages(totalPagesData);
+      setCurrentPage(page);
     } catch (error) {
       toast({
-        title: "Failed to load users",
-        description: "Could not load user data",
+        title: "Failed to load teachers",
+        description: "Could not load teacher data",
         variant: "destructive",
       });
     } finally {
@@ -230,8 +236,14 @@ const AdminDashboard: React.FC = () => {
     { value: "content", label: "Content Management" },
   ];
 
+  const handleViewStudents = (teacherId: string) => {
+    // Navigate to the teacher's student management page
+    setSearchParams({ tab: "teachers", teacherId });
+    handleTabChange("teachers", "force");
+  };
+
   return (
-    <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-[#E0F2FE] via-[#FEF9C3] to-[#FEE2E2] min-h-screen">
+    <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5 min-h-screen">
       <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -372,47 +384,97 @@ const AdminDashboard: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <TeacherAccountCreation onAdd={fetchTeachers} />
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Active Teachers</CardTitle>
-                  <CardDescription>
-                    Currently active teachers in the system
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <div className="space-y-3">
-                      <Skeleton className="h-10 w-full" />
-                      <Skeleton className="h-10 w-full" />
-                      <Skeleton className="h-10 w-full" />
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {teacher.map((t, index) => (
-                        <div
-                          className="flex justify-between p-3 border rounded-md"
-                          key={index}
-                        >
-                          <div>
-                            <p className="font-medium">
-                              {t.fullName || "Unknown Teacher"}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {t.assignedLevels?.length
-                                ? `Assigned to: Grade ${t.assignedLevels.join(
-                                    ", "
-                                  )}`
-                                : "Not assigned to any level"}
-                            </p>
+              <CardContent>
+                {isLoading ? (
+                  <div className="space-y-3">
+                    {[...Array(3)].map((_, i) => (
+                      <Skeleton key={i} className="h-10 w-full" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {teachers.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground space-y-3">
+                        <UserX className="w-12 h-12" />
+                        <p className="text-lg font-semibold">
+                          No teachers found
+                        </p>
+                        <p className="text-sm">
+                          Looks like nobody’s on staff duty yet
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        {teachers.map((t, index) => (
+                          <div
+                            className="flex justify-between items-center p-3 border rounded-md"
+                            key={index}
+                          >
+                            <div>
+                              <p className="font-medium">
+                                {t.fullName || "Unknown Teacher"}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {t.assignedLevels?.length ? (
+                                  <>
+                                    Assigned to:{" "}
+                                    {t.assignedLevels
+                                      .map((level) =>
+                                        level === "0" ? "ECD" : `Grade ${level}`
+                                      )
+                                      .join(", ")}
+                                  </>
+                                ) : (
+                                  "Not assigned to any level"
+                                )}
+                              </p>
+                            </div>
+                            <div className="flex gap-2 items-center">
+                              <Badge variant="outline">Active</Badge>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  setSelectedTeacherId(Number(t.id))
+                                }
+                              >
+                                View Students
+                              </Button>
+                            </div>
                           </div>
-                          <Badge variant="outline">Active</Badge>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-                
-              </Card>
+                        ))}
+
+                        {selectedTeacherId !== null && (
+                          <TeacherStudentsModal
+                            teacherId={selectedTeacherId}
+                            open={true}
+                            onClose={() => setSelectedTeacherId(null)}
+                          />
+                        )}
+
+                        {totalPages > 1 && (
+                          <div className="flex justify-center gap-3 mt-4">
+                            <Button
+                              disabled={currentPage === 0}
+                              onClick={() => setCurrentPage((prev) => prev - 1)}
+                              variant="secondary"
+                            >
+                              Prev
+                            </Button>
+                            <Button
+                              disabled={currentPage + 1 >= totalPages}
+                              onClick={() => setCurrentPage((prev) => prev + 1)}
+                              variant="secondary"
+                            >
+                              Next
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+              </CardContent>
             </div>
           </TabsContent>
 

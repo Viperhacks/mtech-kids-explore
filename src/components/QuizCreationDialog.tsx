@@ -1,18 +1,34 @@
-
-import React, { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
-import { createQuiz, getResources, getResourcesForQuiz } from '@/services/apiService';
-import { Loader2 } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import { subjects } from '@/utils/subjectUtils';
-import { capitalize } from '@/utils/stringUtils';
+import React, { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
+import {
+  createQuiz,
+  getResources,
+  getResourcesForQuiz,
+  getTeacherSubjects,
+} from "@/services/apiService";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { subjects } from "@/utils/subjectUtils";
+import { capitalize } from "@/utils/stringUtils";
 
 interface QuizCreationDialogProps {
   open: boolean;
@@ -23,59 +39,107 @@ interface QuizCreationDialogProps {
 const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
   open,
   onOpenChange,
-  onQuizCreated
+  onQuizCreated,
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    grade: '',
-    subject: '',
+    title: "",
+    description: "",
+    grade: "",
+    subject: "",
     standaAlone: true,
-    resourceId: '',
-    teacherName: user?.fullName || user?.name || ''
+    resourceId: "",
+    teacherName: user?.fullName || user?.name || "",
   });
   const assignedLevels = user?.assignedLevels || [];
   const [resources, setResources] = useState([]);
 
+  const [teacherSubjects, setTeacherSubjects] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(false);
+
   useEffect(() => {
-  if (open) {
-    fetchAvailableResources();
-  }
-}, [open]);
+    if (!open || !user) return;
 
-
-  const fetchAvailableResources = async () => {
-      setIsLoading(true);
+    const fetchTeacherSubjects = async () => {
+      setLoadingSubjects(true);
       try {
-        const response = await getResourcesForQuiz();
-        
-        const resourcesData = Array.isArray(response) ? response : response.resources || [];
-        console.log( resourcesData,"resource data");
-        setResources(resourcesData);
-      
+        const fetchedSubjects = await getTeacherSubjects();
+
+        if (fetchedSubjects.includes("All Subjects")) {
+          // use your full subject list if "All Subjects" assigned
+          setTeacherSubjects(subjects);
+        } else {
+          setTeacherSubjects(
+            fetchedSubjects.map((name: string, idx: number) => ({
+              id: idx,
+              name,
+            }))
+          );
+        }
       } catch (error) {
         toast({
-          title: "Failed to load resources",
-          description: "Could not load resource data",
-          variant: "destructive"
+          title: "Failed to load subjects",
+          description: "Could not fetch your subjects.",
+          variant: "destructive",
         });
+        setTeacherSubjects([]);
       } finally {
-        setIsLoading(false);
+        setLoadingSubjects(false);
       }
     };
+
+    fetchTeacherSubjects();
+  }, [open, user]);
+
+  useEffect(() => {
+    if (open) {
+      fetchAvailableResources();
+    }
+  }, [open]);
+
+  const fetchAvailableResources = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getResourcesForQuiz();
+
+      const resourcesData = Array.isArray(response)
+        ? response
+        : response.resources || [];
+      console.log(resourcesData, "resource data");
+      setResources(resourcesData);
+    } catch (error) {
+      toast({
+        title: "Failed to load resources",
+        description: "Could not load resource data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
+    if (!formData.standaAlone && !formData.resourceId) {
+    toast({
+      title: "Resource Required",
+      description: "Please select a resource or mark the quiz as standalone.",
+      variant: "destructive",
+    });
+    return;
+  }
+
     try {
       await createQuiz(formData);
       toast({
         title: "Quiz Created Successfully",
-        description: "You can now upload questions to your quiz"
+        description: "You can now upload questions to your quiz",
       });
       onQuizCreated();
       onOpenChange(false);
@@ -83,8 +147,8 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
     } catch (error) {
       toast({
         title: "Failed to create quiz",
-        description: error.message ||"Please try again",
-        variant: "destructive"
+        description: error.message || "Please try again",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -93,15 +157,36 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
 
   const resetForm = () => {
     setFormData({
-      title: '',
-      description: '',
-      grade: '',
-      subject: '',
+      title: "",
+      description: "",
+      grade: "",
+      subject: "",
       standaAlone: true,
-      resourceId: '',
-      teacherName: user?.fullName || user?.name || ''
+      resourceId: "",
+      teacherName: user?.fullName || user?.name || "",
     });
   };
+
+  if (!user || assignedLevels.length === 0) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Access Restricted</DialogTitle>
+        </DialogHeader>
+        <div className="p-4 text-center text-red-600">
+          You are not assigned to any grade level. Please contact your admin for access.
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -116,7 +201,9 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
             <Input
               id="title"
               value={capitalize(formData.title)}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              }
               required
             />
           </div>
@@ -126,7 +213,12 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
             <Textarea
               id="description"
               value={capitalize(formData.description)}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               rows={3}
             />
           </div>
@@ -134,34 +226,56 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="grade">Grade</Label>
-              <Select value={formData.grade} onValueChange={(value) => setFormData(prev => ({ ...prev, grade: value }))}>
+              <Select
+                value={formData.grade}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, grade: value }))
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select grade" />
                 </SelectTrigger>
                 <SelectContent>
-                {
-                  assignedLevels.map(level => (
-                      <SelectItem key={level} value={level}>
-                        Grade {level}
-                      </SelectItem>
-                    ))
-                }
+                  {assignedLevels.map((level) => (
+                    <SelectItem key={level} value={level.toString()}>
+                      {level === "0" ? "ECD" : `Grade ${level}`}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div>
               <Label htmlFor="subject">Subject</Label>
-              <Select value={formData.subject} onValueChange={(value) => setFormData(prev => ({ ...prev, subject: value }))}>
+              <Select
+                value={formData.subject}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, subject: value }))
+                }
+                required
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  {subjects.map(subject => (
-                    <SelectItem key={subject.id} value={subject.name.toLowerCase()}>
-                      {subject.name}
+                  {loadingSubjects ? (
+                    <SelectItem value="loading" disabled>
+                      Loading subjects...
                     </SelectItem>
-                  ))}
+                  ) : teacherSubjects.length === 0 ? (
+                    <SelectItem value="none" disabled>
+                      No subjects assigned
+                    </SelectItem>
+                  ) : (
+                    teacherSubjects.map((subject) => (
+                      <SelectItem
+                        key={subject.id}
+                        value={subject.name.toLowerCase()}
+                      >
+                        {subject.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -171,41 +285,52 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
             <Switch
               id="standalone"
               checked={formData.standaAlone}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, standaAlone: checked }))}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({ ...prev, standaAlone: checked }))
+              }
             />
             <Label htmlFor="standalone">Standalone Quiz</Label>
           </div>
-        {!formData.standaAlone && (
-  <div>
-    <Label htmlFor="resource">Attach Resource</Label>
-    <Select
-      value={formData.resourceId?.toString()}
-      onValueChange={(value) =>
-        setFormData((prev) => ({ ...prev, resourceId: value }))
-      }
-    >
-      <SelectTrigger>
-        <SelectValue placeholder="Select resource" />
-      </SelectTrigger>
-      <SelectContent>
-        {resources.map((resource) => (
-          <SelectItem key={resource.id} value={resource.id.toString()}>
-            {resource.title || `Resource ${resource.id}`}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
-)}
-
-
+          {!formData.standaAlone && (
+            <div>
+              <Label htmlFor="resource">Attach Resource</Label>
+              <Select
+                value={formData.resourceId?.toString()}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, resourceId: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select resource" />
+                </SelectTrigger>
+                <SelectContent>
+                  {resources.map((resource) => (
+                    <SelectItem
+                      key={resource.id}
+                      value={resource.id.toString()}
+                    >
+                      {resource.title || `Resource ${resource.id}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Create Quiz'}
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Create Quiz"
+              )}
             </Button>
           </DialogFooter>
         </form>

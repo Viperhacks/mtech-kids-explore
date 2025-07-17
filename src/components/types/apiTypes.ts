@@ -31,6 +31,7 @@ export interface Quiz {
   subject: string;
   standaAlone: boolean;
   teacherName: string;
+  
 }
 
 export interface Question {
@@ -38,7 +39,13 @@ export interface Question {
   questionText: string;
   options: string[];
   correctAnswerPosition: number;
+  type: QuestionType;
+  correctAnswerText:string;
+
 }
+
+export type QuestionType = "MULTIPLE_CHOICE" | "TRUE_FALSE" | "SHORT_ANSWER";
+
 
 
 export interface Teacher {

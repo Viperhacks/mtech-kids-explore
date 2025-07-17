@@ -4,14 +4,27 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Loader2, ChevronLeft, ChevronRight, Download, FileText } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import {
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  FileText,
+} from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
 import { userTrackingService } from "@/lib/userTracking";
-import { completionService } from '@/services/completionService';
-import { useCompletion } from '@/context/CompletionContext';
+import { completionService } from "@/services/completionService";
+import { useCompletion } from "@/context/CompletionContext";
+import workerSrcUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
 interface DocumentViewerProps {
   documentUrl: string;
@@ -53,17 +66,17 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     }
 
     // Save to user-specific localStorage that this document has been viewed
-    const viewedDocuments = user ? 
-      userTrackingService.getUserData(`viewedDocuments`, {}) : 
-      JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
-    
+    const viewedDocuments = user
+      ? userTrackingService.getUserData(`viewedDocuments`, {})
+      : JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
+
     viewedDocuments[documentId] = {
       lastViewed: new Date().toISOString(),
       progress: viewedDocuments[documentId]?.progress || 0,
       pageNumber: viewedDocuments[documentId]?.pageNumber || 1,
       completed: viewedDocuments[documentId]?.completed || false,
     };
-    
+
     if (user) {
       userTrackingService.storeUserData(`viewedDocuments`, viewedDocuments);
     } else {
@@ -83,27 +96,31 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
       setProgress(newProgress);
 
       // Save progress to user-specific localStorage
-      const viewedDocuments = user ? 
-        userTrackingService.getUserData(`viewedDocuments`, {}) : 
-        JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
-        
+      const viewedDocuments = user
+        ? userTrackingService.getUserData(`viewedDocuments`, {})
+        : JSON.parse(localStorage.getItem("viewedDocuments") || "{}");
+
       if (viewedDocuments[documentId]) {
         viewedDocuments[documentId].progress = newProgress;
         viewedDocuments[documentId].pageNumber = pageNumber;
-        
+
         // Check if document is completed (reached the last page)
         if (pageNumber === numPages && !viewedDocuments[documentId].completed) {
           viewedDocuments[documentId].completed = true;
-        
+
           // Mark as completed using API
           if (user && documentId) {
-            completionService.markComplete(
-              typeof documentId === 'string' ? parseInt(documentId) : documentId,
-              'document',
-              refreshCompletions
-            ).then(() => {
-              if (onComplete) onComplete();
-            });
+            completionService
+              .markComplete(
+                typeof documentId === "string"
+                  ? parseInt(documentId)
+                  : documentId,
+                "document",
+                refreshCompletions
+              )
+              .then(() => {
+                if (onComplete) onComplete();
+              });
 
             trackActivity({
               userId: user.id || "user",
@@ -113,20 +130,32 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
             });
           }
         }
-        
+
         if (user) {
           userTrackingService.storeUserData(`viewedDocuments`, viewedDocuments);
         } else {
-          localStorage.setItem("viewedDocuments", JSON.stringify(viewedDocuments));
+          localStorage.setItem(
+            "viewedDocuments",
+            JSON.stringify(viewedDocuments)
+          );
         }
       }
     }
-  }, [pageNumber, numPages, documentId, user, trackActivity, onComplete, refreshCompletions]);
+  }, [
+    pageNumber,
+    numPages,
+    documentId,
+    user,
+    trackActivity,
+    onComplete,
+    refreshCompletions,
+  ]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+    console.log("PDF Loaded. Pages:", numPages);
     setNumPages(numPages);
     setLoading(false);
-    
+
     toast.success("Document loaded successfully");
   }
 
@@ -134,7 +163,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     console.error("Document loading error:", error);
     setError(true);
     setLoading(false);
-    
+
     toast.error("Failed to load document");
   }
 
@@ -153,7 +182,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Track download
     if (user && documentId) {
       trackActivity({
@@ -163,14 +192,106 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         timestamp: new Date().toISOString(),
       });
     }
-    
+
     toast.success("Download started");
   }
 
   // Get previously viewed indicator from user-specific storage
   const { isResourceCompleted } = useCompletion();
-const isCompleted = isResourceCompleted(documentId);
-console.log(isCompleted);
+  const isCompleted = isResourceCompleted(documentId);
+  //console.log(isCompleted);
+
+  function getFileTypeFromUrl(url: string): string {
+    const extension = url.split(".").pop()?.toLowerCase();
+    if (!extension) return "unknown";
+
+    if (["pdf"].includes(extension)) return "pdf";
+    if (["png", "jpg", "jpeg", "gif", "webp"].includes(extension))
+      return "image";
+    if (["doc", "docx"].includes(extension)) return "word";
+    if (["mp4", "webm", "ogg"].includes(extension)) return "video";
+
+    return "unknown";
+  }
+
+  function renderDocumentContent() {
+    console.log("Formatted Document URL:", formattedDocUrl);
+
+    const inferredType = getFileTypeFromUrl(formattedDocUrl);
+    console.log("Inferred Type:", inferredType);
+
+    if (inferredType !== "pdf" && loading) {
+      setLoading(false); // immediately stop the loading spinner for non-PDF files
+    }
+
+    if (inferredType === "pdf") {
+      return (
+        <Document
+          file={formattedDocUrl}
+          onLoadSuccess={onDocumentLoadSuccess}
+          onLoadError={onDocumentLoadError}
+          loading={
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="h-8 w-8 animate-spin text-mtech-primary" />
+            </div>
+          }
+          className="max-w-full"
+        >
+          <Page
+            pageNumber={pageNumber}
+            width={600}
+            renderTextLayer={false}
+            renderAnnotationLayer={false}
+          />
+        </Document>
+      );
+    }
+
+    if (inferredType === "image") {
+      return (
+        <img
+          src={formattedDocUrl}
+          alt={documentTitle}
+          className="max-h-[500px] mx-auto"
+        />
+      );
+    }
+
+    if (inferredType === "word") {
+      return (
+        <div className="text-center p-6">
+          <FileText className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+          <p className="text-sm text-gray-600">
+            Preview not supported. Please download to view.
+          </p>
+          <Button onClick={handleDownload} className="mt-2">
+            <Download className="mr-2 h-4 w-4" />
+            Download Word Document
+          </Button>
+        </div>
+      );
+    }
+
+    if (inferredType === "video") {
+      return (
+        <video controls className="max-h-[500px] mx-auto">
+          <source src={formattedDocUrl}  />
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
+
+    return (
+      <div className="text-center p-6">
+        <FileText className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+        <p className="text-sm text-gray-600">Unsupported format.</p>
+        <Button onClick={handleDownload} className="mt-2">
+          <Download className="mr-2 h-4 w-4" />
+          Download File
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <Card className="w-full">
@@ -184,7 +305,9 @@ console.log(isCompleted);
           )}
         </div>
         <CardDescription>
-          {numPages ? `${pageNumber} of ${numPages} pages` : "Loading document..."}
+          {numPages
+            ? `${pageNumber} of ${numPages} pages`
+            : "Loading document..."}
         </CardDescription>
         <Progress value={progress} className="h-2" />
       </CardHeader>
@@ -195,7 +318,7 @@ console.log(isCompleted);
               <Loader2 className="h-8 w-8 animate-spin text-mtech-primary" />
             </div>
           )}
-          
+
           {error ? (
             <div className="flex flex-col items-center justify-center h-full p-4 text-center">
               <FileText className="h-12 w-12 text-gray-400 mb-2" />
@@ -211,24 +334,7 @@ console.log(isCompleted);
               </Button>
             </div>
           ) : (
-            <Document
-              file={formattedDocUrl}
-              onLoadSuccess={onDocumentLoadSuccess}
-              onLoadError={onDocumentLoadError}
-              loading={
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="h-8 w-8 animate-spin text-mtech-primary" />
-                </div>
-              }
-              className="max-w-full"
-            >
-              <Page 
-                pageNumber={pageNumber} 
-                width={600}
-                renderTextLayer={false}
-                renderAnnotationLayer={false}
-              />
-            </Document>
+            renderDocumentContent()
           )}
         </div>
       </CardContent>
