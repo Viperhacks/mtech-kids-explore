@@ -39,6 +39,7 @@ import QuizEditDialog from "./QuizEditDialog";
 import QuizAttemptModal from "./QuizAttemptModal";
 
 import LoadingQuizzes from "./LoadingQuizzes";
+import { capitalize } from "@/utils/stringUtils";
 
 interface Quiz {
   quizId: string;
@@ -232,8 +233,8 @@ const QuizManagement: React.FC = () => {
                 {quizzes.map((quiz) => (
                   <TableRow key={quiz.quizId}>
                     <TableCell className="font-medium">{quiz.title}</TableCell>
-                    <TableCell>{quiz.subject}</TableCell>
-                    <TableCell>Grade {quiz.grade}</TableCell>
+                    <TableCell>{capitalize(quiz.subject)}</TableCell>
+                    <TableCell> {quiz.grade === "0" ? "ECD" : `Grade ${quiz.grade}`}</TableCell>
                     <TableCell>
                       <Badge
                         variant={quiz.standaAlone ? "default" : "secondary"}
@@ -335,17 +336,17 @@ const QuizManagement: React.FC = () => {
                           Question {index + 1}
                         </h4>
                         <p className="mb-3">{question.questionText}</p>
-                {question.type === "SHORT_ANSWER" && (
-                      <div className="p-4 rounded-lg border bg-yellow-50 border-yellow-300">
-                        <p className="font-medium text-yellow-800">
-                          Expected Answer:
-                        </p>
-                        <p>
-                          {question.correctAnswerText || "No answer provided"}
-                        </p>
-                      </div>
-                    )
-                  }
+                        {question.type === "SHORT_ANSWER" && (
+                          <div className="p-4 rounded-lg border bg-yellow-50 border-yellow-300">
+                            <p className="font-medium text-yellow-800">
+                              Expected Answer:
+                            </p>
+                            <p>
+                              {question.correctAnswerText ||
+                                "No answer provided"}
+                            </p>
+                          </div>
+                        )}
 
                         <div className="space-y-1">
                           {question.options.map((option, optIndex) => (

@@ -37,7 +37,7 @@ interface User {
   fullName: string;
   username: string;
   role: string;
- gradeLevel?: string | null;
+  gradeLevel?: string | null;
   assignedLevels?: string[] | null;
   createdAt: string;
 }
@@ -59,7 +59,7 @@ const UserManagementSection: React.FC = () => {
 
   useEffect(() => {
     filterUsers();
-  }, [users, searchTerm, roleFilter,gradeFilter]);
+  }, [users, searchTerm, roleFilter, gradeFilter]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -85,53 +85,53 @@ const UserManagementSection: React.FC = () => {
   };
 
   const getUserGrade = (user: User) => {
-  if (user.gradeLevel) return `Grade ${user.gradeLevel}`;
-  
-  if (user.assignedLevels && user.assignedLevels.length > 0) {
-    return `Grade ${user.assignedLevels.join(', Grade ')}`;
-  }
-  
-  return 'N/A';
-};
+    if (user.gradeLevel === "0") return "ECD";
 
+    if (user.gradeLevel) return `Grade ${user.gradeLevel}`;
 
-
- const filterUsers = () => {
-  let filtered = users;
-
-  if (searchTerm) {
-    filtered = filtered.filter(
-      (user) =>
-        user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.username.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
-
-  if (roleFilter !== "all") {
-    filtered = filtered.filter(
-      (user) => user.role.toLowerCase() === roleFilter.toLowerCase()
-    );
-  }
-
-  if (gradeFilter !== "all") {
-  filtered = filtered.filter((user) => {
-    const grades: string[] = [];
-
-    if (user.gradeLevel) {
-      grades.push(user.gradeLevel);
-    }
     if (user.assignedLevels && user.assignedLevels.length > 0) {
-      grades.push(...user.assignedLevels);
+      return user.assignedLevels
+        .map((level) => (level === "0" ? "ECD" : `Grade ${level}`))
+        .join(", ");
     }
 
-    return grades.includes(gradeFilter);
-  });
-}
+    return "N/A";
+  };
 
+  const filterUsers = () => {
+    let filtered = users;
 
-  setFilteredUsers(filtered);
-};
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (user) =>
+          user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.username.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
 
+    if (roleFilter !== "all") {
+      filtered = filtered.filter(
+        (user) => user.role.toLowerCase() === roleFilter.toLowerCase()
+      );
+    }
+
+    if (gradeFilter !== "all") {
+      filtered = filtered.filter((user) => {
+        const grades: string[] = [];
+
+        if (user.gradeLevel) {
+          grades.push(user.gradeLevel);
+        }
+        if (user.assignedLevels && user.assignedLevels.length > 0) {
+          grades.push(...user.assignedLevels);
+        }
+
+        return grades.includes(gradeFilter);
+      });
+    }
+
+    setFilteredUsers(filtered);
+  };
 
   const exportToCSV = () => {
     const csvContent = [
@@ -222,6 +222,7 @@ const UserManagementSection: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Grades</SelectItem>
+                  <SelectItem value="0">ECD</SelectItem>
                   <SelectItem value="1">Grade 1</SelectItem>
                   <SelectItem value="2">Grade 2</SelectItem>
                   <SelectItem value="3">Grade 3</SelectItem>

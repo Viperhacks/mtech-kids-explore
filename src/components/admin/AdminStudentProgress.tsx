@@ -167,7 +167,9 @@ const AdminStudentProgress: React.FC = () => {
               <SelectContent>
                 <SelectItem value="all">All Grades</SelectItem>
                 {grades.map(grade => (
-                  <SelectItem key={grade} value={grade!}>Grade {grade}</SelectItem>
+                  <SelectItem key={grade} value={grade!}> {grade === "0"
+                            ? "ECD"
+                            : `Grade ${grade}`}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -218,7 +220,9 @@ const AdminStudentProgress: React.FC = () => {
                         {Math.round((attempt.score / attempt.total) * 100)}%
                       </Badge>
                     </TableCell>
-                    <TableCell>{attempt.grade || 'N/A'}</TableCell>
+                    <TableCell>{attempt.grade === "0"
+                            ? "ECD"
+                            : `Grade ${attempt.grade}` || 'N/A'}</TableCell>
                     <TableCell>{capitalize(attempt.subject) || 'N/A'}</TableCell>
                     <TableCell>{toReadableDate(attempt.attemptedAt)}</TableCell>
                   </TableRow>

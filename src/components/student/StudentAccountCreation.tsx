@@ -166,11 +166,11 @@ const StudentAccountCreation = () => {
         <option value="">Select Grade Level</option>
         {user?.role === "TEACHER" ? (
           <>
-  {assignedLevels.map(level => (
-    <option key={level} value={level}>
-      Grade {level}
-    </option>
-  ))}
+{assignedLevels.map((level) => (
+                    <option key={level} value={level.toString()}>
+                      {level === "0" ? "ECD" : `Grade ${level}`}
+                    </option>
+                  ))}
 </>
 
         ): (

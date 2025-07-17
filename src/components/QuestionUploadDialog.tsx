@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getAllQuizzes, uploadQuestions } from '@/services/apiService';
 import { Upload, Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { capitalize } from '@/utils/stringUtils';
 
 interface Quiz {
   quizId: string;
@@ -109,7 +110,7 @@ const QuestionUploadDialog: React.FC<QuestionUploadDialogProps> = ({
               <SelectContent>
                 {quizzes.map((quiz) => (
                   <SelectItem key={quiz.quizId} value={quiz.quizId}>
-                    {quiz.title} - Grade {quiz.grade} ({quiz.subject})
+                    {quiz.title} - Grade {quiz.grade === "0" ? "ECD" : `Grade ${quiz.grade}`} ({capitalize(quiz.subject)})
                   </SelectItem>
                 ))}
               </SelectContent>

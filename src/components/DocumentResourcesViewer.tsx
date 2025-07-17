@@ -201,7 +201,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
                               <CardDescription className="text-xs">
                                 {`${capitalize(
                                   doc.response.subject.split(" ")[0]
-                                )} (Grade ${doc.response.grade})`}
+                                )} (${doc.response.grade === "0" ? "ECD" : `Grade ${doc.response.grade}`})`}
                               </CardDescription>
                             </div>
                             {isCompleted && (
@@ -247,7 +247,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
           <DialogHeader>
             <DialogTitle>{selectedDocument?.response?.title}</DialogTitle>
             <DialogDescription>
-              {`${selectedDocument?.response?.subject} (Grade ${selectedDocument?.response?.grade})`}
+              {`${selectedDocument?.response?.subject} (${selectedDocument?.response?.grade === "0" ? "ECD" : `Grade ${selectedDocument?.response.grade}` })`} 
             </DialogDescription>
           </DialogHeader>
 

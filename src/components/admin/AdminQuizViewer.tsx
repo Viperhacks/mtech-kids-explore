@@ -93,7 +93,9 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <span className="font-medium">Grade:</span> {quiz.grade}
+              <span className="font-medium"></span> {quiz.grade === "0"
+                            ? "ECD"
+                            : `Grade:  ${quiz.grade}`}
             </div>
             <div>
               <span className="font-medium">Subject:</span>{" "}

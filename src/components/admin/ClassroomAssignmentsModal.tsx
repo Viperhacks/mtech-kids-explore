@@ -105,7 +105,9 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
         <div className="space-y-4">
           <div className="p-3 bg-muted rounded-md">
             <p className="text-sm text-muted-foreground">
-              <strong>Classroom:</strong> {classroom.name} (Grade {classroom.gradeLevel})
+              <strong>Classroom:</strong> {classroom.name} ({classroom.gradeLevel === "0"
+                            ? "ECD"
+                            : `Grade ${classroom.gradeLevel}`})
             </p>
           </div>
 

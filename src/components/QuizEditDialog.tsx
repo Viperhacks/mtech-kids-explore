@@ -48,7 +48,7 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
   quiz,
   onQuizUpdated,
 }) => {
-  const {user} = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -145,8 +145,8 @@ const QuizEditDialog: React.FC<QuizEditDialogProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   {assignedLevels.map((level) => (
-                    <SelectItem key={level} value={level}>
-                      Grade {level}
+                    <SelectItem key={level} value={level.toString()}>
+                      {level === "0" ? "ECD" : `Grade ${level}`}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -1,18 +1,36 @@
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Search, Trophy, Calendar, BookOpen } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { getStudentAttempts } from "@/services/apiService";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Trophy, Calendar, BookOpen } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { getStudentAttempts } from '@/services/apiService';
-
-import toReadableDate from '@/utils/toReadableDate';
-
+import toReadableDate from "@/utils/toReadableDate";
+import { capitalize } from "@/utils/stringUtils";
 
 interface QuizAttempt {
   id: string;
@@ -31,8 +49,8 @@ const StudentQuizHistory: React.FC = () => {
   const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
   const [filteredAttempts, setFilteredAttempts] = useState<QuizAttempt[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [subjectFilter, setSubjectFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [subjectFilter, setSubjectFilter] = useState("all");
 
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -51,18 +69,18 @@ const StudentQuizHistory: React.FC = () => {
     try {
       const response = await getStudentAttempts(currentPage, 10);
 
-      
-
       // Handle different response structures
-      const attemptsData = response.content || response.data?.content || response || [];
-      const totalPagesData = response.totalPages || response.data?.totalPages || 1;
+      const attemptsData =
+        response.content || response.data?.content || response || [];
+      const totalPagesData =
+        response.totalPages || response.data?.totalPages || 1;
       setAttempts(Array.isArray(attemptsData) ? attemptsData : []);
       setTotalPages(totalPagesData);
     } catch (error) {
       toast({
         title: "Failed to load quiz history",
         description: "Could not load your quiz attempts",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -70,16 +88,19 @@ const StudentQuizHistory: React.FC = () => {
   };
 
   const filterAttempts = () => {
-    let filtered = attempts.filter(attempt => {
-      const matchesSearch = attempt.quizTitle.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesSubject = subjectFilter === 'all' || attempt.subject === subjectFilter;
+    let filtered = attempts.filter((attempt) => {
+      const matchesSearch = attempt.quizTitle
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesSubject =
+        subjectFilter === "all" || attempt.subject === subjectFilter;
       return matchesSearch && matchesSubject;
     });
     setFilteredAttempts(filtered);
   };
 
   const getUniqueSubjects = () => {
-    return Array.from(new Set(attempts.map(attempt => attempt.subject)));
+    return Array.from(new Set(attempts.map((attempt) => attempt.subject)));
   };
 
   const getBadgeVariant = (score: number, total: number) => {
@@ -91,15 +112,16 @@ const StudentQuizHistory: React.FC = () => {
 
   const getOverallStats = () => {
     if (attempts.length === 0) return { total: 0, average: 0, best: 0 };
-    
-    const percentages = attempts.map(a => (a.score / a.total) * 100);
-    const average = percentages.reduce((sum, p) => sum + p, 0) / percentages.length;
+
+    const percentages = attempts.map((a) => (a.score / a.total) * 100);
+    const average =
+      percentages.reduce((sum, p) => sum + p, 0) / percentages.length;
     const best = Math.max(...percentages);
-    
+
     return {
       total: attempts.length,
       average: Math.round(average),
-      best: Math.round(best)
+      best: Math.round(best),
     };
   };
 
@@ -126,31 +148,37 @@ const StudentQuizHistory: React.FC = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Quizzes</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Total Quizzes
+                </p>
                 <p className="text-2xl font-bold">{stats.total}</p>
               </div>
               <BookOpen className="h-8 w-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Average Score</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Average Score
+                </p>
                 <p className="text-2xl font-bold">{stats.average}%</p>
               </div>
               <Trophy className="h-8 w-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Best Score</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Best Score
+                </p>
                 <p className="text-2xl font-bold">{stats.best}%</p>
               </div>
               <Trophy className="h-8 w-8 text-yellow-600" />
@@ -181,19 +209,21 @@ const StudentQuizHistory: React.FC = () => {
               <SelectContent>
                 <SelectItem value="all">All Subjects</SelectItem>
 
-               {getUniqueSubjects().map(subject => {
-  const label = typeof subject === 'string'
-    ? subject.charAt(0).toUpperCase() + subject.slice(1)
-    : "Unknown";
+                {getUniqueSubjects().map((subject) => {
+                  const label =
+                    typeof subject === "string"
+                      ? subject.charAt(0).toUpperCase() + subject.slice(1)
+                      : "Unknown";
 
-  return (
-    <SelectItem key={subject || 'unknown'} value={subject || 'unknown'}>
-      {label}
-    </SelectItem>
-  );
-})}
-
-
+                  return (
+                    <SelectItem
+                      key={subject || "unknown"}
+                      value={subject || "unknown"}
+                    >
+                      {label}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>
@@ -225,25 +255,27 @@ const StudentQuizHistory: React.FC = () => {
                       <TableCell className="font-medium">
                         {attempt.quizTitle}
                       </TableCell>
-                      <TableCell>{attempt.subject}</TableCell>
+                      <TableCell>{capitalize(attempt.subject)}</TableCell>
                       <TableCell>
                         {attempt.score}/{attempt.total}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={getBadgeVariant(attempt.score, attempt.total)}>
+                        <Badge
+                          variant={getBadgeVariant(
+                            attempt.score,
+                            attempt.total
+                          )}
+                        >
                           {Math.round((attempt.score / attempt.total) * 100)}%
                         </Badge>
                       </TableCell>
                       <TableCell>
-
-                       <div className="flex items-center gap-2">
-  <Calendar className="h-4 w-4 text-muted-foreground" />
-  {Array.isArray(attempt.attemptedAt)
-    ? toReadableDate(attempt.attemptedAt)
-    : "Invalid date"}
-</div>
-
-
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          {Array.isArray(attempt.attemptedAt)
+                            ? toReadableDate(attempt.attemptedAt)
+                            : "Invalid date"}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -256,7 +288,7 @@ const StudentQuizHistory: React.FC = () => {
                     variant="outline"
                     size="sm"
                     disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(prev => prev - 1)}
+                    onClick={() => setCurrentPage((prev) => prev - 1)}
                   >
                     Previous
                   </Button>
@@ -267,7 +299,7 @@ const StudentQuizHistory: React.FC = () => {
                     variant="outline"
                     size="sm"
                     disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(prev => prev + 1)}
+                    onClick={() => setCurrentPage((prev) => prev + 1)}
                   >
                     Next
                   </Button>

@@ -400,7 +400,7 @@ const SubjectResources = () => {
         <FloatingBackButton />
         <div>
           <h1 className="text-2xl font-bold text-mtech-dark">
-            Grade {gradeIdNumber} -{" "}
+            {gradeIdNumber === "0" ? "ECD" : `Grade ${gradeIdNumber}`} -{" "}
             {subject?.name ||
               subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}
           </h1>
@@ -408,7 +408,7 @@ const SubjectResources = () => {
             Learn{" "}
             {subject?.name ||
               subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}{" "}
-            for Grade {gradeIdNumber}
+            for  {gradeIdNumber === "0" ? "ECD" : `Grade ${gradeIdNumber}`}
           </p>
         </div>
       </div>

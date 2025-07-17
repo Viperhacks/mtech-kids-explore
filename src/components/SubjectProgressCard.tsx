@@ -64,7 +64,7 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
           {capitalize(subject)}
         </CardTitle>
         <CardDescription>
-          Grade {grade} {capitalize(subject)}
+           {grade === "0" ? "ECD" : `Grade ${grade}`} {capitalize(subject)}
         </CardDescription>
       </CardHeader>
 

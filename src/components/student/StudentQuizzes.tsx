@@ -377,7 +377,7 @@ const StudentQuizzes: React.FC = () => {
       <div>
         <h2 className="text-2xl font-bold mb-2">Available Quizzes</h2>
         <p className="text-muted-foreground">
-          Test your knowledge with these quizzes for Grade {userGrade}
+          Test your knowledge with these quizzes for  {userGrade === "0" ? "ECD" : `Grade ${userGrade}`}
         </p>
         <div className="mt-4 p-4 bg-muted/30 rounded-lg">
           <div className="flex items-center gap-4 text-sm">
