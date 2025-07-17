@@ -31,6 +31,7 @@ import {
   BookOpenCheck,
   GraduationCap,
   Files,
+  UserX,
 } from "lucide-react";
 import DefaultLoginInfo from "../DefaultLoginInfo";
 import CourseCreation from "../CourseCreation";
@@ -392,61 +393,78 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {teachers.map((t, index) => (
-                      <div
-                        className="flex justify-between items-center p-3 border rounded-md"
-                        key={index}
-                      >
-                        <div>
-                          <p className="font-medium">
-                            {t.fullName || "Unknown Teacher"}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {t.assignedLevels?.length
-                              ? `Assigned to: Grade ${t.assignedLevels.join(
-                                  ", "
-                                )}`
-                              : "Not assigned to any level"}
-                          </p>
-                        </div>
-                        <div className="flex gap-2 items-center">
-                          <Badge variant="outline">Active</Badge>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setSelectedTeacherId(Number(t.id))}
-                          >
-                            View Students
-                          </Button>
-                        </div>
+                    {teachers.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground space-y-3">
+                        <UserX className="w-12 h-12" />
+                        <p className="text-lg font-semibold">
+                          No teachers found
+                        </p>
+                        <p className="text-sm">
+                          Looks like nobody’s on staff duty yet
+                        </p>
                       </div>
-                    ))}
+                    ) : (
+                      <>
+                        {teachers.map((t, index) => (
+                          <div
+                            className="flex justify-between items-center p-3 border rounded-md"
+                            key={index}
+                          >
+                            <div>
+                              <p className="font-medium">
+                                {t.fullName || "Unknown Teacher"}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {t.assignedLevels?.length
+                                  ? `Assigned to: Grade ${t.assignedLevels.join(
+                                      ", "
+                                    )}`
+                                  : "Not assigned to any level"}
+                              </p>
+                            </div>
+                            <div className="flex gap-2 items-center">
+                              <Badge variant="outline">Active</Badge>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  setSelectedTeacherId(Number(t.id))
+                                }
+                              >
+                                View Students
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
 
-                    {/* Move the modal OUTSIDE the map */}
-                    {selectedTeacherId !== null && (
-                      <TeacherStudentsModal
-                        teacherId={selectedTeacherId}
-                        open={true}
-                        onClose={() => setSelectedTeacherId(null)}
-                      />
+                        {selectedTeacherId !== null && (
+                          <TeacherStudentsModal
+                            teacherId={selectedTeacherId}
+                            open={true}
+                            onClose={() => setSelectedTeacherId(null)}
+                          />
+                        )}
+
+                        {totalPages > 1 && (
+                          <div className="flex justify-center gap-3 mt-4">
+                            <Button
+                              disabled={currentPage === 0}
+                              onClick={() => setCurrentPage((prev) => prev - 1)}
+                              variant="secondary"
+                            >
+                              Prev
+                            </Button>
+                            <Button
+                              disabled={currentPage + 1 >= totalPages}
+                              onClick={() => setCurrentPage((prev) => prev + 1)}
+                              variant="secondary"
+                            >
+                              Next
+                            </Button>
+                          </div>
+                        )}
+                      </>
                     )}
-
-                    <div className="flex justify-center gap-3 mt-4">
-                      <Button
-                        disabled={currentPage === 0}
-                        onClick={() => setCurrentPage((prev) => prev - 1)}
-                        variant="secondary"
-                      >
-                        Prev
-                      </Button>
-                      <Button
-                        disabled={currentPage + 1 >= totalPages}
-                        onClick={() => setCurrentPage((prev) => prev + 1)}
-                        variant="secondary"
-                      >
-                        Next
-                      </Button>
-                    </div>
                   </div>
                 )}
               </CardContent>
