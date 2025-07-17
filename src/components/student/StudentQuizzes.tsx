@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,13 +56,13 @@ const StudentQuizzes: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-  const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
+ 
   const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
   const [showQuizDialog, setShowQuizDialog] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | number>>({});
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
@@ -83,9 +84,15 @@ const StudentQuizzes: React.FC = () => {
       .map((item: any) => item.resourceId) || [];
 
   useEffect(() => {
-    fetchAvailableQuizzes();
+    fetchQuizzes();
   }, []);
 
+ 
+
+
+
+
+ 
   // Add the missing useEffect for filtering
   useEffect(() => {
     filterQuizzes();
@@ -109,11 +116,13 @@ const StudentQuizzes: React.FC = () => {
         title: "Failed to load quizzes",
         description: "Please try again",
         variant: "destructive",
+
       });
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const filterQuizzes = () => {
     let filtered = quizzes.filter((quiz) => {
@@ -146,13 +155,18 @@ const StudentQuizzes: React.FC = () => {
       const shuffledQuestions = shuffleQuestions(response.data);
       setQuizQuestions(shuffledQuestions);
 
+
       setSelectedQuiz(quiz);
-      setCurrentQuestionIndex(0);
+      setQuestions(quiz.questions);
       setAnswers({});
-      setQuizCompleted(false);
-      setShowQuizDialog(true);
-    } catch (error) {
+      setCurrentQuestion(0);
+      setShowResult(false);
+      setQuizResult(null);
+      setShowConfirmation(true);
+    } catch (error: any) {
+      console.error('Failed to start quiz:', error);
       toast({
+
         title: "Failed to start quiz",
         description: "Please try again",
         variant: "destructive",
@@ -270,24 +284,18 @@ const StudentQuizzes: React.FC = () => {
         title: "Quiz submission failed",
         description: friendlyMsg,
         variant: "destructive",
+
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const closeQuiz = () => {
-    setShowQuizDialog(false);
-    setSelectedQuiz(null);
-    setQuizQuestions([]);
-    setQuizCompleted(false);
-    setScore(0);
-    setAnswers({});
-    setCurrentQuestionIndex(0);
-    setShowReview(false);
-    setAnsweredQues({});
+  const handleGoBack = () => {
+    navigate(-1);
   };
 
+ 
   const currentQuestion = quizQuestions[currentQuestionIndex];
   const type = currentQuestion?.type;
 
@@ -367,6 +375,7 @@ const StudentQuizzes: React.FC = () => {
         return <div className="text-red-500">Unsupported question type</div>;
     }
   };
+
 
   if (isLoading) {
     return <LoadingQuizzes />;
@@ -521,10 +530,13 @@ const StudentQuizzes: React.FC = () => {
                     </div>
                   </>
                 )}
+
               </CardContent>
+              <Button onClick={() => handleStartQuiz(quiz)}>Start Quiz</Button>
             </Card>
           ))}
         </div>
+
       )}
 
       <Dialog
@@ -669,6 +681,7 @@ const StudentQuizzes: React.FC = () => {
               )}
             </>
           )}
+
         </DialogContent>
       </Dialog>
     </div>

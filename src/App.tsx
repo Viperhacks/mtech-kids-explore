@@ -1,10 +1,27 @@
-// App.tsx
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
-import { GoogleOAuthProvider } from "@react-oauth/google";
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { AuthProvider } from './context/AuthContext';
+import ScrollToTop from './components/ScrollToTop';
+import TitleReset from './components/TitleReset';
+import './App.css';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import GradeResources from './pages/GradeResources';
+import SubjectResources from './pages/SubjectResources';
+import StudentDashboard from './components/dashboards/StudentDashboard';
+import TeacherDashboard from './components/dashboards/TeacherDashboard';
+import AdminDashboard from './components/dashboards/AdminDashboard';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import OTPVerification from './pages/OTPVerification';
+import ResourceDetails from './pages/ResourceDetails';
+import Classroom from './pages/Classroom';
+import VideoThumbnail from './pages/VideoThumbnail';
+import { CompletionProvider } from '@/context/CompletionContext';
+
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -39,8 +56,8 @@ const Router =
 // 🧠 React Query setup
 const queryClient = new QueryClient();
 
-const App = () => (
-  <GoogleOAuthProvider clientId={googleClientId}>
+function App() {
+  return (
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthProvider>
@@ -107,7 +124,7 @@ const App = () => (
         </AuthProvider>
       </Router>
     </QueryClientProvider>
-  </GoogleOAuthProvider>
-);
+  );
+}
 
 export default App;

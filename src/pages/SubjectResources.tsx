@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +24,7 @@ import {
   RefreshCw,
   AlertCircle,
 } from "lucide-react";
+
 import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
@@ -34,6 +36,7 @@ import {
 } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import ResourcesData from "@/data/resources";
@@ -52,6 +55,7 @@ import QuizManagement from "@/components/QuizManagement";
 import { Badge } from "@/components/ui/badge";
 import { useCompletion } from "@/context/CompletionContext";
 import { completionService } from "@/services/completionService";
+
 
 const SubjectResources = () => {
   //const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
@@ -111,7 +115,9 @@ const SubjectResources = () => {
   const subject = grade?.subjects.find((s) => s.id === subjectId);
   //console.log("subject",subject)
 
+
   const { refreshCompletions, isResourceCompleted } = useCompletion();
+
   useEffect(() => {
     fetchResources();
   }, [gradeIdNumber, subjectId]);
@@ -200,25 +206,23 @@ const SubjectResources = () => {
     );
   }*/
 
+
   const handleVideoEnded = async () => {
     if (user && selectedVideo) {
-      // Update progress by marking this specific video as completed
-      /*updateUserProgress(
-      subjectId as string, 
-      selectedVideo.response.id,
-      totalVideos
-    );*/
+     
 
       try {
         await completionService.markComplete(
           selectedVideo.response.id,
           "video",
+
           refreshCompletions
         );
 
         // Track activity
         trackActivity({
           userId: user.id || "user",
+
           type: "video_completed",
           videoId: selectedVideo.response.id,
           subjectId: subjectId,
@@ -244,6 +248,7 @@ const SubjectResources = () => {
         });
       } catch (error) {
         console.error("Failed to mark video as completed:", error);
+
       }
     }
   };
@@ -355,6 +360,7 @@ const SubjectResources = () => {
     progress.total > 0
       ? Math.round((progress.completed / progress.total) * 100)
       : 0;
+
 
   const isVideoCompleted = (videoId: string) => {
     return isResourceCompleted(videoId) || completedVideos.has(videoId);
@@ -500,6 +506,7 @@ const SubjectResources = () => {
                 </Card>
               ))}
             </div>
+
           ) : resources.filter((resource) => resource.response.type === "video")
               .length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -596,6 +603,7 @@ const SubjectResources = () => {
                     </Card>
                   );
                 })}
+
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 border rounded-lg">
