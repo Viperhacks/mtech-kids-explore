@@ -145,7 +145,6 @@ const StudentQuizzes: React.FC = () => {
       const response = await getQuizQuestions(quiz.quizId);
       const shuffledQuestions = shuffleQuestions(response.data);
       setQuizQuestions(shuffledQuestions);
-      console.log("Shuffled Questions:", shuffledQuestions);
 
       setSelectedQuiz(quiz);
       setCurrentQuestionIndex(0);
