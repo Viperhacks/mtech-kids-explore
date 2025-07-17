@@ -23,6 +23,7 @@ import {
   createQuiz,
   getResources,
   getResourcesForQuiz,
+  getTeacherSubjects,
 } from "@/services/apiService";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -55,6 +56,45 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
   const assignedLevels = user?.assignedLevels || [];
   const [resources, setResources] = useState([]);
 
+  const [teacherSubjects, setTeacherSubjects] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(false);
+
+  useEffect(() => {
+    if (!open || !user) return;
+
+    const fetchTeacherSubjects = async () => {
+      setLoadingSubjects(true);
+      try {
+        const fetchedSubjects = await getTeacherSubjects();
+
+        if (fetchedSubjects.includes("All Subjects")) {
+          // use your full subject list if "All Subjects" assigned
+          setTeacherSubjects(subjects);
+        } else {
+          setTeacherSubjects(
+            fetchedSubjects.map((name: string, idx: number) => ({
+              id: idx,
+              name,
+            }))
+          );
+        }
+      } catch (error) {
+        toast({
+          title: "Failed to load subjects",
+          description: "Could not fetch your subjects.",
+          variant: "destructive",
+        });
+        setTeacherSubjects([]);
+      } finally {
+        setLoadingSubjects(false);
+      }
+    };
+
+    fetchTeacherSubjects();
+  }, [open, user]);
+
   useEffect(() => {
     if (open) {
       fetchAvailableResources();
@@ -85,6 +125,15 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if (!formData.standaAlone && !formData.resourceId) {
+    toast({
+      title: "Resource Required",
+      description: "Please select a resource or mark the quiz as standalone.",
+      variant: "destructive",
+    });
+    return;
+  }
 
     try {
       await createQuiz(formData);
@@ -117,6 +166,27 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
       teacherName: user?.fullName || user?.name || "",
     });
   };
+
+  if (!user || assignedLevels.length === 0) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Access Restricted</DialogTitle>
+        </DialogHeader>
+        <div className="p-4 text-center text-red-600">
+          You are not assigned to any grade level. Please contact your admin for access.
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -182,19 +252,30 @@ const QuizCreationDialog: React.FC<QuizCreationDialogProps> = ({
                 onValueChange={(value) =>
                   setFormData((prev) => ({ ...prev, subject: value }))
                 }
+                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  {subjects.map((subject) => (
-                    <SelectItem
-                      key={subject.id}
-                      value={subject.name.toLowerCase()}
-                    >
-                      {subject.name}
+                  {loadingSubjects ? (
+                    <SelectItem value="loading" disabled>
+                      Loading subjects...
                     </SelectItem>
-                  ))}
+                  ) : teacherSubjects.length === 0 ? (
+                    <SelectItem value="none" disabled>
+                      No subjects assigned
+                    </SelectItem>
+                  ) : (
+                    teacherSubjects.map((subject) => (
+                      <SelectItem
+                        key={subject.id}
+                        value={subject.name.toLowerCase()}
+                      >
+                        {subject.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>

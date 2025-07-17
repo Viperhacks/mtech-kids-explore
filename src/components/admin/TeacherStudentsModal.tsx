@@ -95,7 +95,9 @@ const TeacherStudentsDialog: React.FC<TeacherStudentsModalProps> = ({
                     {idx + 1 + currentPage * 10}. {student.fullName}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Grade {student.gradeLevel}
+                     {student.gradeLevel === "0"
+                ? "ECD"
+                : `Grade ${student.gradeLevel}`}
                   </p>
                 </div>
                 <Badge variant="outline">{student.role}</Badge>

@@ -415,11 +415,18 @@ const AdminDashboard: React.FC = () => {
                                 {t.fullName || "Unknown Teacher"}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {t.assignedLevels?.length
-                                  ? `Assigned to: Grade ${t.assignedLevels.join(
-                                      ", "
-                                    )}`
-                                  : "Not assigned to any level"}
+                                {t.assignedLevels?.length ? (
+                                  <>
+                                    Assigned to:{" "}
+                                    {t.assignedLevels
+                                      .map((level) =>
+                                        level === "0" ? "ECD" : `Grade ${level}`
+                                      )
+                                      .join(", ")}
+                                  </>
+                                ) : (
+                                  "Not assigned to any level"
+                                )}
                               </p>
                             </div>
                             <div className="flex gap-2 items-center">

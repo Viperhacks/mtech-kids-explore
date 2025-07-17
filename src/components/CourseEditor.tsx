@@ -24,6 +24,7 @@ import { title } from "process";
 import { subjects } from "@/utils/subjectUtils";
 import { useAuth } from "@/context/AuthContext";
 import { capitalize } from "@/utils/stringUtils";
+import { getTeacherSubjects } from "@/services/apiService";
 
 interface CourseEditorProps {
   resource?: any;
@@ -53,6 +54,45 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
   });
   const { user } = useAuth();
   const assignedLevels = user?.assignedLevels || [];
+  const [teacherSubjects, setTeacherSubjects] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(false);
+
+  useEffect(() => {
+  if (!user) return;
+
+  const fetchSubjects = async () => {
+    setLoadingSubjects(true);
+    try {
+      const fetchedSubjects = await getTeacherSubjects();
+      console.log("Fetched subjects:", fetchedSubjects);
+
+      // If 'All Subjects' is present, replace teacherSubjects with full subject list
+      if (fetchedSubjects.includes('All Subjects')) {
+        setTeacherSubjects(subjects);
+      } else {
+        setTeacherSubjects(
+          (fetchedSubjects || []).map((name: string, idx: number) => ({
+            id: idx,
+            name,
+          }))
+        );
+      }
+    } catch (error) {
+      toast({
+        title: "Failed to load subjects",
+        description: "Could not fetch your subjects.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingSubjects(false);
+    }
+  };
+
+  fetchSubjects();
+}, [user]);
+
 
   // Update form data if resource or initialType changes
   useEffect(() => {
@@ -244,14 +284,24 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
                   <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  {subjects.map((subject) => (
-                    <SelectItem
-                      key={subject.id}
-                      value={subject.name.toLowerCase()}
-                    >
-                      {subject.name}
+                  {loadingSubjects ? (
+                    <SelectItem value="loading" disabled>
+                      Loading subjects...
                     </SelectItem>
-                  ))}
+                  ) : teacherSubjects.length === 0 ? (
+                    <SelectItem value="none" disabled>
+                      No subjects assigned
+                    </SelectItem>
+                  ) : (
+                    teacherSubjects.map((subject) => (
+                      <SelectItem
+                        key={subject.id}
+                        value={subject.name.toLowerCase()}
+                      >
+                        {subject.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>

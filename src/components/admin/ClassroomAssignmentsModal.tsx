@@ -1,14 +1,28 @@
-
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { getClassroomAssignments, deleteAssignment } from '@/services/apiService';
-import { getSubjectById, getSubjectByName } from '@/utils/subjectUtils';
-import { Users, Trash2, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import {
+  getClassroomAssignments,
+  deleteAssignment,
+} from "@/services/apiService";
+import { getSubjectById, getSubjectByName } from "@/utils/subjectUtils";
+import { Users, Trash2, AlertTriangle } from "lucide-react";
 
 interface Assignment {
   id: string;
@@ -35,7 +49,7 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
   open,
   onOpenChange,
   classroom,
-  onAssignmentDeleted
+  onAssignmentDeleted,
 }) => {
   const { toast } = useToast();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -52,14 +66,16 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
     setIsLoading(true);
     try {
       const response = await getClassroomAssignments(classroom.id);
-      const assignmentsData = Array.isArray(response) ? response : response.content || [];
-      console.log("asssignment data",assignmentsData)
+      const assignmentsData = Array.isArray(response)
+        ? response
+        : response.content || [];
+      console.log("asssignment data", assignmentsData);
       setAssignments(assignmentsData);
     } catch (error) {
       toast({
         title: "Failed to load assignments",
         description: "Could not load classroom assignments",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -67,7 +83,7 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
   };
 
   const handleDeleteAssignment = async (assignmentId: string) => {
-    if (!confirm('Are you sure you want to remove this teacher assignment?')) {
+    if (!confirm("Are you sure you want to remove this teacher assignment?")) {
       return;
     }
 
@@ -76,16 +92,16 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
       await deleteAssignment(assignmentId);
       toast({
         title: "Assignment Removed",
-        description: "Teacher assignment has been removed successfully"
+        description: "Teacher assignment has been removed successfully",
       });
-      
+
       onAssignmentDeleted();
       fetchAssignments();
     } catch (error) {
       toast({
         title: "Failed to remove assignment",
         description: "Could not remove teacher assignment",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setDeletingId(null);
@@ -105,9 +121,11 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
         <div className="space-y-4">
           <div className="p-3 bg-muted rounded-md">
             <p className="text-sm text-muted-foreground">
-              <strong>Classroom:</strong> {classroom.name} ({classroom.gradeLevel === "0"
-                            ? "ECD"
-                            : `Grade ${classroom.gradeLevel}`})
+              <strong>Classroom:</strong> {classroom.name} (
+              {classroom.gradeLevel === "0"
+                ? "ECD"
+                : `Grade ${classroom.gradeLevel}`}
+              )
             </p>
           </div>
 
@@ -133,8 +151,12 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
                       {assignment.teacherName}
                     </TableCell>
                     <TableCell>
-                      {getSubjectByName(assignment.subjectName)?.name || 'Unknown Subject'}
+                      {assignment.subjectName === "All Subjects"
+                        ? "All Subjects"
+                        : getSubjectByName(assignment.subjectName)?.name ||
+                          assignment.subjectName}
                     </TableCell>
+
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
@@ -158,8 +180,8 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                No teachers are currently assigned to this classroom.
-                Use the "Assign Teacher" button to add assignments.
+                No teachers are currently assigned to this classroom. Use the
+                "Assign Teacher" button to add assignments.
               </AlertDescription>
             </Alert>
           )}

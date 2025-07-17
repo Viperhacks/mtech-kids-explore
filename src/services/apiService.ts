@@ -333,6 +333,16 @@ export const getTotalStats = async()=>{
   }
 }
 
+export const getTeacherSubjects = async () => {
+  try {
+    const response = await teacherService.getTeacherSubjects();
+    return response;
+  } catch (error) {
+    console.error('Get teacher subjects error:', error);
+    throw error;
+  }
+};
+
 export const getResourceStats = async () => {
   try {
     const response = await adminService.getResourceStats();
