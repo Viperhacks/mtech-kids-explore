@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -49,6 +48,7 @@ import CourseEditor from "@/components/CourseEditor";
 import VideoThumbnail from "./VideoThumbnail";
 import { resolve } from "path";
 import FloatingBackButton from "@/components/FloatingBackButton";
+import { useAutoQuizOpen } from '@/hooks/useAutoQuizOpen';
 
 import StudentQuizzes from "@/components/student/StudentQuizzes";
 import QuizManagement from "@/components/QuizManagement";
@@ -56,10 +56,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCompletion } from "@/context/CompletionContext";
 import { completionService } from "@/services/completionService";
 
-
 const SubjectResources = () => {
-  //const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
-
   const { gradeId: fullGradeId, subjectId } = useParams<{
     gradeId: string;
     subjectId: string;
@@ -109,6 +106,7 @@ const SubjectResources = () => {
 
   const { toast } = useToast();
   const { user, updateUserProgress, trackActivity } = useAuth();
+  const { findAndOpenAssociatedQuiz } = useAutoQuizOpen();
 
   // Get the grade and subject data
   const grade = ResourcesData.grades.find((g) => g.id === gradeIdNumber);
@@ -194,35 +192,18 @@ const SubjectResources = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  /*if (!grade || !subjectId) {
-    return (
-      <div className="mtech-container py-20 text-center">
-        <h1 className="text-3xl font-bold text-mtech-dark mb-4">Resource Not Found</h1>
-        <p className="text-gray-600 mb-8">The subject or grade you're looking for doesn't exist.</p>
-        <Button asChild>
-          <Link to="/">Return Home</Link>
-        </Button>
-      </div>
-    );
-  }*/
-
-
   const handleVideoEnded = async () => {
     if (user && selectedVideo) {
-     
-
       try {
         await completionService.markComplete(
           selectedVideo.response.id,
           "video",
-
           refreshCompletions
         );
 
         // Track activity
         trackActivity({
           userId: user.id || "user",
-
           type: "video_completed",
           videoId: selectedVideo.response.id,
           subjectId: subjectId,
@@ -230,25 +211,36 @@ const SubjectResources = () => {
           timestamp: new Date().toISOString(),
         });
 
-        // Add to local completed set
-        /* setCompletedVideos((prev) =>
-          new Set(prev).add(selectedVideo.response.id)
-        );*/
-        if (selectedVideo.response.hasQuiz) {
-          setActiveTab("quizzes");
-        } else {
-          setActiveTab("videos");
-        }
-
         toast({
           title: "Video Completed!",
           description: selectedVideo.response.hasQuiz
-            ? `Great job watching the entire video. Now go and crush the quiz`
+            ? "Great job! Looking for your quiz..."
             : "Great job watching the entire video.",
         });
+
+        // Auto-open associated quiz if it exists
+        if (selectedVideo.response.hasQuiz) {
+          await findAndOpenAssociatedQuiz(
+            selectedVideo.response.id,
+            gradeIdNumber,
+            subjectId,
+            (quiz) => {
+              // Close video dialog first
+              setIsVideoOpen(false);
+              
+              // Switch to quizzes tab
+              setActiveTab("quizzes");
+              
+              // Trigger quiz opening in StudentQuizzes component
+              const quizEvent = new CustomEvent('autoOpenQuiz', { 
+                detail: { quiz } 
+              });
+              window.dispatchEvent(quizEvent);
+            }
+          );
+        }
       } catch (error) {
         console.error("Failed to mark video as completed:", error);
-
       }
     }
   };

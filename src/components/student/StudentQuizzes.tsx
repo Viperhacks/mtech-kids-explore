@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,6 +37,7 @@ import {
   submitQuizAttempt,
 } from "@/services/apiService";
 import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 import LoadingQuizzes from "../LoadingQuizzes";
 
@@ -57,7 +57,14 @@ const StudentQuizzes: React.FC = () => {
   const { toast } = useToast();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
- 
+  const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[]>([]);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+  const [quizResult, setQuizResult] = useState<any>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
   const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
   const [showQuizDialog, setShowQuizDialog] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -87,28 +94,50 @@ const StudentQuizzes: React.FC = () => {
     fetchQuizzes();
   }, []);
 
- 
+  useEffect(() => {
+    const handleAutoOpenQuiz = (event: CustomEvent) => {
+      const quiz = event.detail.quiz;
+      if (quiz) {
+        console.log('Auto-opening quiz:', quiz);
+        startQuiz(quiz);
+      }
+    };
+
+    window.addEventListener('autoOpenQuiz', handleAutoOpenQuiz as EventListener);
+    return () => {
+      window.removeEventListener('autoOpenQuiz', handleAutoOpenQuiz as EventListener);
+    };
+  }, []);
 
 
 
 
- 
+
+  const closeQuiz = () => {
+    setShowQuizDialog(false);
+    setSelectedQuiz(null);
+    setQuizQuestions([]);
+    setCurrentQuestionIndex(0);
+    setAnswers({});
+    setQuizCompleted(false);
+    setScore(0);
+    setShowReview(false);
+    setAnsweredQues({});
+  };
   // Add the missing useEffect for filtering
   useEffect(() => {
     filterQuizzes();
   }, [quizzes, searchTerm, subjectFilter, statusFilter]);
 
-  const fetchAvailableQuizzes = async () => {
+  const fetchQuizzes = async () => {
     setIsLoading(true);
     try {
       const response = await getAllQuizzes();
-
+      
       // Filter quizzes for student's grade
       const studentQuizzes = response.data.filter(
         (quiz: Quiz) => quiz.grade === userGrade
       );
-
-      const shuffle = shuffleArray(studentQuizzes) as Quiz[];
 
       setQuizzes(studentQuizzes);
     } catch (error) {
@@ -116,7 +145,6 @@ const StudentQuizzes: React.FC = () => {
         title: "Failed to load quizzes",
         description: "Please try again",
         variant: "destructive",
-
       });
     } finally {
       setIsLoading(false);
@@ -157,12 +185,13 @@ const StudentQuizzes: React.FC = () => {
 
 
       setSelectedQuiz(quiz);
-      setQuestions(quiz.questions);
+      setShowQuizDialog(true);
       setAnswers({});
-      setCurrentQuestion(0);
-      setShowResult(false);
-      setQuizResult(null);
-      setShowConfirmation(true);
+      setCurrentQuestionIndex(0);
+      setQuizCompleted(false);
+      setScore(0);
+      setShowReview(false);
+      setAnsweredQues({});
     } catch (error: any) {
       console.error('Failed to start quiz:', error);
       toast({
@@ -295,7 +324,10 @@ const StudentQuizzes: React.FC = () => {
     navigate(-1);
   };
 
- 
+  const handleStartQuiz = (quiz: any) => {
+    setSelectedQuiz(quiz);
+    setShowConfirmation(true);
+  };
   const currentQuestion = quizQuestions[currentQuestionIndex];
   const type = currentQuestion?.type;
 
@@ -532,7 +564,6 @@ const StudentQuizzes: React.FC = () => {
                 )}
 
               </CardContent>
-              <Button onClick={() => handleStartQuiz(quiz)}>Start Quiz</Button>
             </Card>
           ))}
         </div>

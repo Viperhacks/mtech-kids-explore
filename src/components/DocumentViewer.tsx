@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { useAuth } from "@/context/AuthContext";
@@ -22,8 +23,8 @@ import {
 import { userTrackingService } from "@/lib/userTracking";
 import { completionService } from "@/services/completionService";
 import { useCompletion } from "@/context/CompletionContext";
-import workerSrcUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
+// Configure PDF.js worker for offline use
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
 interface DocumentViewerProps {
@@ -49,7 +50,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   const { user, trackActivity } = useAuth();
   const { refreshCompletions } = useCompletion();
 
-  // Format document URL correctly
+  // Format document URL correctly for offline use
   const formattedDocUrl = documentUrl.startsWith("http")
     ? documentUrl
     : `http://localhost:8080/uploads/${documentUrl}`;
@@ -152,10 +153,10 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   ]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-    console.log("PDF Loaded. Pages:", numPages);
+    console.log("PDF Loaded successfully. Pages:", numPages);
     setNumPages(numPages);
     setLoading(false);
-
+    setError(false);
     toast.success("Document loaded successfully");
   }
 
@@ -163,8 +164,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     console.error("Document loading error:", error);
     setError(true);
     setLoading(false);
-
-    toast.error("Failed to load document");
+    toast.error("Failed to load document. Please check if the file exists.");
   }
 
   function changePage(offset: number) {
@@ -175,53 +175,59 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   }
 
   function handleDownload() {
-    // Create a temporary link to download the document
-    const link = document.createElement("a");
-    link.href = formattedDocUrl;
-    link.download = documentTitle || "document";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      // Create a temporary link to download the document
+      const link = document.createElement("a");
+      link.href = formattedDocUrl;
+      link.download = documentTitle || "document";
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-    // Track download
-    if (user && documentId) {
-      trackActivity({
-        userId: user.id || "user",
-        type: "document_downloaded",
-        resourceId: documentId.toString(),
-        timestamp: new Date().toISOString(),
-      });
+      // Track download
+      if (user && documentId) {
+        trackActivity({
+          userId: user.id || "user",
+          type: "document_downloaded",
+          resourceId: documentId.toString(),
+          timestamp: new Date().toISOString(),
+        });
+      }
+
+      toast.success("Download started");
+    } catch (error) {
+      console.error("Download failed:", error);
+      toast.error("Download failed. Please try again.");
     }
-
-    toast.success("Download started");
   }
 
   // Get previously viewed indicator from user-specific storage
   const { isResourceCompleted } = useCompletion();
   const isCompleted = isResourceCompleted(documentId);
-  //console.log(isCompleted);
 
   function getFileTypeFromUrl(url: string): string {
     const extension = url.split(".").pop()?.toLowerCase();
     if (!extension) return "unknown";
 
     if (["pdf"].includes(extension)) return "pdf";
-    if (["png", "jpg", "jpeg", "gif", "webp"].includes(extension))
+    if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(extension))
       return "image";
     if (["doc", "docx"].includes(extension)) return "word";
-    if (["mp4", "webm", "ogg"].includes(extension)) return "video";
+    if (["mp4", "webm", "ogg", "avi", "mov"].includes(extension)) return "video";
+    if (["txt", "rtf"].includes(extension)) return "text";
 
     return "unknown";
   }
 
   function renderDocumentContent() {
-    console.log("Formatted Document URL:", formattedDocUrl);
+    console.log("Rendering document:", formattedDocUrl);
 
     const inferredType = getFileTypeFromUrl(formattedDocUrl);
-    console.log("Inferred Type:", inferredType);
+    console.log("Document type:", inferredType);
 
     if (inferredType !== "pdf" && loading) {
-      setLoading(false); // immediately stop the loading spinner for non-PDF files
+      setLoading(false);
     }
 
     if (inferredType === "pdf") {
@@ -233,15 +239,26 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
           loading={
             <div className="flex items-center justify-center h-full">
               <Loader2 className="h-8 w-8 animate-spin text-mtech-primary" />
+              <span className="ml-2">Loading PDF...</span>
             </div>
           }
           className="max-w-full"
+          options={{
+            cMapUrl: "/cmaps/",
+            cMapPacked: true,
+            standardFontDataUrl: "/standard_fonts/",
+          }}
         >
           <Page
             pageNumber={pageNumber}
-            width={600}
+            width={Math.min(600, window.innerWidth - 100)}
             renderTextLayer={false}
             renderAnnotationLayer={false}
+            loading={
+              <div className="flex items-center justify-center h-[400px]">
+                <Loader2 className="h-6 w-6 animate-spin text-mtech-primary" />
+              </div>
+            }
           />
         </Document>
       );
@@ -252,42 +269,52 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         <img
           src={formattedDocUrl}
           alt={documentTitle}
-          className="max-h-[500px] mx-auto"
+          className="max-h-[500px] mx-auto rounded-md"
+          onError={(e) => {
+            console.error("Image failed to load:", formattedDocUrl);
+            setError(true);
+          }}
+          onLoad={() => {
+            setLoading(false);
+            setError(false);
+          }}
         />
-      );
-    }
-
-    if (inferredType === "word") {
-      return (
-        <div className="text-center p-6">
-          <FileText className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-          <p className="text-sm text-gray-600">
-            Preview not supported. Please download to view.
-          </p>
-          <Button onClick={handleDownload} className="mt-2">
-            <Download className="mr-2 h-4 w-4" />
-            Download Word Document
-          </Button>
-        </div>
       );
     }
 
     if (inferredType === "video") {
       return (
-        <video controls className="max-h-[500px] mx-auto">
-          <source src={formattedDocUrl}  />
+        <video 
+          controls 
+          className="max-h-[500px] mx-auto rounded-md"
+          onLoadedData={() => {
+            setLoading(false);
+            setError(false);
+          }}
+          onError={() => {
+            console.error("Video failed to load:", formattedDocUrl);
+            setError(true);
+            setLoading(false);
+          }}
+        >
+          <source src={formattedDocUrl} />
           Your browser does not support the video tag.
         </video>
       );
     }
 
+    // For unsupported types, show download option
     return (
       <div className="text-center p-6">
         <FileText className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-        <p className="text-sm text-gray-600">Unsupported format.</p>
+        <p className="text-sm text-gray-600 mb-4">
+          {inferredType === "word" 
+            ? "Word document preview not supported" 
+            : "Preview not available for this file type"}
+        </p>
         <Button onClick={handleDownload} className="mt-2">
           <Download className="mr-2 h-4 w-4" />
-          Download File
+          Download {inferredType === "word" ? "Word Document" : "File"}
         </Button>
       </div>
     );
@@ -297,7 +324,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     <Card className="w-full">
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle>{documentTitle}</CardTitle>
+          <CardTitle className="text-lg">{documentTitle}</CardTitle>
           {isCompleted && (
             <div className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
               Completed
@@ -306,31 +333,44 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         </div>
         <CardDescription>
           {numPages
-            ? `${pageNumber} of ${numPages} pages`
+            ? `Page ${pageNumber} of ${numPages}`
             : "Loading document..."}
         </CardDescription>
-        <Progress value={progress} className="h-2" />
+        {numPages && <Progress value={progress} className="h-2" />}
       </CardHeader>
       <CardContent>
-        <div className="flex justify-center bg-gray-100 rounded-md min-h-[400px] relative">
+        <div className="flex justify-center bg-gray-50 rounded-md min-h-[400px] relative">
           {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-80 z-10">
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-90 z-10">
               <Loader2 className="h-8 w-8 animate-spin text-mtech-primary" />
+              <span className="ml-2">Loading...</span>
             </div>
           )}
 
           {error ? (
             <div className="flex flex-col items-center justify-center h-full p-4 text-center">
               <FileText className="h-12 w-12 text-gray-400 mb-2" />
-              <p className="text-lg font-semibold text-gray-700">
+              <p className="text-lg font-semibold text-gray-700 mb-2">
                 Unable to display this document
               </p>
               <p className="text-sm text-gray-500 mb-4">
-                The document may be in a format we can't preview
+                The file might be corrupted, missing, or in an unsupported format
               </p>
-              <Button onClick={handleDownload}>
+              <Button onClick={handleDownload} variant="outline">
                 <Download className="mr-2 h-4 w-4" />
-                Download Instead
+                Try Download Instead
+              </Button>
+              <Button 
+                onClick={() => {
+                  setError(false);
+                  setLoading(true);
+                  // Force reload
+                  window.location.reload();
+                }}
+                variant="ghost"
+                className="mt-2"
+              >
+                Retry Loading
               </Button>
             </div>
           ) : (
@@ -338,27 +378,29 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
           )}
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between border-t pt-4">
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => changePage(-1)}
-            disabled={pageNumber <= 1 || loading || error}
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+      {numPages && (
+        <CardFooter className="flex justify-between border-t pt-4">
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => changePage(-1)}
+              disabled={pageNumber <= 1 || loading || error}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => changePage(1)}
+              disabled={pageNumber >= (numPages || 1) || loading || error}
+            >
+              Next <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+          <Button variant="secondary" onClick={handleDownload}>
+            <Download className="h-4 w-4 mr-2" /> Download
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => changePage(1)}
-            disabled={pageNumber >= (numPages || 1) || loading || error}
-          >
-            Next <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
-        <Button variant="secondary" onClick={handleDownload}>
-          <Download className="h-4 w-4 mr-2" /> Download
-        </Button>
-      </CardFooter>
+        </CardFooter>
+      )}
     </Card>
   );
 };
