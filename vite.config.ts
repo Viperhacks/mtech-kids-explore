@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -8,7 +9,7 @@ export default defineConfig(({ mode }) => ({
 
   server: {
     host: "::",
-    port: 8081, // you said 8081, so fixing that too
+    port: 8080, // Fixed to match the expected port in the application
   },
   plugins: [
     react(),

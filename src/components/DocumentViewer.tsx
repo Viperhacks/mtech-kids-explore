@@ -25,6 +25,7 @@ import { completionService } from "@/services/completionService";
 import { useCompletion } from "@/context/CompletionContext";
 
 
+// Configure PDF.js worker for offline use
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
 

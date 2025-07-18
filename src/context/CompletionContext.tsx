@@ -39,13 +39,14 @@ export const CompletionProvider: React.FC<CompletionProviderProps> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
+
   const flattenNestedArrays = (obj: Record<string, any>) => {
   return Object.entries(obj)
     .flatMap(([type, nestedObj]) => {
       if (typeof nestedObj === 'object' && nestedObj !== null) {
         return Object.values(nestedObj).flat().map((item: any) => ({
           ...item,
-          type: type.toLowerCase() // ensure consistent lowercase: 'document', 'video', etc.
+          type: type.toLowerCase() 
         }));
       }
       return [];
@@ -84,7 +85,8 @@ const refreshCompletions = async () => {
 
   const isResourceCompleted = (resourceId: number | string) => {
     const id = typeof resourceId === 'string' ? parseInt(resourceId) : resourceId;
-    console.log(id)
+    
+
     return completedResources.some(resource => resource.resourceId === id);
   };
 
