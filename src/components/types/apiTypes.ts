@@ -24,6 +24,7 @@ export interface PaginatedResponse<T> {
 
 
 export interface Quiz {
+  questions: boolean;
   quizId: string;
   title: string;
   description: string;

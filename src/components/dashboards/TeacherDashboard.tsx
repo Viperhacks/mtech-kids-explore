@@ -38,6 +38,8 @@ import {
   CheckCircle,
   Trophy,
   Search,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -291,6 +293,13 @@ const TeacherDashboard: React.FC = () => {
     }
   };
 
+  const handleEditUser = (id: string) => {
+  // Route to edit page or open modal
+  console.log("Editing user with id:", id);
+  // navigate(`/dashboard/edit-student/${id}`) or show modal
+};
+
+
   const allTabs = [
     { value: "overview", label: "Overview" },
     { value: "materials", label: "My Materials" },
@@ -453,9 +462,7 @@ const TeacherDashboard: React.FC = () => {
                 <Card key={grade} className="border p-4">
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold">
-                      {grade === "0"
-                            ? "ECD"
-                            : `Grade ${grade}`}
+                      {grade === "0" ? "ECD" : `Grade ${grade}`}
                     </CardTitle>
                     <CardDescription className="text-sm text-muted-foreground">
                       {resArray.length} total resources
@@ -608,9 +615,9 @@ const TeacherDashboard: React.FC = () => {
                           </TableCell>
                           {!isMobile && (
                             <TableCell>
-                               {resource.response.grade === "0"
-                            ? "ECD"
-                            : `Grade ${resource.response.grade}`}
+                              {resource.response.grade === "0"
+                                ? "ECD"
+                                : `Grade ${resource.response.grade}`}
                             </TableCell>
                           )}
                           {!isMobile && (
@@ -754,21 +761,31 @@ const TeacherDashboard: React.FC = () => {
 
                           {!isMobile && (
                             <TableCell>
-                               {student.gradeLevel === "0"
-                            ? "ECD"
-                            : `Grade ${student.gradeLevel}` || "N/A"}
+                              {student.gradeLevel === "0"
+                                ? "ECD"
+                                : `Grade ${student.gradeLevel}` || "N/A"}
                             </TableCell>
                           )}
 
-                          <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteUser(student.id)}
-                            >
-                              Delete
-                            </Button>
-                          </TableCell>
+                          
+                            <TableCell className="text-right space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEditUser(student.id)}
+                              >
+                                <Pencil className="w-4 h-4 text-blue-600" />
+                              </Button>
+
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDeleteUser(student.id)}
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                              </Button>
+                            </TableCell>
+                          
                         </TableRow>
                       ))}
                     </TableBody>

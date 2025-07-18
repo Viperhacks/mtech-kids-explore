@@ -48,13 +48,14 @@ import CourseEditor from "@/components/CourseEditor";
 import VideoThumbnail from "./VideoThumbnail";
 import { resolve } from "path";
 import FloatingBackButton from "@/components/FloatingBackButton";
-import { useAutoQuizOpen } from '@/hooks/useAutoQuizOpen';
+import { useAutoQuizOpen } from "@/hooks/useAutoQuizOpen";
 
 import StudentQuizzes from "@/components/student/StudentQuizzes";
 import QuizManagement from "@/components/QuizManagement";
 import { Badge } from "@/components/ui/badge";
 import { useCompletion } from "@/context/CompletionContext";
 import { completionService } from "@/services/completionService";
+import { Quiz } from "@/components/types/apiTypes";
 
 const SubjectResources = () => {
   const { gradeId: fullGradeId, subjectId } = useParams<{
@@ -112,7 +113,6 @@ const SubjectResources = () => {
   const grade = ResourcesData.grades.find((g) => g.id === gradeIdNumber);
   const subject = grade?.subjects.find((s) => s.id === subjectId);
   //console.log("subject",subject)
-
 
   const { refreshCompletions, isResourceCompleted } = useCompletion();
 
@@ -192,6 +192,9 @@ const SubjectResources = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  // SubjectResources.tsx
+  const [autoStartQuiz, setAutoStartQuiz] = useState<Quiz | null>(null);
+
   const handleVideoEnded = async () => {
     if (user && selectedVideo) {
       try {
@@ -227,13 +230,18 @@ const SubjectResources = () => {
             (quiz) => {
               // Close video dialog first
               setIsVideoOpen(false);
-              
+
               // Switch to quizzes tab
               setActiveTab("quizzes");
-              
+              setAutoStartQuiz({
+                ...quiz,
+                description: quiz.title ?? "",
+                teacherName: quiz.subject ?? "",
+              });
+
               // Trigger quiz opening in StudentQuizzes component
-              const quizEvent = new CustomEvent('autoOpenQuiz', { 
-                detail: { quiz } 
+              const quizEvent = new CustomEvent("autoOpenQuiz", {
+                detail: { quiz },
               });
               window.dispatchEvent(quizEvent);
             }
@@ -353,7 +361,6 @@ const SubjectResources = () => {
       ? Math.round((progress.completed / progress.total) * 100)
       : 0;
 
-
   const isVideoCompleted = (videoId: string) => {
     return isResourceCompleted(videoId) || completedVideos.has(videoId);
   };
@@ -406,7 +413,7 @@ const SubjectResources = () => {
             Learn{" "}
             {subject?.name ||
               subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}{" "}
-            for  {gradeIdNumber === "0" ? "ECD" : `Grade ${gradeIdNumber}`}
+            for {gradeIdNumber === "0" ? "ECD" : `Grade ${gradeIdNumber}`}
           </p>
         </div>
       </div>
@@ -498,7 +505,6 @@ const SubjectResources = () => {
                 </Card>
               ))}
             </div>
-
           ) : resources.filter((resource) => resource.response.type === "video")
               .length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -595,7 +601,6 @@ const SubjectResources = () => {
                     </Card>
                   );
                 })}
-
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 border rounded-lg">
@@ -615,7 +620,17 @@ const SubjectResources = () => {
         </TabsContent>
 
         <TabsContent value="quizzes" className="mt-6">
-          {user?.role == "STUDENT" ? <StudentQuizzes /> : <QuizManagement />}
+          {user?.role == "STUDENT" ? (
+            <StudentQuizzes
+              autoStartQuiz={autoStartQuiz}
+              onQuizOpen={(quiz) => {
+                setSelectedQuiz(quiz);
+                setIsQuizOpen(true); // For standalone dialog if needed
+              }}
+            />
+          ) : (
+            <QuizManagement />
+          )}
         </TabsContent>
       </Tabs>
 
