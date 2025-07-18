@@ -23,6 +23,7 @@ import {
   RefreshCw,
   AlertCircle,
 } from "lucide-react";
+
 import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
@@ -34,6 +35,7 @@ import {
 } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import ResourcesData from "@/data/resources";
@@ -46,6 +48,7 @@ import CourseEditor from "@/components/CourseEditor";
 import VideoThumbnail from "./VideoThumbnail";
 import { resolve } from "path";
 import FloatingBackButton from "@/components/FloatingBackButton";
+import { useAutoQuizOpen } from '@/hooks/useAutoQuizOpen';
 
 import StudentQuizzes from "@/components/student/StudentQuizzes";
 import QuizManagement from "@/components/QuizManagement";
@@ -54,8 +57,6 @@ import { useCompletion } from "@/context/CompletionContext";
 import { completionService } from "@/services/completionService";
 
 const SubjectResources = () => {
-  //const { gradeId, subjectId } = useParams<{ gradeId: string, subjectId: string }>();
-
   const { gradeId: fullGradeId, subjectId } = useParams<{
     gradeId: string;
     subjectId: string;
@@ -105,13 +106,16 @@ const SubjectResources = () => {
 
   const { toast } = useToast();
   const { user, updateUserProgress, trackActivity } = useAuth();
+  const { findAndOpenAssociatedQuiz } = useAutoQuizOpen();
 
   // Get the grade and subject data
   const grade = ResourcesData.grades.find((g) => g.id === gradeIdNumber);
   const subject = grade?.subjects.find((s) => s.id === subjectId);
   //console.log("subject",subject)
 
+
   const { refreshCompletions, isResourceCompleted } = useCompletion();
+
   useEffect(() => {
     fetchResources();
   }, [gradeIdNumber, subjectId]);
@@ -188,27 +192,8 @@ const SubjectResources = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  /*if (!grade || !subjectId) {
-    return (
-      <div className="mtech-container py-20 text-center">
-        <h1 className="text-3xl font-bold text-mtech-dark mb-4">Resource Not Found</h1>
-        <p className="text-gray-600 mb-8">The subject or grade you're looking for doesn't exist.</p>
-        <Button asChild>
-          <Link to="/">Return Home</Link>
-        </Button>
-      </div>
-    );
-  }*/
-
   const handleVideoEnded = async () => {
     if (user && selectedVideo) {
-      // Update progress by marking this specific video as completed
-      /*updateUserProgress(
-      subjectId as string, 
-      selectedVideo.response.id,
-      totalVideos
-    );*/
-
       try {
         await completionService.markComplete(
           selectedVideo.response.id,
@@ -226,22 +211,34 @@ const SubjectResources = () => {
           timestamp: new Date().toISOString(),
         });
 
-        // Add to local completed set
-        /* setCompletedVideos((prev) =>
-          new Set(prev).add(selectedVideo.response.id)
-        );*/
-        if (selectedVideo.response.hasQuiz) {
-          setActiveTab("quizzes");
-        } else {
-          setActiveTab("videos");
-        }
-
         toast({
           title: "Video Completed!",
           description: selectedVideo.response.hasQuiz
-            ? `Great job watching the entire video. Now go and crush the quiz`
+            ? "Great job! Looking for your quiz..."
             : "Great job watching the entire video.",
         });
+
+        // Auto-open associated quiz if it exists
+        if (selectedVideo.response.hasQuiz) {
+          await findAndOpenAssociatedQuiz(
+            selectedVideo.response.id,
+            gradeIdNumber,
+            subjectId,
+            (quiz) => {
+              // Close video dialog first
+              setIsVideoOpen(false);
+              
+              // Switch to quizzes tab
+              setActiveTab("quizzes");
+              
+              // Trigger quiz opening in StudentQuizzes component
+              const quizEvent = new CustomEvent('autoOpenQuiz', { 
+                detail: { quiz } 
+              });
+              window.dispatchEvent(quizEvent);
+            }
+          );
+        }
       } catch (error) {
         console.error("Failed to mark video as completed:", error);
       }
@@ -355,6 +352,7 @@ const SubjectResources = () => {
     progress.total > 0
       ? Math.round((progress.completed / progress.total) * 100)
       : 0;
+
 
   const isVideoCompleted = (videoId: string) => {
     return isResourceCompleted(videoId) || completedVideos.has(videoId);
@@ -500,6 +498,7 @@ const SubjectResources = () => {
                 </Card>
               ))}
             </div>
+
           ) : resources.filter((resource) => resource.response.type === "video")
               .length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -596,6 +595,7 @@ const SubjectResources = () => {
                     </Card>
                   );
                 })}
+
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 border rounded-lg">
