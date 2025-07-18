@@ -32,6 +32,7 @@ import {
   GraduationCap,
   Files,
   UserX,
+  UserCheck,
 } from "lucide-react";
 import DefaultLoginInfo from "../DefaultLoginInfo";
 import CourseCreation from "../CourseCreation";
@@ -231,15 +232,12 @@ const AdminDashboard: React.FC = () => {
     handleTabChange(action, "force");
   };
 
- 
   const adminTabs = [
     { value: "users", label: "User Management" },
     { value: "teachers", label: "Teacher Management" },
     { value: "classes", label: "Classes" },
     { value: "content", label: "Content Management" },
   ];
-
-
 
   return (
     <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5 min-h-screen">
@@ -282,7 +280,6 @@ const AdminDashboard: React.FC = () => {
                     <TableHead>Username</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Joined</TableHead>
-                    
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -304,7 +301,6 @@ const AdminDashboard: React.FC = () => {
                         </span>
                       </TableCell>
                       <TableCell>{user.date}</TableCell>
-                      
                     </TableRow>
                   ))}
                 </TableBody>
@@ -431,14 +427,22 @@ const AdminDashboard: React.FC = () => {
                               </p>
                             </div>
                             <div className="flex gap-2 items-center">
-                              <Badge variant="outline">Active</Badge>
+                              <Badge
+                                variant="outline"
+                                className="flex items-center gap-1 text-green-600 border-green-600"
+                              >
+                                <UserCheck size={16} />
+                                Active
+                              </Badge>
                               <Button
                                 size="sm"
                                 variant="outline"
+                                className="flex items-center gap-1"
                                 onClick={() =>
                                   setSelectedTeacherId(Number(t.id))
                                 }
                               >
+                                <Users size={16} />
                                 View Students
                               </Button>
                             </div>
@@ -488,8 +492,6 @@ const AdminDashboard: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
-
-      
     </div>
   );
 };
