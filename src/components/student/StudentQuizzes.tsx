@@ -89,7 +89,6 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
     user?.completedLessons
       ?.filter((item: any) => item.resourceType === "QUIZ")
       .map((item: any) => item.resourceId) || [];
-      console.log("completed = ",completedQuizIds)
 
   useEffect(() => {
     fetchAvailableQuizzes();
@@ -519,7 +518,7 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
                   </Badge>
                 </div>
 
-                {quiz.questions && quiz.questions.length > 0 ? (
+                {Array.isArray(quiz.questions) && quiz.questions.length > 0 ? (
                   completedQuizIds.includes(quiz.quizId) ? (
                     <Button
                       variant="destructive"

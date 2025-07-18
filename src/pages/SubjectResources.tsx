@@ -76,17 +76,13 @@ const SubjectResources = () => {
   // 3. Clean the gradeId (extract just the number)
   const gradeIdNumber = fullGradeId.replace(/\D/g, "");
 
-  useEffect(() => {
-    console.log("URL Parameters:", {
-      originalGradeId: fullGradeId,
-      cleanedGradeId: gradeIdNumber,
-      subjectId,
-    });
-  }, [fullGradeId, gradeIdNumber, subjectId]);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const defaultTab =
     searchParams.get("tab") === "quizzes" ? "quizzes" : "videos";
+
   const [activeTab, setActiveTab] = useState(defaultTab);
+
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -112,24 +108,36 @@ const SubjectResources = () => {
   // Get the grade and subject data
   const grade = ResourcesData.grades.find((g) => g.id === gradeIdNumber);
   const subject = grade?.subjects.find((s) => s.id === subjectId);
-  //console.log("subject",subject)
 
   const { refreshCompletions, isResourceCompleted } = useCompletion();
+  const [subjectFilter, setSubjectFilter] = useState<string>("all");
 
   useEffect(() => {
     fetchResources();
   }, [gradeIdNumber, subjectId]);
 
+ useEffect(() => {
+  // Handle tab parameter
+  const tabParam = searchParams.get("tab");
+  if (tabParam === "quizzes") {
+    setActiveTab("quizzes");
+  }
+
+  // Handle subject filter parameter
+  const subjectParam = searchParams.get("subjectFilter");
+  if (subjectParam) {
+    setSubjectFilter(decodeURIComponent(subjectParam));
+  }
+}, [searchParams]);
+  
   const fetchResources = async () => {
     setIsLoading(true);
     try {
       let response;
       if (user?.role == "TEACHER") {
         response = await getResources(`${gradeIdNumber}`, subjectId);
-        console.log("response", response);
       } else {
         response = await getResourcesForAnyOne(`${gradeIdNumber}`, subjectId);
-        console.log("response", response);
       }
 
       const resourcesWithThumbnails = await Promise.all(
@@ -150,8 +158,7 @@ const SubjectResources = () => {
         })
       );
       setResources(resourcesWithThumbnails);
-      // console.log("-----",response.resources)
-      //setResources(response.resources || []);
+      
     } catch (error) {
       console.error("Error fetching resources:", error);
       toast({
@@ -192,7 +199,46 @@ const SubjectResources = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // SubjectResources.tsx
+  // Add selectedSubject state
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+
+  useEffect(() => {
+  const quizSlug = searchParams.get("quiz");
+  if (!quizSlug || !resources.length || activeTab !== "quizzes") return;
+
+  const slugify = (str: string) =>
+    str.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+
+  // Show all quiz subjects and their slugs
+  console.table(
+    resources
+      .filter((r) => r.response.type === "quiz")
+      .map((r) => ({
+        subject: r.response.subject,
+        slugified: slugify(r.response.subject || ""),
+      }))
+  );
+
+  const matchedSubject = resources.find(
+    (r) =>
+      r.response.type === "quiz" &&
+      r.response.subject &&
+      slugify(r.response.subject) === quizSlug
+  )?.response.subject;
+
+  if (matchedSubject) {
+    console.log("🎯 [Deep Link] Matching subject found:", matchedSubject);
+    setSelectedSubject(matchedSubject);
+  } else {
+    console.warn("🚫 [Deep Link] No matching subject for slug:", quizSlug);
+    toast({
+      title: "Subject not found",
+      description: `No quiz subject matches: ${quizSlug}`,
+      variant: "destructive",
+    });
+  }
+}, [searchParams, resources, activeTab]);
+
   const [autoStartQuiz, setAutoStartQuiz] = useState<Quiz | null>(null);
 
   const handleVideoEnded = async () => {
@@ -365,6 +411,14 @@ const SubjectResources = () => {
     return isResourceCompleted(videoId) || completedVideos.has(videoId);
   };
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("tab", value);
+    if (value !== "quizzes") newParams.delete("quiz");
+    setSearchParams(newParams);
+  };
+
   const tabOptions = [
     {
       value: "videos",
@@ -464,7 +518,11 @@ const SubjectResources = () => {
         {/*<Progress value={completionPercent} className="h-2 mt-4" />*/}
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="w-full"
+      >
         <TabsList>
           {tabOptions.map(({ value, label, icon: Icon }) => (
             <TabsTrigger
