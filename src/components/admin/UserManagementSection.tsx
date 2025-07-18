@@ -31,6 +31,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import UserEditModal from "../UserEditModal";
 
 interface User {
   id: string;
@@ -52,6 +53,7 @@ const UserManagementSection: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [gradeFilter, setGradeFilter] = useState("all");
+  const [editingUser, setEditingUser] = useState<any>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -173,6 +175,14 @@ const UserManagementSection: React.FC = () => {
     }
   };
 
+  const handleEditUser = (user: any) => {
+    setEditingUser(user);
+  };
+
+  const handleUserEditSuccess = () => {
+    fetchUsers();
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -280,6 +290,13 @@ const UserManagementSection: React.FC = () => {
                     <TableCell>{getDaysAgo(user.createdAt)}</TableCell>
                     <TableCell>
                       <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditUser(user)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteUser(user.id)}
@@ -328,6 +345,13 @@ const UserManagementSection: React.FC = () => {
           {roleFilter !== "all" && ` with role "${roleFilter}"`}
         </div>
       </CardContent>
+       <UserEditModal
+              user={editingUser}
+              open={!!editingUser}
+              onClose={() => setEditingUser(null)}
+              onSuccess={handleUserEditSuccess}
+              canEditRole={true}
+            />
     </Card>
   );
 };
