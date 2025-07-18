@@ -11,31 +11,49 @@ const Dashboard: React.FC = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [searchParams] = useSearchParams();
   
-  // Update document title based on active tab for admin users
+  // Update document title based on active tab for all dashboard types
  useEffect(() => {
   if (!user) {
     document.title = 'MTech Kidz Explore'; 
     return;
   }
 
+  const activeTab = searchParams.get('tab');
+  
   switch (user.role) {
     case 'ADMIN': {
-      const activeTab = searchParams.get('tab') || 'users';
       const tabTitles = {
         users: 'User Management',
         teachers: 'Teacher Management',
         classes: 'Class Management',
         content: 'Content Management'
       };
-      document.title = `Admin Dashboard - ${tabTitles[activeTab as keyof typeof tabTitles] || 'Dashboard'} | MTech Kidz Explore`;
+      const tabTitle = tabTitles[activeTab as keyof typeof tabTitles] || 'Dashboard';
+      document.title = `Admin Dashboard - ${tabTitle} | MTech Kidz Explore`;
       break;
     }
-    case 'TEACHER':
-      document.title = 'Teacher Dashboard | MTech Kidz Explore';
+    case 'TEACHER': {
+      const tabTitles = {
+        students: 'My Students',
+        resources: 'Resources',
+        progress: 'Progress Tracking',
+        assignments: 'Assignments'
+      };
+      const tabTitle = tabTitles[activeTab as keyof typeof tabTitles] || 'Dashboard';
+      document.title = `Teacher Dashboard - ${tabTitle} | MTech Kidz Explore`;
       break;
-    case 'STUDENT':
-      document.title = 'Student Dashboard | MTech Kidz Explore';
+    }
+    case 'STUDENT': {
+      const tabTitles = {
+        progress: 'My Progress',
+        quizzes: 'Quizzes',
+        'quiz-history': 'Quiz History',
+        achievements: 'Achievements'
+      };
+      const tabTitle = tabTitles[activeTab as keyof typeof tabTitles] || 'My Progress';
+      document.title = `Student Dashboard - ${tabTitle} | MTech Kidz Explore`;
       break;
+    }
     default:
       document.title = 'MTech Kidz Explore';
   }

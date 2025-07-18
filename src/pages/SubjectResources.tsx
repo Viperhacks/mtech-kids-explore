@@ -1,786 +1,335 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useSearchParams, Link } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
-  Video,
-  FileText,
-  CheckCircle,
-  ArrowLeft,
-  Play,
-  PlusCircle,
-  Edit,
-  Trash,
-  Loader2,
-  RefreshCw,
-  AlertCircle,
-} from "lucide-react";
-
-import { Progress } from "@/components/ui/progress";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/context/AuthContext";
-import ResourcesData from "@/data/resources";
-import {
-  getResources,
-  deleteResource,
-  getResourcesForAnyOne,
-} from "@/services/apiService";
-import CourseEditor from "@/components/CourseEditor";
-import VideoThumbnail from "./VideoThumbnail";
-import { resolve } from "path";
-import FloatingBackButton from "@/components/FloatingBackButton";
-
-import { useAutoQuizOpen } from "@/hooks/useAutoQuizOpen";
-
-
-import StudentQuizzes from "@/components/student/StudentQuizzes";
-import QuizManagement from "@/components/QuizManagement";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import {
+  Circle,
+  Clock,
+  FileText,
+  Link2,
+  Loader2,
+  Video,
+  Youtube,
+  Award,
+} from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { getResourcesForAnyOne } from "@/services/apiService";
+import { toast } from "@/hooks/use-toast";
+import VideoModal from "@/components/VideoModal";
+import DocumentModal from "@/components/DocumentModal";
+import QuizModal from "@/components/QuizModal";
+import { getQuizQuestions } from "@/services/apiService";
 import { useCompletion } from "@/context/CompletionContext";
-import { completionService } from "@/services/completionService";
-import { Quiz } from "@/components/types/apiTypes";
 
-const SubjectResources = () => {
-  const { gradeId: fullGradeId, subjectId } = useParams<{
+const SubjectResources: React.FC = () => {
+  const { gradeId, subjectId } = useParams<{
     gradeId: string;
     subjectId: string;
   }>();
-
-  // 2. Safety check for undefined params
-  if (typeof fullGradeId === "undefined" || typeof subjectId === "undefined") {
-    return (
-      <div className="p-4 text-red-500">
-        Error: Missing URL parameters. Expected format:
-        /grade/:gradeId/subject/:subjectId
-      </div>
-    );
-  }
-
-  // 3. Clean the gradeId (extract just the number)
-  const gradeIdNumber = fullGradeId.replace(/\D/g, "");
-
-  useEffect(() => {
-    console.log("URL Parameters:", {
-      originalGradeId: fullGradeId,
-      cleanedGradeId: gradeIdNumber,
-      subjectId,
-    });
-  }, [fullGradeId, gradeIdNumber, subjectId]);
-  const [searchParams] = useSearchParams();
-  const defaultTab =
-    searchParams.get("tab") === "quizzes" ? "quizzes" : "videos";
-  const [activeTab, setActiveTab] = useState(defaultTab);
-  const [selectedVideo, setSelectedVideo] = useState<any>(null);
-  const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [isQuizOpen, setIsQuizOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingResource, setEditingResource] = useState<any>(null);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<{ [key: number]: string }>({});
-  const [quizCompleted, setQuizCompleted] = useState(false);
-  const [score, setScore] = useState(0);
-  const [resources, setResources] = useState<any[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  const [isVideoLoading, setIsVideoLoading] = useState(true);
-  const [completedVideos, setCompletedVideos] = useState<Set<string>>(
-    new Set()
-  );
+  const [resources, setResources] = useState<any[]>([]);
+  const [isResourceModalOpen, setIsResourceModalOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<any>(null);
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
+  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const { user } = useAuth();
+  const { markResourceCompleted } = useCompletion();
+  
+  // Get active tab and quiz from URL
+  const activeTab = searchParams.get('tab') || 'videos';
+  const targetQuiz = searchParams.get('quiz');
 
-  const { toast } = useToast();
-  const { user, updateUserProgress, trackActivity } = useAuth();
-  const { findAndOpenAssociatedQuiz } = useAutoQuizOpen();
+  const handleTabChange = (value: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', value);
+    // Remove quiz param when changing tabs unless going to quizzes
+    if (value !== 'quizzes') {
+      newParams.delete('quiz');
+    }
+    setSearchParams(newParams);
+  };
 
-  // Get the grade and subject data
-  const grade = ResourcesData.grades.find((g) => g.id === gradeIdNumber);
-  const subject = grade?.subjects.find((s) => s.id === subjectId);
-  //console.log("subject",subject)
+  const handleVideoEnded = async (video: any) => {
+    console.log("Video ended:", video);
+    
+    try {
+      // Mark video as completed with auto-refresh
+      await markResourceCompleted(video.response.id, 'video');
+      
+      if (video.response.hasQuiz) {
+        // Find and auto-open the associated quiz
+        await openAssociatedQuiz(video.response.id);
+      }
+    } catch (error) {
+      console.error("Error handling video completion:", error);
+    }
+  };
 
-
-  const { refreshCompletions, isResourceCompleted } = useCompletion();
-
-  useEffect(() => {
-    fetchResources();
-  }, [gradeIdNumber, subjectId]);
+  const getRecommendedGrade = () => user?.grade || user?.gradeLevel || "1";
 
   const fetchResources = async () => {
     setIsLoading(true);
     try {
-      let response;
-      if (user?.role == "TEACHER") {
-        response = await getResources(`${gradeIdNumber}`, subjectId);
-        console.log("response", response);
-      } else {
-        response = await getResourcesForAnyOne(`${gradeIdNumber}`, subjectId);
-        console.log("response", response);
-      }
+      const response = await getResourcesForAnyOne(getRecommendedGrade(), subjectId);
+      const allResources = response.resources || [];
+      console.log("Fetched resources:", allResources);
+      setResources(allResources);
 
-      const resourcesWithThumbnails = await Promise.all(
-        response.resources.map(async (resource) => {
-          if (resource.response.type === "video") {
-            //const thumbnail = await generateThumbnail(`http://localhost:8080/uploads/${resource.response.content}`);
-            const videoUrl = `http://localhost:8080/uploads/${resource.response.content}`;
-            const video = document.createElement("video");
-            video.src = videoUrl;
-            await new Promise((resolve) => {
-              video.addEventListener("loadedmetadata", resolve);
-            });
-            const thumbnail = await generateThumbnail(videoUrl);
-            const duration = formatDuration(video.duration);
-            return { ...resource, thumbnail, duration };
-          }
-          return resource;
-        })
+      // Filter quizzes and set them to state
+      const quizResources = allResources.filter(
+        (resource) => resource.response.type.toLowerCase() === "quiz"
       );
-      setResources(resourcesWithThumbnails);
-      // console.log("-----",response.resources)
-      //setResources(response.resources || []);
+      setQuizzes(quizResources);
     } catch (error) {
-      console.error("Error fetching resources:", error);
       toast({
         title: "Failed to load resources",
-        description:
-          "Could not load learning materials. Using sample data instead.",
+        description: "Try again or contact support.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
-  const generateThumbnail = async (videoUrl: string) => {
-    if (videoUrl.startsWith(window.location.origin)) {
-      return null;
+
+  useEffect(() => {
+    fetchResources();
+  }, [gradeId, subjectId]);
+
+  const openResourceModal = (resource: any) => {
+    setSelectedResource(resource);
+    setIsResourceModalOpen(true);
+  };
+
+  const closeResourceModal = () => {
+    setSelectedResource(null);
+    setIsResourceModalOpen(false);
+  };
+
+  const openQuizModal = (quiz: any) => {
+    setSelectedQuiz(quiz);
+    setIsQuizModalOpen(true);
+  };
+
+  const closeQuizModal = () => {
+    setSelectedQuiz(null);
+    setIsQuizModalOpen(false);
+  };
+
+  const openAssociatedQuiz = async (resourceId: string) => {
+    try {
+      const quiz = quizzes.find(
+        (quiz) => quiz.response.resourceId === resourceId
+      );
+      if (quiz) {
+        openQuizModal(quiz);
+      } else {
+        console.log("No associated quiz found for resource ID:", resourceId);
+      }
+    } catch (error) {
+      console.error("Error opening associated quiz:", error);
     }
-    const video = document.createElement("video");
-    video.crossOrigin = "anonymous";
-    video.src = videoUrl;
-    await new Promise((resolve) => {
-      video.addEventListener("loadedmetadata", resolve);
-    });
-    video.currentTime = 15;
-    await new Promise((resolve) => {
-      video.addEventListener("seeked", resolve);
-    });
-    const canvas = document.createElement("canvas");
-    canvas.width = 640;
-    canvas.height = 480;
-    const ctx = canvas.getContext("2d");
-    ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL();
   };
 
-  const formatDuration = (duration: number) => {
-    const mins = Math.floor(duration / 60);
-    const secs = Math.floor(duration % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-
-  // SubjectResources.tsx
-  const [autoStartQuiz, setAutoStartQuiz] = useState<Quiz | null>(null);
-
-
-  const handleVideoEnded = async () => {
-    if (user && selectedVideo) {
-      try {
-        await completionService.markComplete(
-          selectedVideo.response.id,
-          "video",
-          refreshCompletions
-        );
-
-        // Track activity
-        trackActivity({
-          userId: user.id || "user",
-          type: "video_completed",
-          videoId: selectedVideo.response.id,
-          subjectId: subjectId,
-          gradeId: gradeIdNumber,
-          timestamp: new Date().toISOString(),
-        });
-
+  // Auto-select quiz based on URL parameter
+  useEffect(() => {
+    if (activeTab === 'quizzes' && targetQuiz && quizzes.length > 0) {
+      // Find quiz by subject or first available quiz
+      const targetQuizItem = quizzes.find(q => 
+        q.subject.toLowerCase() === targetQuiz.toLowerCase()
+      ) || quizzes[0];
+      
+      if (targetQuizItem) {
+        setSelectedQuiz(targetQuizItem);
+        setIsQuizModalOpen(true);
+      } else {
         toast({
-          title: "Video Completed!",
-          description: selectedVideo.response.hasQuiz
-            ? "Great job! Looking for your quiz..."
-            : "Great job watching the entire video.",
+          title: "Quiz not available",
+          description: `No quizzes available for ${targetQuiz}`,
+          variant: "destructive",
         });
-
-        // Auto-open associated quiz if it exists
-        if (selectedVideo.response.hasQuiz) {
-          await findAndOpenAssociatedQuiz(
-            selectedVideo.response.id,
-            gradeIdNumber,
-            subjectId,
-            (quiz) => {
-              // Close video dialog first
-              setIsVideoOpen(false);
- 
-
-              // Switch to quizzes tab
-              setActiveTab("quizzes");
-              setAutoStartQuiz({
-                ...quiz,
-                description: quiz.title ?? "",
-                teacherName: quiz.subject ?? "",
-              });
-
-              // Trigger quiz opening in StudentQuizzes component
-              const quizEvent = new CustomEvent("autoOpenQuiz", {
-                detail: { quiz },
-
-              });
-              window.dispatchEvent(quizEvent);
-            }
-          );
-        }
-      } catch (error) {
-        console.error("Failed to mark video as completed:", error);
       }
     }
-  };
-
-  const handleWatchVideo = (video: any) => {
-    console.log("handleWatchVideo got:", video);
-    console.trace();
-
-    if (!video || !video.response || !video.response.id) {
-      console.warn("Video is undefined or malformed:", video);
-      return;
-    }
-
-    setSelectedVideo(video);
-    setIsVideoOpen(true);
-
-    if (user && grade && subject) {
-      console.log("tracking video start with:", {
-        user,
-        grade,
-        subject,
-        videoId: video.response.id,
-      });
-
-      trackActivity({
-        userId: user.id || "user",
-        type: "video_started",
-        videoId: video.response.id,
-        subjectId: grade.id,
-        gradeId: subject.id,
-        timestamp: new Date().toISOString(),
-      });
-    } else {
-      console.warn(
-        "Skipping trackActivity because user, grade or subject is missing:",
-        { user, grade, subject }
-      );
-    }
-
-    if (user && video.response.id) {
-      updateUserProgress(
-        subjectId as string,
-        video.response.id,
-        resources.filter((r) => r.response.type === "video").length
-      );
-    }
-  };
-
-  const handleEditResource = (resource: any) => {
-    setEditingResource(resource.response);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleDeleteResource = async (resourceId: string) => {
-    try {
-      await deleteResource(resourceId);
-      toast({
-        title: "Resource Deleted",
-        description: "The resource has been successfully deleted.",
-      });
-      fetchResources();
-    } catch (error) {
-      console.error("Delete failed", error);
-      toast({
-        title: "Delete Failed",
-        description: "Could not delete the resource. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCreateNewResource = (type: string) => {
-    setEditingResource({
-      type,
-      grade: gradeIdNumber,
-      subject: subjectId,
-    });
-    setIsEditDialogOpen(true);
-  };
-
-  const handleSaveComplete = () => {
-    setIsEditDialogOpen(false);
-    fetchResources();
-  };
-
-  const totalVideos = resources.filter(
-    (r) => r.response.type === "video"
-  ).length;
-
-  // Get completed count from user progress or completedVideos
-  const getCompletedCount = () => {
-    if (user?.completedVideos?.[subjectId as string]) {
-      return user.completedVideos[subjectId as string].length;
-    }
-    if (user?.progress?.[subjectId as string]?.completed) {
-      return user.progress[subjectId as string].completed;
-    }
-    return completedVideos.size;
-  };
-
-  const completedCount = getCompletedCount();
-  const progress = {
-    completed: completedCount,
-    total: totalVideos,
-    watched: user?.progress?.[subjectId as string]?.watched || 0,
-  };
-
-  const completionPercent =
-    progress.total > 0
-      ? Math.round((progress.completed / progress.total) * 100)
-      : 0;
-
-
-  const isVideoCompleted = (videoId: string) => {
-    return isResourceCompleted(videoId) || completedVideos.has(videoId);
-  };
-
-  const tabOptions = [
-    {
-      value: "videos",
-      label: "Videos",
-      icon: Video,
-    },
-    {
-      value: "quizzes",
-      label: "Quizzes",
-      icon: FileText,
-    },
-  ];
-
-  if (isLoading) {
-    return (
-      <div className="mtech-container py-20 flex flex-col items-center justify-center bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
-        {/* Fun spinning loader */}
-        <div className="loader-spin">
-          <Loader2 className="h-16 w-16 text-mtech-primary" />
-        </div>
-
-        {/* Kid-friendly message */}
-        <p className="mt-6 text-mtech-dark text-xl font-semibold text-center">
-          Hang tight! We're gathering some fun learning resources just for you!
-        </p>
-
-        {/* Fun encouragement */}
-        <p className="mt-4 text-mtech-dark text-lg text-center">
-          Almost there... Let's get ready to explore! 🚀
-        </p>
-      </div>
-    );
-  }
+  }, [activeTab, targetQuiz, quizzes]);
 
   return (
-    <div className="mtech-container py-8">
-      <div className="flex items-center mb-6">
-        <FloatingBackButton />
-        <div>
-          <h1 className="text-2xl font-bold text-mtech-dark">
-            {gradeIdNumber === "0" ? "ECD" : `Grade ${gradeIdNumber}`} -{" "}
-            {subject?.name ||
-              subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}
-          </h1>
-          <p className="text-sm text-gray-600">
-            Learn{" "}
-            {subject?.name ||
-              subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}{" "}
-            for {gradeIdNumber === "0" ? "ECD" : `Grade ${gradeIdNumber}`}
-          </p>
-        </div>
+    <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5 min-h-screen">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">
+          {subjectId ? `${subjectId} Resources` : "Resources"}
+        </h1>
+        <p className="text-muted-foreground">
+          Explore resources for Grade {getRecommendedGrade()}
+        </p>
       </div>
 
-      <div className="bg-mtech-primary/10 rounded-lg p-4 mb-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          {/* Progress Summary */}
-          <div>
-            <h2 className="font-medium text-mtech-primary">
-              {/*Your Progress*/}Your Materials
-            </h2>
-            {/*<p className="text-sm text-mtech-dark">
-              You've watched{" "}
-              {
-                progress.watched ||
-                  progress.completed /*mind we are currently recording watched vids */}{" "}
-            {/*
-              videos and completed {progress.completed} out of {progress.total}{" "}
-              items
-            </p>*/}
-          </div>
-
-          {/* Teacher Action Buttons */}
-          {user?.role === "TEACHER" && (
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleCreateNewResource("document")}
-                className="w-full sm:w-auto"
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                Upload Document
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleCreateNewResource("video")}
-                className="w-full sm:w-auto"
-              >
-                <Video className="mr-2 h-4 w-4" />
-                Upload Video
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/*<Progress value={completionPercent} className="h-2 mt-4" />*/}
-      </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList>
-          {tabOptions.map(({ value, label, icon: Icon }) => (
-            <TabsTrigger
-              key={value}
-              value={value}
-              className="snap-start flex-shrink-0 px-4 py-2 rounded-full border border-mtech-secondary hover:border-mtech-primary bg-white text-mtech-dark hover:bg-mtech-primary hover:text-white transition 
-             data-[state=active]:bg-mtech-secondary data-[state=active]:text-white data-[state=active]:border-mtech-secondary ml-2"
-            >
-              <Icon className="mr-2 h-4 w-4" />
-              {label}
-            </TabsTrigger>
-          ))}
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <TabsList className="grid w-full grid-cols-3 gap-2 mb-5">
+          <TabsTrigger value="videos" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground">Videos</TabsTrigger>
+          <TabsTrigger value="documents" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground">Documents</TabsTrigger>
+          <TabsTrigger value="quizzes" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground">Quizzes</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="videos" className="mt-6">
+        <TabsContent value="videos" className="space-y-6">
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, index) => (
-                <Card key={index} className="overflow-hidden animate-pulse">
-                  <div className="relative aspect-video bg-gray-200">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                    </div>
-                  </div>
-                  <CardHeader className="py-3">
-                    <CardTitle className="text-base">
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    </CardTitle>
-                    <CardDescription className="text-xs">
-                      <div className="h-3 bg-gray-200 rounded w-1/2 mt-2"></div>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardFooter className="pt-0">
-                    <Button size="sm" className="flex-1" disabled>
-                      <div className="h-4 bg-gray-200 rounded w-full"></div>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-mtech-primary" />
             </div>
-
-          ) : resources.filter((resource) => resource.response.type === "video")
-              .length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {resources
-                .filter((resource) => resource.response.type === "video")
-                .map((video) => {
-                  /*const isCompleted =
-                    completedVideos.has(video.response.id) ||
-                    user?.completedLessons?.includes(video.response.id);*/
-
-                  const isCompleted = isVideoCompleted(video.response.id);
-                  return (
-                    <Card key={video.response.id} className="overflow-hidden">
-                      <div
-                        className="relative aspect-video bg-gray-100 cursor-pointer"
-                        onClick={() => handleWatchVideo(video)}
-                      >
-                        {video.thumbnail ? (
-                          <img
-                            src={video.thumbnail}
-                            alt="Thumbnail"
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src =
-                                "/placeholder-video-thumbnail.jpg";
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="bg-mtech-primary text-white rounded-full p-3 opacity-90 hover:opacity-100 transition-opacity">
-                            <Play className="h-6 w-6" />
-                          </div>
-                        </div>
-                        {isCompleted && (
-                          <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full">
-                            <CheckCircle className="h-4 w-4" />
-                          </div>
-                        )}
-                        {video.response.hasQuiz && (
-                          <div className="absolute bottom-2 right-5 ">
-                            <Badge variant="secondary" className="">
-                              Quiz Available
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-                      <CardHeader className="py-3">
-                        <CardTitle className="text-base">
-                          {video.response.title}
-                        </CardTitle>
-                        <CardDescription className="text-xs">
-                          {video.duration || "10:00"} •{" "}
-                          {video.response.teacher.split(" ")[0]}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardFooter className="pt-0 flex justify-between">
-                        <Button
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => handleWatchVideo(video)}
-                        >
-                          {isCompleted ? "Watch Again" : "Watch Now"}
-                        </Button>
-
-                        {user?.role === "TEACHER" && (
-                          <div className="flex gap-1 ml-2">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditResource(video);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteResource(video.id);
-                              }}
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
-                      </CardFooter>
-                    </Card>
-                  );
-                })}
-
+          ) : resources.filter((resource) => resource.response.type.toLowerCase() === "video").length === 0 ? (
+            <div className="text-center text-muted-foreground py-12">
+              <h2 className="text-xl font-semibold mb-2">
+                No videos available yet!
+              </h2>
+              <p>Check back later or explore other resources.</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-12 border rounded-lg">
-              <Video className="h-10 w-10 text-gray-400 mb-4" />
-              <p className="text-gray-500 mb-4">No videos available yet</p>
-              {user?.role === "TEACHER" && (
-                <Button
-                  variant="default"
-                  onClick={() => handleCreateNewResource("video")}
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Upload New Video
-                </Button>
-              )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {resources
+                .filter((resource) => resource.response.type.toLowerCase() === "video")
+                .map((resource) => (
+                  <Card key={resource.response.id} className="bg-white shadow-md rounded-md overflow-hidden">
+                    <div className="relative">
+                      <img
+                        src={resource.response.thumbnailUrl}
+                        alt={resource.response.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <Badge className="absolute top-2 right-2">
+                        {resource.response.duration}
+                      </Badge>
+                    </div>
+                    <CardContent className="p-4">
+                      <CardTitle className="text-lg font-semibold mb-2">
+                        {resource.response.title}
+                      </CardTitle>
+                      <CardDescription className="text-sm text-gray-500">
+                        {resource.response.description}
+                      </CardDescription>
+                      <Button
+                        variant="outline"
+                        className="w-full mt-4"
+                        onClick={() => openResourceModal(resource)}
+                      >
+                        Watch Now
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
             </div>
           )}
         </TabsContent>
 
-        <TabsContent value="quizzes" className="mt-6">
-          {user?.role == "STUDENT" ? (
-            <StudentQuizzes
-              autoStartQuiz={autoStartQuiz}
-              onQuizOpen={(quiz) => {
-                setSelectedQuiz(quiz);
-                setIsQuizOpen(true); // For standalone dialog if needed
-              }}
-            />
+        <TabsContent value="documents" className="space-y-6">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-mtech-primary" />
+            </div>
+          ) : resources.filter((resource) => resource.response.type.toLowerCase() === "document" || resource.response.type.toLowerCase() === "doc" || resource.response.type.toLowerCase() === "pdf" || resource.response.type.toLowerCase() === "docx").length === 0 ? (
+            <div className="text-center text-muted-foreground py-12">
+              <h2 className="text-xl font-semibold mb-2">
+                No documents available yet!
+              </h2>
+              <p>Check back later or explore other resources.</p>
+            </div>
           ) : (
-            <QuizManagement />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {resources
+                .filter((resource) => resource.response.type.toLowerCase() === "document" || resource.response.type.toLowerCase() === "doc" || resource.response.type.toLowerCase() === "pdf" || resource.response.type.toLowerCase() === "docx")
+                .map((resource) => (
+                  <Card key={resource.response.id} className="bg-white shadow-md rounded-md overflow-hidden">
+                    <CardContent className="p-4">
+                      <CardTitle className="text-lg font-semibold mb-2 flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-gray-500" />
+                        {resource.response.title}
+                      </CardTitle>
+                      <CardDescription className="text-sm text-gray-500">
+                        {resource.response.description}
+                      </CardDescription>
+                      <Button
+                        variant="outline"
+                        className="w-full mt-4"
+                        onClick={() => openResourceModal(resource)}
+                      >
+                        Open Document
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="quizzes" className="space-y-6">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-mtech-primary" />
+            </div>
+          ) : quizzes.length === 0 ? (
+            <div className="text-center text-muted-foreground py-12">
+              <h2 className="text-xl font-semibold mb-2">
+                No quizzes available yet!
+              </h2>
+              <p>Check back later or explore other resources.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {quizzes.map((quiz) => (
+                <Card key={quiz.response.id} className="bg-white shadow-md rounded-md overflow-hidden">
+                  <CardContent className="p-4">
+                    <CardTitle className="text-lg font-semibold mb-2 flex items-center gap-2">
+                      <Award className="h-4 w-4 text-amber-500" />
+                      {quiz.response.title}
+                    </CardTitle>
+                    <CardDescription className="text-sm text-gray-500">
+                      {quiz.response.description}
+                    </CardDescription>
+                    <Button
+                      variant="outline"
+                      className="w-full mt-4"
+                      onClick={() => openQuizModal(quiz)}
+                    >
+                      Start Quiz
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </TabsContent>
       </Tabs>
 
-      {/* Video Dialog */}
+      <VideoModal
+        isOpen={isResourceModalOpen && selectedResource?.response.type.toLowerCase() === "video"}
+        onClose={closeResourceModal}
+        video={selectedResource}
+        onVideoEnded={handleVideoEnded}
+      />
 
-      <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
-        <DialogContent className="sm:max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{selectedVideo?.response.title}</DialogTitle>
-            <DialogDescription>
-              By {selectedVideo?.response.teacher.split(" ")[0]} •{" "}
-              {selectedVideo?.duration}
-            </DialogDescription>
-          </DialogHeader>
+      <DocumentModal
+        isOpen={isResourceModalOpen && (selectedResource?.response.type.toLowerCase() === "document" || selectedResource?.response.type.toLowerCase() === "doc" || selectedResource?.response.type.toLowerCase() === "pdf" || selectedResource?.response.type.toLowerCase() === "docx")}
+        onClose={closeResourceModal}
+        document={selectedResource}
+      />
 
-          <div className="aspect-video bg-black rounded-md overflow-hidden relative">
-            {selectedVideo ? (
-              <>
-                {/* Video Player with Loading State */}
-                <video
-                  key={selectedVideo.response.id}
-                  controls
-                  autoPlay
-                  className="w-full h-full"
-                  onWaiting={() => setIsVideoLoading(true)}
-                  onCanPlay={() => setIsVideoLoading(false)}
-                  onEnded={handleVideoEnded}
-                  onError={(e) => {
-                    console.error("Video error:", e);
-                    const video = e.target as HTMLVideoElement;
-                    video.controls = false;
-                    setHasError(true); // Trigger the error state
-                  }}
-                >
-                  <source
-                    src={`http://localhost:8080/uploads/${selectedVideo.response.content}`}
-                    type="video/mp4"
-                  />
-                  Your browser does not support the video tag.
-                </video>
-
-                {/* Loading Overlay */}
-                {isVideoLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                    <Loader2 className="h-8 w-8 animate-spin text-white" />
-                    <span className="sr-only">Loading video...</span>
-                  </div>
-                )}
-
-                {/* Error State */}
-                {hasError && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 text-white p-4">
-                    <AlertCircle className="h-10 w-10 text-red-500 mb-2" />
-                    <h3 className="font-medium text-lg">
-                      Video Failed to Load
-                    </h3>
-                    <p className="text-sm text-center mt-1">
-                      We couldn't load this video. Please try again later.
-                    </p>
-                    <Button
-                      variant="ghost"
-                      className="mt-4 text-white"
-                      onClick={() => {
-                        // Retry logic if needed
-                        setHasError(false); // Reset error state
-                        const video = document.querySelector("video");
-                        if (video) {
-                          video.load();
-                        }
-                      }}
-                    >
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Retry
-                    </Button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-black">
-                <Loader2 className="h-12 w-12 animate-spin text-white" />
-              </div>
-            )}
-          </div>
-
-          <DialogFooter className="flex justify-between items-center">
-            <div className="text-sm text-gray-500">
-              {selectedVideo?.response.description}
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setIsVideoOpen(false)}>
-                Close
-              </Button>
-              {user?.role === "TEACHER" && selectedVideo && (
-                <Button
-                  variant="default"
-                  onClick={() => {
-                    setIsVideoOpen(false);
-                    handleEditResource(selectedVideo);
-                  }}
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </Button>
-              )}
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Resource Editor Dialog */}
-      <Dialog
-        open={isEditDialogOpen}
-        onOpenChange={(open) => !open && setIsEditDialogOpen(false)}
-      >
-        <DialogContent className="sm:max-w-[800px] h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingResource?.id
-                ? "Edit Resource"
-                : editingResource?.type === "quiz"
-                ? "Create New Quiz"
-                : "Upload New Resource"}
-            </DialogTitle>
-            <DialogDescription>
-              {editingResource?.id
-                ? "Modify your existing learning material"
-                : editingResource?.type === "quiz"
-                ? "Create a new quiz for your students"
-                : "Add a new learning resource for your students"}
-            </DialogDescription>
-          </DialogHeader>
-          <CourseEditor
-            resource={editingResource}
-            onSave={handleSaveComplete}
-            onCancel={() => setIsEditDialogOpen(false)}
-            isNew={!editingResource?.id}
-            initialType={editingResource?.type}
-          />
-        </DialogContent>
-      </Dialog>
+      <QuizModal
+        isOpen={isQuizModalOpen}
+        onClose={closeQuizModal}
+        quiz={selectedQuiz}
+      />
     </div>
   );
 };

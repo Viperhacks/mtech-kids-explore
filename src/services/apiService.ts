@@ -217,9 +217,19 @@ export const submitQuizAttempt = async (
   }
 };
 
-export const getCompletedResources = async (userId: string) => {
+export const updateUser = async (userId: string, userData: any) => {
   try {
-    const response = await api.get(`/completions/${userId}`);
+    const response = await api.put(`/user/${userId}`, userData);
+    return response.data;
+  } catch (error) {
+    console.error("User update failed", error);
+    throw error;
+  }
+};
+
+export const getCompletedResources = async () => {
+  try {
+    const response = await api.get(`/completions`);
     return response.data;
   } catch (error) {
     console.error("Failed to fetch completed resources", error);

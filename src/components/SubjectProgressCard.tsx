@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Card,
@@ -46,13 +47,19 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
   const progress =
     totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
-
   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || "1";
 
   const handleClickTab = (tab: "videos" | "documents" | "quizzes") => {
-    navigate(
-      `/grade/grade${getRecommendedGrade()}/subject/${subject}?tab=${tab}`
-    );
+    if (tab === "quizzes") {
+      // Navigate with quiz context for automatic selection
+      navigate(
+        `/grade/grade${getRecommendedGrade()}/subject/${subject}?tab=quizzes&quiz=${subject}`
+      );
+    } else {
+      navigate(
+        `/grade/grade${getRecommendedGrade()}/subject/${subject}?tab=${tab}`
+      );
+    }
   };
 
 
