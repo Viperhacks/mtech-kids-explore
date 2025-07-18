@@ -89,6 +89,7 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
     user?.completedLessons
       ?.filter((item: any) => item.resourceType === "QUIZ")
       .map((item: any) => item.resourceId) || [];
+      console.log("completed = ",completedQuizIds)
 
   useEffect(() => {
     fetchAvailableQuizzes();

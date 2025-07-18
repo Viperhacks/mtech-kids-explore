@@ -45,6 +45,7 @@ import TeacherAccountCreation from "../admin/TeacherAccountCreation";
 import { Teacher } from "../types/apiTypes";
 import AdminContentPanel from "../admin/AdminContentPanel";
 import TeacherStudentsModal from "../admin/TeacherStudentsModal";
+import UserEditModal from "../UserEditModal";
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -61,6 +62,7 @@ const AdminDashboard: React.FC = () => {
   const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(
     null
   );
+  const [editingUser, setEditingUser] = useState<any>(null);
 
   type Stats = {
     totalUsers: number;
@@ -229,6 +231,15 @@ const AdminDashboard: React.FC = () => {
     handleTabChange(action, "force");
   };
 
+  const handleEditUser = (user: any) => {
+    setEditingUser(user);
+  };
+
+  const handleUserEditSuccess = () => {
+    fetchUsers();
+    fetchTeachers(currentPage);
+  };
+
   const adminTabs = [
     { value: "users", label: "User Management" },
     { value: "teachers", label: "Teacher Management" },
@@ -283,6 +294,7 @@ const AdminDashboard: React.FC = () => {
                     <TableHead>Username</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Joined</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -304,6 +316,15 @@ const AdminDashboard: React.FC = () => {
                         </span>
                       </TableCell>
                       <TableCell>{user.date}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditUser(user)}
+                        >
+                          Edit
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -360,7 +381,7 @@ const AdminDashboard: React.FC = () => {
       <div ref={tabsContentRef}>
         <Tabs
           value={activeTab}
-          onValueChange={(value) => handleTabChange(value, "none")} // No auto-scroll for direct tab clicks
+          onValueChange={(value) => handleTabChange(value, "none")}
           className="w-full mb-8"
         >
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-5 h-12 ">
@@ -400,7 +421,7 @@ const AdminDashboard: React.FC = () => {
                           No teachers found
                         </p>
                         <p className="text-sm">
-                          Looks like nobody’s on staff duty yet
+                          Looks like nobody's on staff duty yet
                         </p>
                       </div>
                     ) : (
@@ -487,6 +508,14 @@ const AdminDashboard: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <UserEditModal
+        user={editingUser}
+        open={!!editingUser}
+        onClose={() => setEditingUser(null)}
+        onSuccess={handleUserEditSuccess}
+        canEditRole={true}
+      />
     </div>
   );
 };

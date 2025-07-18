@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
@@ -50,7 +51,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
     gradeId: string;
     subjectId: string;
   }>();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -58,8 +59,10 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const [resourceStats, setResourceStats] = useState<{
     [key: string]: ResourceStats;
   }>({});
-  const { getResourceStats, isLoading: completionLoading } =
-    useCompletionData();
+  const { getResourceStats, isLoading: completionLoading } = useCompletionData();
+
+  // Get active tab from URL or default to "progress"
+  const activeTab = searchParams.get('tab') || 'progress';
 
   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || "1";
   const displayName =
@@ -69,6 +72,11 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const capitalize = (str: string) =>
     str.charAt(0).toUpperCase() + str.slice(1);
   const badges = user?.earnedBadges || [];
+
+  // Handle tab changes with URL updates
+  const handleTabChange = (tabValue: string) => {
+    setSearchParams({ tab: tabValue });
+  };
 
   useEffect(() => {
     fetchResources();
@@ -191,7 +199,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
         </div>
       </div>
 
-      <Tabs defaultValue="progress">
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList className=" w-full md:w-auto">
           {studentTabs.map((tab) => (
             <TabsTrigger

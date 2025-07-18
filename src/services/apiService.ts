@@ -278,8 +278,7 @@ export const getCompletedResources = async () => {
 export const getAllUsers = async (page: number = 1, limit: number = 10, filters?: any) => {
   try {
     const response = await adminService.getAllUsers(page, limit, filters);
-    //console.log("response from api: ", response)
-    return response; // Response is already unwrapped by axios interceptor
+    return response; 
   } catch (error) {
     console.error('Get all users error:', error);
     throw error;
@@ -293,7 +292,7 @@ export const getStudentsCreatedByTeacher = async (
 ) => {
   try {
     const response = await adminService.getStudentsCreatedByTeacher(teacherId, page, limit);
-    return response; // axios interceptor unwraps data
+    return response; 
   } catch (error) {
     console.error('Get students created by teacher error:', error);
     throw error;
