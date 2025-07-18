@@ -30,6 +30,8 @@ import {
   Download,
   ChevronLeft,
   ChevronRight,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import UserEditModal from "../UserEditModal";
 
@@ -289,20 +291,27 @@ const UserManagementSection: React.FC = () => {
                     <TableCell>{getUserGrade(user)}</TableCell>
                     <TableCell>{getDaysAgo(user.createdAt)}</TableCell>
                     <TableCell>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditUser(user)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteUser(user.id)}
-                      >
-                        Delete
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex items-center gap-1 text-mtech-primary border-blue-600 hover:bg-blue-100 hover:text-blue-700 transition"
+                          onClick={() => handleEditUser(user)}
+                        >
+                          <Edit2 size={16} />
+                          Edit
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex items-center gap-1 text-mtech-secondary border-red-600 hover:bg-red-100 hover:text-red-700 transition"
+                          onClick={() => handleDeleteUser(user.id)}
+                        >
+                          <Trash2 size={16} />
+                          Delete
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -345,13 +354,13 @@ const UserManagementSection: React.FC = () => {
           {roleFilter !== "all" && ` with role "${roleFilter}"`}
         </div>
       </CardContent>
-       <UserEditModal
-              user={editingUser}
-              open={!!editingUser}
-              onClose={() => setEditingUser(null)}
-              onSuccess={handleUserEditSuccess}
-              canEditRole={true}
-            />
+      <UserEditModal
+        user={editingUser}
+        open={!!editingUser}
+        onClose={() => setEditingUser(null)}
+        onSuccess={handleUserEditSuccess}
+        canEditRole={true}
+      />
     </Card>
   );
 };
