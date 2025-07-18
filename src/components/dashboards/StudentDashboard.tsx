@@ -81,26 +81,45 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
     try {
       const response = await getResourcesForAnyOne(getRecommendedGrade());
       const allResources = response.resources || [];
+      console.log("Fetched resources:", allResources);
       setResources(allResources);
 
       const stats: { [key: string]: ResourceStats } = {};
 
-      // Group videos & docs
       allResources.forEach((resource) => {
-        const subject = resource.response.subject;
-        if (!stats[subject]) {
-          stats[subject] = {
-            total: 0,
-            completed: 0,
-            videos: 0,
-            documents: 0,
-            quizzes: 0,
-            videosCompleted: 0,
-            documentsCompleted: 0,
-            quizzesCompleted: 0,
-          };
-        }
-      });
+  const subject = resource.response.subject;
+  if (!stats[subject]) {
+    stats[subject] = {
+      total: 0,
+      completed: 0,
+      videos: 0,
+      documents: 0,
+      quizzes: 0,
+      videosCompleted: 0,
+      documentsCompleted: 0,
+      quizzesCompleted: 0,
+    };
+  }
+
+  stats[subject].total++;
+
+  const type = resource.response.type.toLowerCase();
+  console.log("Resource type:", type, "for subject:", subject);
+
+  if (type ===  "video") {
+    stats[subject].videos++;
+  } else if (
+    type === "document"  ||
+    type === "doc" ||
+    type === "pdf" ||
+    type === "docx"
+  ) {
+    stats[subject].documents++;
+  } else if (type === "quiz") {
+    stats[subject].quizzes++;
+  }
+});
+
 
       // 🔥 Include quiz-only subjects (like Shona)
       const quizSubjects = await getSubjectsWithQuizzes(getRecommendedGrade());

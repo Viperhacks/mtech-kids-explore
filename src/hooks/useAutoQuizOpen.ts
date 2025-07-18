@@ -4,6 +4,7 @@ import { getAllQuizzes } from '@/services/apiService';
 import { useToast } from '@/hooks/use-toast';
 
 interface Quiz {
+  resource: any;
   quizId: string;
   resourceId?: string;
   standaAlone: boolean;
