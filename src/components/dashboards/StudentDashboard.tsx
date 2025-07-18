@@ -22,9 +22,9 @@ import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getResourcesForAnyOne } from "@/services/apiService";
 import { toast } from "@/hooks/use-toast";
-import StudentQuizzes from "../components/student/StudentQuizzes";
-import StudentQuizHistory from "../components/StudentQuizHistory";
-import SubjectProgressCard from "../components/SubjectProgressCard";
+import StudentQuizzes from "../student/StudentQuizzes";
+import StudentQuizHistory from "../StudentQuizHistory";
+import SubjectProgressCard from "../SubjectProgressCard";
 import { useCompletionData } from "@/hooks/useCompletionData";
 import { getSubjectsWithQuizzes } from "@/services/quizService";
 
@@ -74,80 +74,96 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({
     fetchResources();
   }, [gradeId, subjectId, completionLoading]);
 
+  const fetchResources = async () => {
+    if (completionLoading) return;
 
+    setIsLoading(true);
+    try {
+      const response = await getResourcesForAnyOne(getRecommendedGrade());
+      const allResources = response.resources || [];
+      console.log("Fetched resources:", allResources);
+      setResources(allResources);
 
-const fetchResources = async () => {
-  if (completionLoading) return;
+      const stats: { [key: string]: ResourceStats } = {};
 
-  setIsLoading(true);
-  try {
-    const response = await getResourcesForAnyOne(getRecommendedGrade());
-    const allResources = response.resources || [];
-    setResources(allResources);
-
-    const stats: { [key: string]: ResourceStats } = {};
-
-    // Group videos & docs
-    allResources.forEach((resource) => {
-      const subject = resource.response.subject;
-      if (!stats[subject]) {
-        stats[subject] = {
-          total: 0,
-          completed: 0,
-          videos: 0,
-          documents: 0,
-          quizzes: 0,
-          videosCompleted: 0,
-          documentsCompleted: 0,
-          quizzesCompleted: 0,
-        };
-      }
-    });
-
-    // 🔥 Include quiz-only subjects (like Shona)
-    const quizSubjects = await getSubjectsWithQuizzes(getRecommendedGrade());
-    quizSubjects.forEach((subject) => {
-      if (!stats[subject]) {
-        stats[subject] = {
-          total: 0,
-          completed: 0,
-          videos: 0,
-          documents: 0,
-          quizzes: 0,
-          videosCompleted: 0,
-          documentsCompleted: 0,
-          quizzesCompleted: 0,
-        };
-      }
-    });
-
-    // Apply completions
-    Object.keys(stats).forEach((subject) => {
-      const subjectResources = allResources.filter(
-        (r) => r.response.subject === subject
-      );
-      const subjectStats = getResourceStats(subjectResources, subject);
-
-      stats[subject] = {
-        ...stats[subject], // keep quizzes 0 (they're handled in SubjectProgressCard)
-        ...subjectStats,
-        quizzes: 0,
-        quizzesCompleted: 0,
-      };
-    });
-
-    setResourceStats(stats);
-  } catch (error) {
-    toast({
-      title: "Failed to load resources",
-      description: "Try again or contact support.",
-      variant: "destructive",
-    });
-  } finally {
-    setIsLoading(false);
+      allResources.forEach((resource) => {
+  const subject = resource.response.subject;
+  if (!stats[subject]) {
+    stats[subject] = {
+      total: 0,
+      completed: 0,
+      videos: 0,
+      documents: 0,
+      quizzes: 0,
+      videosCompleted: 0,
+      documentsCompleted: 0,
+      quizzesCompleted: 0,
+    };
   }
-};
 
+  stats[subject].total++;
+
+  const type = resource.response.type.toLowerCase();
+  console.log("Resource type:", type, "for subject:", subject);
+
+  if (type ===  "video") {
+    stats[subject].videos++;
+  } else if (
+    type === "document"  ||
+    type === "doc" ||
+    type === "pdf" ||
+    type === "docx"
+  ) {
+    stats[subject].documents++;
+  } else if (type === "quiz") {
+    stats[subject].quizzes++;
+  }
+});
+
+
+      // 🔥 Include quiz-only subjects (like Shona)
+      const quizSubjects = await getSubjectsWithQuizzes(getRecommendedGrade());
+      quizSubjects.forEach((subject) => {
+        if (!stats[subject]) {
+          stats[subject] = {
+            total: 0,
+            completed: 0,
+            videos: 0,
+            documents: 0,
+            quizzes: 0,
+            videosCompleted: 0,
+            documentsCompleted: 0,
+            quizzesCompleted: 0,
+          };
+        }
+      });
+
+      // Apply completions
+      Object.keys(stats).forEach((subject) => {
+        const subjectResources = allResources.filter(
+          (r) => r.response.subject === subject
+        );
+        const subjectStats = getResourceStats(subjectResources, subject);
+
+        stats[subject] = {
+          ...stats[subject], // keep quizzes 0 (they're handled in SubjectProgressCard)
+          ...subjectStats,
+          quizzes: 0,
+          quizzesCompleted: 0,
+        };
+      });
+
+      setResourceStats(stats);
+    } catch (error) {
+      toast({
+        title: "Failed to load resources",
+        description: "Try again or contact support.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const studentTabs = [
     { value: "progress", label: "My Progress" },

@@ -52,7 +52,15 @@ import { capitalize } from "@/utils/stringUtils";
 import { useCompletion } from "@/context/CompletionContext";
 import { completionService } from "@/services/completionService";
 
-const StudentQuizzes: React.FC = () => {
+interface StudentQuizzesProps {
+  onQuizOpen?: (quiz: any) => void;
+  autoStartQuiz?: Quiz | null; // For auto-started quizzes
+}
+
+const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
+  onQuizOpen,
+  autoStartQuiz,
+}) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -97,33 +105,31 @@ const StudentQuizzes: React.FC = () => {
   useEffect(() => {
     const handleAutoOpenQuiz = (event: CustomEvent) => {
       const quiz = event.detail.quiz;
-      if (quiz) {
-        console.log('Auto-opening quiz:', quiz);
-        startQuiz(quiz);
+ 
+      if (onQuizOpen) {
+        onQuizOpen(quiz);
       }
     };
 
-    window.addEventListener('autoOpenQuiz', handleAutoOpenQuiz as EventListener);
+    window.addEventListener(
+      "autoOpenQuiz",
+      handleAutoOpenQuiz as EventListener
+    );
     return () => {
-      window.removeEventListener('autoOpenQuiz', handleAutoOpenQuiz as EventListener);
+      window.removeEventListener(
+        "autoOpenQuiz",
+        handleAutoOpenQuiz as EventListener
+      );
     };
-  }, []);
+  }, [onQuizOpen]);
+
+  useEffect(() => {
+    if (autoStartQuiz) {
+      startQuiz(autoStartQuiz);
+    }
+  }, [autoStartQuiz]);
 
 
-
-
-
-  const closeQuiz = () => {
-    setShowQuizDialog(false);
-    setSelectedQuiz(null);
-    setQuizQuestions([]);
-    setCurrentQuestionIndex(0);
-    setAnswers({});
-    setQuizCompleted(false);
-    setScore(0);
-    setShowReview(false);
-    setAnsweredQues({});
-  };
   // Add the missing useEffect for filtering
   useEffect(() => {
     filterQuizzes();
@@ -133,7 +139,7 @@ const StudentQuizzes: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await getAllQuizzes();
-      
+
       // Filter quizzes for student's grade
       const studentQuizzes = response.data.filter(
         (quiz: Quiz) => quiz.grade === userGrade
@@ -189,11 +195,14 @@ const StudentQuizzes: React.FC = () => {
       setAnswers({});
       setCurrentQuestionIndex(0);
       setQuizCompleted(false);
-      setScore(0);
-      setShowReview(false);
-      setAnsweredQues({});
-    } catch (error: any) {
-      console.error('Failed to start quiz:', error);
+
+      setShowQuizDialog(true);
+
+      if (!autoStartQuiz && onQuizOpen) {
+        onQuizOpen(quiz);
+      }
+    } catch (error) {
+
       toast({
 
         title: "Failed to start quiz",
@@ -418,7 +427,8 @@ const StudentQuizzes: React.FC = () => {
       <div>
         <h2 className="text-2xl font-bold mb-2">Available Quizzes</h2>
         <p className="text-muted-foreground">
-          Test your knowledge with these quizzes for  {userGrade === "0" ? "ECD" : `Grade ${userGrade}`}
+          Test your knowledge with these quizzes for{" "}
+          {userGrade === "0" ? "ECD" : `Grade ${userGrade}`}
         </p>
         <div className="mt-4 p-4 bg-muted/30 rounded-lg">
           <div className="flex items-center gap-4 text-sm">
@@ -519,20 +529,24 @@ const StudentQuizzes: React.FC = () => {
                   </Badge>
                 </div>
 
-                {completedQuizIds.includes(quiz.quizId) ? (
-                  <Button
-                    variant="destructive"
-                    onClick={() => setConfirmingQuizId(quiz.quizId)}
-                    className="w-full"
-                  >
-                    {" "}
-                    Retry Quiz
-                  </Button>
+                {quiz.questions && quiz.questions.length > 0 ? (
+                  completedQuizIds.includes(quiz.quizId) ? (
+                    <Button
+                      variant="destructive"
+                      onClick={() => setConfirmingQuizId(quiz.quizId)}
+                      className="w-full"
+                    >
+                      Retry Quiz
+                    </Button>
+                  ) : (
+                    <Button className="w-full" onClick={() => startQuiz(quiz)}>
+                      Start Quiz
+                    </Button>
+                  )
                 ) : (
-                  <Button className="w-full" onClick={() => startQuiz(quiz)}>
-                    {" "}
-                    Start Quiz
-                  </Button>
+                  <div className="text-sm text-center text-muted-foreground">
+                    No questions available
+                  </div>
                 )}
 
                 {confirmingQuizId === quiz.quizId && (
@@ -596,7 +610,7 @@ const StudentQuizzes: React.FC = () => {
                 </DialogTitle>
               </DialogHeader>
 
-              {quizQuestions.length > 0 && (
+              {selectedQuiz && quizQuestions.length > 0 && (
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-4">
                     <h3 className="text-lg sm:text-xl font-semibold leading-snug">

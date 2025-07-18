@@ -48,13 +48,16 @@ import CourseEditor from "@/components/CourseEditor";
 import VideoThumbnail from "./VideoThumbnail";
 import { resolve } from "path";
 import FloatingBackButton from "@/components/FloatingBackButton";
-import { useAutoQuizOpen } from '@/hooks/useAutoQuizOpen';
+
+import { useAutoQuizOpen } from "@/hooks/useAutoQuizOpen";
+
 
 import StudentQuizzes from "@/components/student/StudentQuizzes";
 import QuizManagement from "@/components/QuizManagement";
 import { Badge } from "@/components/ui/badge";
 import { useCompletion } from "@/context/CompletionContext";
 import { completionService } from "@/services/completionService";
+import { Quiz } from "@/components/types/apiTypes";
 
 const SubjectResources = () => {
   const { gradeId: fullGradeId, subjectId } = useParams<{
@@ -192,6 +195,11 @@ const SubjectResources = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+
+  // SubjectResources.tsx
+  const [autoStartQuiz, setAutoStartQuiz] = useState<Quiz | null>(null);
+
+
   const handleVideoEnded = async () => {
     if (user && selectedVideo) {
       try {
@@ -227,13 +235,20 @@ const SubjectResources = () => {
             (quiz) => {
               // Close video dialog first
               setIsVideoOpen(false);
-              
+ 
+
               // Switch to quizzes tab
               setActiveTab("quizzes");
-              
+              setAutoStartQuiz({
+                ...quiz,
+                description: quiz.title ?? "",
+                teacherName: quiz.subject ?? "",
+              });
+
               // Trigger quiz opening in StudentQuizzes component
-              const quizEvent = new CustomEvent('autoOpenQuiz', { 
-                detail: { quiz } 
+              const quizEvent = new CustomEvent("autoOpenQuiz", {
+                detail: { quiz },
+
               });
               window.dispatchEvent(quizEvent);
             }
@@ -406,7 +421,7 @@ const SubjectResources = () => {
             Learn{" "}
             {subject?.name ||
               subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}{" "}
-            for  {gradeIdNumber === "0" ? "ECD" : `Grade ${gradeIdNumber}`}
+            for {gradeIdNumber === "0" ? "ECD" : `Grade ${gradeIdNumber}`}
           </p>
         </div>
       </div>
@@ -615,7 +630,17 @@ const SubjectResources = () => {
         </TabsContent>
 
         <TabsContent value="quizzes" className="mt-6">
-          {user?.role == "STUDENT" ? <StudentQuizzes /> : <QuizManagement />}
+          {user?.role == "STUDENT" ? (
+            <StudentQuizzes
+              autoStartQuiz={autoStartQuiz}
+              onQuizOpen={(quiz) => {
+                setSelectedQuiz(quiz);
+                setIsQuizOpen(true); // For standalone dialog if needed
+              }}
+            />
+          ) : (
+            <QuizManagement />
+          )}
         </TabsContent>
       </Tabs>
 

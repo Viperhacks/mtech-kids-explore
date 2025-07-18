@@ -60,39 +60,38 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
   const [loadingSubjects, setLoadingSubjects] = useState(false);
 
   useEffect(() => {
-  if (!user) return;
+    if (!user) return;
 
-  const fetchSubjects = async () => {
-    setLoadingSubjects(true);
-    try {
-      const fetchedSubjects = await getTeacherSubjects();
-      console.log("Fetched subjects:", fetchedSubjects);
+    const fetchSubjects = async () => {
+      setLoadingSubjects(true);
+      try {
+        const fetchedSubjects = await getTeacherSubjects();
+        console.log("Fetched subjects:", fetchedSubjects);
 
-      // If 'All Subjects' is present, replace teacherSubjects with full subject list
-      if (fetchedSubjects.includes('All Subjects')) {
-        setTeacherSubjects(subjects);
-      } else {
-        setTeacherSubjects(
-          (fetchedSubjects || []).map((name: string, idx: number) => ({
-            id: idx,
-            name,
-          }))
-        );
+        // If 'All Subjects' is present, replace teacherSubjects with full subject list
+        if (fetchedSubjects.includes("All Subjects")) {
+          setTeacherSubjects(subjects);
+        } else {
+          setTeacherSubjects(
+            (fetchedSubjects || []).map((name: string, idx: number) => ({
+              id: idx,
+              name,
+            }))
+          );
+        }
+      } catch (error) {
+        toast({
+          title: "Failed to load subjects",
+          description: "Could not fetch your subjects.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingSubjects(false);
       }
-    } catch (error) {
-      toast({
-        title: "Failed to load subjects",
-        description: "Could not fetch your subjects.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingSubjects(false);
-    }
-  };
+    };
 
-  fetchSubjects();
-}, [user]);
-
+    fetchSubjects();
+  }, [user]);
 
   // Update form data if resource or initialType changes
   useEffect(() => {
@@ -205,6 +204,21 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
     } catch {
       return "Unknown file";
     }
+  };
+
+  const getAcceptedFileTypes = () => {
+    if (formData.type === "video") {
+      return "video/*";
+    }
+    if (formData.type === "document") {
+      return `
+      application/pdf,
+      application/msword,
+      application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    `;
+    }
+
+    return "";
   };
 
   if (user?.role === "TEACHER" && assignedLevels.length === 0) {
@@ -353,9 +367,37 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
               onDrop={(e) => {
                 e.preventDefault();
                 const file = e.dataTransfer.files[0];
-                if (file) {
-                  setFormData((prev) => ({ ...prev, content: file }));
+                if (!file) return;
+
+                if (
+                  formData.type === "video" &&
+                  !file.type.startsWith("video/")
+                ) {
+                  toast({
+                    title: "Invalid file type",
+                    description: "Please upload a valid video file.",
+                    variant: "destructive",
+                  });
+                  return;
                 }
+                if (
+                  formData.type === "document" &&
+                  ![
+                    "application/pdf",
+                    "application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                  ].includes(file.type)
+                ) {
+                  toast({
+                    title: "Invalid file type",
+                    description:
+                      "Please upload a valid document file (PDF, Word).",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
+                setFormData((prev) => ({ ...prev, content: file }));
               }}
               onClick={() => document.getElementById("contentUpload")?.click()}
             >
@@ -383,17 +425,41 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
             <input
               id="contentUpload"
               type="file"
-              accept="
-  application/pdf,
-  application/msword,
-  application/vnd.openxmlformats-officedocument.wordprocessingml.document,
-  image/*,
-  video/*"
+              accept={getAcceptedFileTypes()}
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) {
-                  setFormData((prev) => ({ ...prev, content: file }));
+                if (!file) return;
+
+                // Check MIME type matches the type selected
+                if (
+                  formData.type === "video" &&
+                  !file.type.startsWith("video/")
+                ) {
+                  toast({
+                    title: "Invalid file type",
+                    description: "Please upload a valid video file.",
+                    variant: "destructive",
+                  });
+                  return;
                 }
+                if (
+                  formData.type === "document" &&
+                  ![
+                    "application/pdf",
+                    "application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                  ].includes(file.type)
+                ) {
+                  toast({
+                    title: "Invalid file type",
+                    description:
+                      "Please upload a valid document file (PDF, Word).",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
+                setFormData((prev) => ({ ...prev, content: file }));
               }}
               className="hidden"
             />

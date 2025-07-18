@@ -77,6 +77,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
         // Check if user is logged in and provide no arguments if not
         if (user) {
           response = await getResourcesForAnyOne(gradeToUse, selectedSubject);
+         
         } else {
           response = await getResourcesForAnyOne(); // Pass no arguments when not logged in
         }
@@ -88,7 +89,7 @@ const DocumentResourcesViewer: React.FC<DocumentResourcesViewerProps> = ({
       }[];
 
       const documentResources = resources.filter(
-        (resource) => resource.response.type === "document"
+        (resource) => resource.response.type === "DOCUMENT"
       );
 
       // Extract unique subjects

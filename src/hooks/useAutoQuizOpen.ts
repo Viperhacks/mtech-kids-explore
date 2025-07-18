@@ -4,6 +4,9 @@ import { getAllQuizzes } from '@/services/apiService';
 import { useToast } from '@/hooks/use-toast';
 
 interface Quiz {
+ 
+  resource: any;
+
   quizId: string;
   resourceId?: string;
   standaAlone: boolean;
@@ -23,11 +26,16 @@ export const useAutoQuizOpen = () => {
   ) => {
     try {
       const response = await getAllQuizzes();
+ 
+      console.log(response,"after watch with id",videoId);
+
       const quizzes = response.data as Quiz[];
       
       // Find the quiz that's linked to this video
       const associatedQuiz = quizzes.find(quiz => 
-        quiz.resourceId === videoId && 
+ 
+        quiz.resource.resourceId === videoId && 
+
         !quiz.standaAlone &&
         quiz.grade === grade &&
         quiz.subject === subject

@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import StudentDashboard from '@/services/StudentDashboard';
+import StudentDashboard from '@/components/dashboards/StudentDashboard';
 import TeacherDashboard from '@/components/dashboards/TeacherDashboard';
 import AdminDashboard from '@/components/dashboards/AdminDashboard';
 import { Loader2 } from 'lucide-react';
