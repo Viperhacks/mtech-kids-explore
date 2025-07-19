@@ -19,11 +19,14 @@ function createWindow() {
   win.setMenuBarVisibility(false); // or win.removeMenu() if you wanna go nuclear
 
   if (isDev) {
-    win.loadURL('http://localhost:8081');
-    win.webContents.openDevTools();
-  } else {
-    win.loadFile(path.join(__dirname, 'dist', 'index.html'));
-  }
+  win.loadURL('http://localhost:8081');
+  win.webContents.openDevTools();
+} else {
+  win.loadFile(path.join(__dirname, 'index.html'));
+
+  //win.webContents.openDevTools(); // Force open devtools in production build
+}
+
 
   win.webContents.on('did-fail-load', (event, code, desc, validatedURL) => {
     console.error(`Failed to load ${validatedURL}: ${desc} (${code})`);
