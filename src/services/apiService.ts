@@ -304,7 +304,7 @@ export const getStudentsCreatedByTeacher = async (
 export const updateUserDetails = async (userId: string, updatedData: any) => {
   try {
     const response = await api.put(`/users/${userId}`, updatedData);
-    return response;
+    return response.data;
   } catch (error) {
     console.error('Update user details error:', error);
     throw error;

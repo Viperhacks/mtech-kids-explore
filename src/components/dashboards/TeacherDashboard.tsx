@@ -40,6 +40,7 @@ import {
   Search,
   Pencil,
   Trash2,
+  Edit2,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -60,6 +61,7 @@ import { capitalize } from "@/utils/stringUtils";
 import QuizManagement from "../QuizManagement";
 import QuizCreationDialog from "../QuizCreationDialog";
 import { Input } from "../ui/input";
+import UserEditModal from "../UserEditModal";
 
 const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -79,6 +81,7 @@ const TeacherDashboard: React.FC = () => {
   const [currentStudentPage, setCurrentStudentPage] = useState(1);
   const studentsPerPage = 10;
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingUser, setEditingUser] = useState<any>(null);
 
   useEffect(() => {
     fetchResources();
@@ -293,12 +296,13 @@ const TeacherDashboard: React.FC = () => {
     }
   };
 
-  const handleEditUser = (id: string) => {
-  // Route to edit page or open modal
-  console.log("Editing user with id:", id);
-  // navigate(`/dashboard/edit-student/${id}`) or show modal
-};
+  const handleEditUser = (user: any) => {
+    setEditingUser(user);
+  };
 
+  const handleUserEditSuccess = () => {
+    fetchStudents();
+  };
 
   const allTabs = [
     { value: "overview", label: "Overview" },
@@ -738,24 +742,24 @@ const TeacherDashboard: React.FC = () => {
                 </div>
               ) : filteredStudents.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <Table>
+                  <Table className="min-w-full">
                     <TableHeader>
                       <TableRow>
                         <TableHead>Name</TableHead>
                         <TableHead>Username</TableHead>
                         {!isMobile && <TableHead>Grade</TableHead>}
-                        {/*<TableHead>Last Active</TableHead>*/}
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
+
                     <TableBody>
                       {currentStudents.map((student, index) => (
                         <TableRow key={index}>
-                          <TableCell className="font-medium">
+                          <TableCell className="font-medium max-w-xs truncate">
                             {capitalize(student.fullName) || "Unnamed"}
                           </TableCell>
 
-                          <TableCell>
+                          <TableCell className="max-w-xs truncate">
                             {student.username || "No username"}
                           </TableCell>
 
@@ -763,33 +767,40 @@ const TeacherDashboard: React.FC = () => {
                             <TableCell>
                               {student.gradeLevel === "0"
                                 ? "ECD"
-                                : `Grade ${student.gradeLevel}` || "N/A"}
+                                : student.gradeLevel
+                                ? `Grade ${student.gradeLevel}`
+                                : "N/A"}
                             </TableCell>
                           )}
 
-                          
-                            <TableCell className="text-right space-x-2">
+                          <TableCell className="text-right whitespace-nowrap">
+                            <div className="flex justify-end gap-2">
                               <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEditUser(student.id)}
+                                size="sm"
+                                variant="outline"
+                                className="text-blue-600 border-blue-600 hover:bg-blue-100 hover:text-blue-700 transition"
+                                onClick={() => handleEditUser(student)}
                               >
-                                <Pencil className="w-4 h-4 text-blue-600" />
+                                <Edit2 size={16} className="mr-1" />
+                                Edit
                               </Button>
 
                               <Button
-                                variant="ghost"
-                                size="icon"
+                                size="sm"
+                                variant="outline"
+                                className="text-red-600 border-red-600 hover:bg-red-100 hover:text-red-700 transition"
                                 onClick={() => handleDeleteUser(student.id)}
                               >
-                                <Trash2 className="w-4 h-4 text-red-600" />
+                                <Trash2 size={16} className="mr-1" />
+                                Delete
                               </Button>
-                            </TableCell>
-                          
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
+
                   {totalStudentPages > 1 && (
                     <div className="flex items-center justify-between mt-4">
                       <div className="text-sm text-muted-foreground">
@@ -923,6 +934,14 @@ const TeacherDashboard: React.FC = () => {
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
         onQuizCreated={null}
+      />
+
+      <UserEditModal
+        user={editingUser}
+        open={!!editingUser}
+        onClose={() => setEditingUser(null)}
+        onSuccess={handleUserEditSuccess}
+        canEditRole={false}
       />
     </div>
   );

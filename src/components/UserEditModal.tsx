@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { updateUserDetails } from "@/services/apiService";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 interface User {
   id: string;
@@ -56,6 +57,14 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const { user: currentUser } = useAuth();
+  const assignedLevels = currentUser?.assignedLevels || [];
+
+  const allGradeLevels = ["0", "1", "2", "3", "4", "5", "6", "7"];
+
+  const isAdmin = currentUser?.role === "ADMIN";
+
+  const gradeOptions = isAdmin ? allGradeLevels : assignedLevels;
 
   useEffect(() => {
     if (user) {
@@ -107,6 +116,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
 
     setIsLoading(true);
     try {
+     
       await updateUserDetails(user.id, dataToSend);
       toast.success("User updated successfully!");
       onSuccess();
@@ -190,14 +200,11 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
                   <SelectValue placeholder="Select grade" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0">ECD</SelectItem>
-                  <SelectItem value="1">Grade 1</SelectItem>
-                  <SelectItem value="2">Grade 2</SelectItem>
-                  <SelectItem value="3">Grade 3</SelectItem>
-                  <SelectItem value="4">Grade 4</SelectItem>
-                  <SelectItem value="5">Grade 5</SelectItem>
-                  <SelectItem value="6">Grade 6</SelectItem>
-                  <SelectItem value="7">Grade 7</SelectItem>
+                  {gradeOptions.map((level) => (
+                    <SelectItem key={level} value={level}>
+                      {level === "0" ? "ECD" : `Grade ${level}`}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
