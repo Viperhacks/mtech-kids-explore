@@ -17,21 +17,28 @@
     "dist": "npm run build && electron-builder"
   },
   "build": {
-    "appId": "com.mtechkids.app",
-    "productName": "MtechKidsExplore",
-    "files": [
-      "dist/**/*",
-      "main.cjs",
-      "preload.js"
-    ],
-    "directories": {
-      "buildResources": "assets"
-    },
-    "win": {
-      "target": "nsis",
-      "icon": "mtech.ico"
-    }
+  "appId": "com.mtechkids.app",
+  "productName": "MtechKidsExplore",
+  "files": [
+    "dist/**/*",
+    "main.cjs",
+    "preload.js"
+  ],
+  "directories": {
+    "buildResources": "assets"
   },
+  "win": {
+    "target": ["nsis"],
+    "icon": "mtech.ico"
+  },
+  "nsis": {
+    "oneClick": true,
+    "allowToChangeInstallationDirectory": false,
+    "perMachine": false,
+    "runAfterFinish": false
+  }
+}
+,
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^3.9.0",

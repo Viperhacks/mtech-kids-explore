@@ -1,0 +1,30 @@
+🚨 Electron Build Instructions (For My Future Dumb Self)
+
+Step 1: Disable Antivirus (Temporarily)
+--------------------------------------
+Open Windows Security → Virus & threat protection → Manage settings → Turn OFF Real-time protection.
+
+Step 2: Add These to Exclusions
+-------------------------------
+1. Project Folder:
+   C:\Users\user\Desktop\xul\react\mtech-kids-explore
+
+2. Electron Builder Cache:
+   %LOCALAPPDATA%\electron-builder\Cache\nsis
+
+Step 3: Run PowerShell as Admin
+-------------------------------
+Search PowerShell, right-click → Run as administrator
+
+Then run:
+npx electron-builder --win --x64 --publish never
+
+Optional Fix (if NSIS fails)
+----------------------------
+Run this in admin PowerShell before building:
+Remove-Item "$env:LOCALAPPDATA\electron-builder\Cache\nsis" -Recurse -Force
+
+After Build:
+------------
+- Turn antivirus back ON.
+- Celebrate your zero-error packaging like a champ.
