@@ -308,8 +308,8 @@ const TeacherDashboard: React.FC = () => {
     { value: "overview", label: "Overview" },
     { value: "materials", label: "My Materials" },
     { value: "quiz_management", label: "Quiz Management" },
-    { value: "students", label: "Students", mobileHidden: true },
-    { value: "accounts", label: "Student Accounts", mobileHidden: true },
+    { value: "students", label: "View Students", mobileHidden: true },
+    { value: "accounts", label: "Create Student Accounts", mobileHidden: true },
     // { value: "analytics", label: "Analytics", mobileHidden: true }, // future tab maybe?
   ];
 
