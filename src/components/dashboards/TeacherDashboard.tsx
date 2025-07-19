@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link,useSearchParams } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -63,11 +63,18 @@ import QuizCreationDialog from "../QuizCreationDialog";
 import { Input } from "../ui/input";
 import UserEditModal from "../UserEditModal";
 
+const tabDefinitions = [
+  { value: "overview", label: "Overview" },
+  { value: "materials", label: "My Materials" },
+  { value: "quiz_management", label: "Quiz Management" },
+  { value: "students", label: "View Students", mobileHidden: true },
+  { value: "accounts", label: "Create Student Accounts", mobileHidden: true },
+];
+
 const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState("overview");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [resources, setResources] = useState<any[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
@@ -82,6 +89,19 @@ const TeacherDashboard: React.FC = () => {
   const studentsPerPage = 10;
   const [searchTerm, setSearchTerm] = useState("");
   const [editingUser, setEditingUser] = useState<any>(null);
+   const [searchParams, setSearchParams] = useSearchParams();
+  const urlTab = searchParams.get("tab") || "overview";
+
+  const initialTab = tabDefinitions.find((t) => t.value === urlTab)
+    ? urlTab
+    : "overview";
+
+  const [activeTab, setActiveTab] = React.useState(initialTab);
+
+  
+  useEffect(() => {
+    setSearchParams({ tab: activeTab });
+  }, [activeTab, setSearchParams]);
 
   useEffect(() => {
     fetchResources();
@@ -304,14 +324,7 @@ const TeacherDashboard: React.FC = () => {
     fetchStudents();
   };
 
-  const allTabs = [
-    { value: "overview", label: "Overview" },
-    { value: "materials", label: "My Materials" },
-    { value: "quiz_management", label: "Quiz Management" },
-    { value: "students", label: "View Students", mobileHidden: true },
-    { value: "accounts", label: "Create Student Accounts", mobileHidden: true },
-    // { value: "analytics", label: "Analytics", mobileHidden: true }, // future tab maybe?
-  ];
+ 
 
   return (
     <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5 min-h-screen">
@@ -325,7 +338,7 @@ const TeacherDashboard: React.FC = () => {
             isMobile ? "grid grid-cols-2 gap-2 !flex-none mb-12" : ""
           }`}
         >
-          {allTabs
+          {tabDefinitions
             .filter((tab) => !(isMobile && tab.mobileHidden))
             .map((tab) => (
               <TabsTrigger
