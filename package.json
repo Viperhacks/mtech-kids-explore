@@ -14,7 +14,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "electron": "electron .",
-    "dist": "npm run build && electron-builder"
+    "dist": "npm run build && set PATH=%PATH%;%LOCALAPPDATA%\\electron-builder\\Cache\\nsis\\nsis-3.0.4.1\\Bin && electron-builder --win --x64 --publish never"
   },
   "build": {
   "appId": "com.mtechkids.app",

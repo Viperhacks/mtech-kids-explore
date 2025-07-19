@@ -24,7 +24,7 @@ function createWindow() {
 } else {
   win.loadFile(path.join(__dirname, 'index.html'));
 
-  //win.webContents.openDevTools(); // Force open devtools in production build
+  win.webContents.openDevTools(); // Force open devtools in production build
 }
 
 
