@@ -113,20 +113,30 @@ public/
 
 ## Deployment
 
-1. **Web:**  
-   Build with `npm run build` and deploy `dist/` to your preferred host.
+1. **Web**  
+   Build with:  
+   `npm run build`  
+   Deploy the `dist/` folder to your preferred web host.
 
-2. **Desktop:**  
+2. **Desktop**  
    Use Electron & electron-builder:  
-   ```sh
-   npm run dist
-   ```
-   The appId is `com.mtechkids.app` and the bundled product is `MTechKidsExplore
-   
-   to be safe run  npm run dist -- --config.electronDownload.force=true 
-   `.
+   `npm run dist`  
+   - `appId`: `com.blexta.mtech`  
+   - Product Name: **Mtech Academy App**  
+   - Include `config.json` as an extra resource to allow runtime config changes  
+   For safety, run:  
+   `npm run dist -- --config.electronDownload.force=true`
 
----
+3. **Installer (.iss)**  
+   - Inno Setup script located at `/installer/setup.iss`  
+   - Use Inno Setup Compiler to build the installer from the `dist/win-unpacked` folder  
+   - Installer handles desktop/start menu shortcuts, uninstallation, and updates  
+   - Update version and branding in `setup.iss` when releasing new builds
+
+4. **Config.json**  
+   - Store `config.json` alongside your app files (packaged with `extraResources`)  
+   - Allows setting backend API URL or other environment configs dynamically without rebuilding  
+   - Electron preload script reads this file at runtime for config values
 
 ## Key Achievements
 

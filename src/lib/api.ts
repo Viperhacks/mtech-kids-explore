@@ -5,11 +5,12 @@ import { toast } from 'sonner';
 
 // Create an axios instance with the base URL
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: (window as any).electron?.config?.apiBaseUrl || 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
 
 // Request interceptor for adding auth token
 api.interceptors.request.use((config) => {
