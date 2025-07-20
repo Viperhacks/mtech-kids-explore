@@ -137,7 +137,7 @@ const Profile = () => {
     { 
       id: 'welcome', 
       name: 'Welcome!', 
-      description: 'Joined MTECH Kids Explore', 
+      description: 'Joined Mtech Academy', 
       icon: '👋', 
       earned: user.earnedBadges?.includes('welcome')||true,
       roles: ['STUDENT', 'TEACHER', 'ADMIN']

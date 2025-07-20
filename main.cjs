@@ -21,11 +21,10 @@ function createWindow() {
   if (isDev) {
   win.loadURL('http://localhost:8081');
   win.webContents.openDevTools();
-} else {
-  win.loadFile(path.join(__dirname, 'index.html'));
-
-  win.webContents.openDevTools(); // Force open devtools in production build
-}
+}else {
+    win.loadFile(path.join(__dirname, 'dist', 'index.html'));
+     //win.webContents.openDevTools();
+  }
 
 
   win.webContents.on('did-fail-load', (event, code, desc, validatedURL) => {

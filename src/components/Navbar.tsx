@@ -105,15 +105,15 @@ const Navbar: React.FC = () => {
     <nav className="bg-blue-900 shadow-lg sticky top-0 z-50 backdrop-blur-md">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
-          {/* Logo and MTECH */}
+          {/* Logo and Mtech */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-white p-1 rounded-md">
-              <img src={logo} alt="MTECH Logo" className="h-12 w-auto" />
+            <div className=" ">
+              <img src={logo} alt="Mtech Logo" className="h-12 w-auto" />
             </div>
 
-            <span className="text-3xl font-bold text-white">MTECH</span>
+            <span className="text-3xl font-bold text-white">Mtech</span>
             <span className="hidden md:inline-block text-red-500 text-xl font-semibold">
-              Kids Explore
+              Academy
             </span>
           </Link>
 

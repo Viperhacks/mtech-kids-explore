@@ -1,8 +1,7 @@
 {
   "name": "mtech_kidz",
-  "private": true,
   "version": "0.0.1",
-  "type": "module",
+  "private": true,
   "description": "Kids Learning Platform",
   "author": "BLEXTA Technologies",
   "main": "main.cjs",
@@ -10,35 +9,33 @@
     "dev": "cross-env ELECTRON_IS_DEV=true vite --port 8081",
     "dev:electron": "concurrently -k \"npm run dev\" \"wait-on http://localhost:8081 && electron .\"",
     "build": "vite build",
-    "build:dev": "vite build --mode development",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "electron": "electron .",
-    "dist": "npm run build && set PATH=%PATH%;%LOCALAPPDATA%\\electron-builder\\Cache\\nsis\\nsis-3.0.4.1\\Bin && electron-builder --win --x64 --publish never"
+    "dist": "npm run build && electron-builder --win --x64 --publish never"
   },
   "build": {
-  "appId": "com.mtechkids.app",
-  "productName": "MtechKidsExplore",
-  "files": [
-    "dist/**/*",
-    "main.cjs",
-    "preload.js"
-  ],
-  "directories": {
-    "buildResources": "assets"
+    "appId": "com.mtechkids.app",
+    "productName": "MtechKidsExplore",
+    "files": [
+      "dist/**/*",
+      "main.cjs",
+      "preload.js"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "icon": "mtech.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MtechKidsExplore"
+    }
   },
-  "win": {
-    "target": ["nsis"],
-    "icon": "mtech.ico"
-  },
-  "nsis": {
-    "oneClick": true,
-    "allowToChangeInstallationDirectory": false,
-    "perMachine": false,
-    "runAfterFinish": false
-  }
-}
-,
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^3.9.0",

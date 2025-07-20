@@ -1,6 +1,6 @@
-# MTech Kids Explore
+# Mtech Academy
 
-MTech Kids Explore is a modern, accessible educational platform built to empower primary school learners. It provides high-quality resources, interactive content, and tools for students, teachers, and parents.
+Mtech Academy is a modern, accessible educational platform built to empower primary school learners. It provides high-quality resources, interactive content, and tools for students, teachers, and parents.
 
 ---
 
@@ -20,7 +20,7 @@ MTech Kids Explore is a modern, accessible educational platform built to empower
 
 ## About
 
-MTech Kids Explore is dedicated to providing accessible, high-quality educational resources for primary school students. Our mission is to empower young learners to succeed academically and develop a lifelong love for learning.
+Mtech Academy is dedicated to providing accessible, high-quality educational resources for primary school students. Our mission is to empower young learners to succeed academically and develop a lifelong love for learning.
 
 **Vision:**  
 A future where every child has equal access to educational opportunities, regardless of background or circumstances.

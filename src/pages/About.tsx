@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 const About = () => {
   return (
     <div className="container mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold text-center text-mtech-primary mb-6">About MTECH</h1>
+      <h1 className="text-3xl font-bold text-center text-mtech-primary mb-6">About Mtech</h1>
       <Separator className="my-4" />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-10">

@@ -160,7 +160,7 @@ const Index = () => {
         <section className="py-16 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5">
           <div className="mtech-container">
             <h2 className="section-heading mb-12 font-extrabold text-mtech-secondary">
-              Why Choose MTECH Kids Explore?
+              Why Choose Mtech Academy?
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -194,7 +194,7 @@ const Index = () => {
               Ready to Start Learning?
             </h2>
             <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-              Join thousands of students using MTECH Kids Explore to enhance
+              Join thousands of students using Mtech Academy to enhance
               their education journey.
             </p>
             <Button
