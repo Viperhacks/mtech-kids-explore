@@ -6,7 +6,6 @@ import path from "path";
 export default defineConfig(async ({ mode }) => {
   const plugins = [react()];
 
-
   if (mode === "development") {
     // Dynamically import ESM-only module to avoid require errors
     const { componentTagger } = await import("lovable-tagger");
@@ -17,7 +16,7 @@ export default defineConfig(async ({ mode }) => {
     base: "./",
     server: {
       host: "::",
-      port: 8081,
+      port: 8080,
     },
     plugins,
     resolve: {
@@ -25,14 +24,21 @@ export default defineConfig(async ({ mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
-    optimizeDeps:{
+    optimizeDeps: {
       exclude: ["electron", "fs", "path"],
-
     },
     build: {
       rollupOptions: {
-        external: ['fs', 'path', 'electron'],  // exclude Node built-ins from bundling
-      }
+        external: mode === "production" ? [] : ["electron", "fs", "path"],
+        output: {
+          format: "es"
+        }
+      },
+      target: "esnext",
+      minify: false
+    },
+    define: {
+      global: "globalThis",
     }
   };
 });
