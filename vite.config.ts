@@ -23,5 +23,13 @@ export default defineConfig(async ({ mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
+    optimizeDeps:{
+      exclude: ["electron", "fs", "path"],
+    },
+    build: {
+      rollupOptions: {
+        external: ['fs', 'path', 'electron'],  // exclude Node built-ins from bundling
+      }
+    }
   };
 });

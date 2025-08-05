@@ -121,6 +121,7 @@ const Index = () => {
       <main className="flex-1">
         {/* Hero Carousel */}
         <HeroCarousel />
+        
 
         {/* Welcome Cards */}
         <WelcomeCards />
