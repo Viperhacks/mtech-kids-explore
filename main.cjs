@@ -1,9 +1,28 @@
 const path = require('path');
-const { app, BrowserWindow, screen } = require('electron');
+const fs = require('fs');
+const { app, BrowserWindow, screen, ipcMain } = require('electron');
 
 const isDev = process.env.ELECTRON_IS_DEV === 'true' || !app.isPackaged;
 
+function loadConfig() {
+  const configPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'config.json')
+    : path.join(__dirname, 'config.json');
+
+  try {
+    const raw = fs.readFileSync(configPath, 'utf-8');
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error('Failed to load config.json:', err);
+    return {
+      apiBaseUrl: 'http://localhost:8080/api' // fallback
+    };
+  }
+}
+
 function createWindow() {
+  const config = loadConfig();
+
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
   const win = new BrowserWindow({
@@ -11,12 +30,15 @@ function createWindow() {
     height,
     webPreferences: {
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      preload: path.join(__dirname, 'preload.js')
     },
   });
 
-  // Kill the menu bar, Blexta-style
-  win.setMenuBarVisibility(false); // or win.removeMenu() if you wanna go nuclear
+  // Send config to preload
+  ipcMain.handle('get-config', () => config);
+
+  win.setMenuBarVisibility(false);
 
   if (isDev) {
     win.loadURL('http://localhost:8081');

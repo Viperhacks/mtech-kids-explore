@@ -13,7 +13,7 @@ const Terms = () => {
         <section className="mb-6">
           <h2 className="text-xl font-semibold mb-3">Agreement to Terms</h2>
           <p className="text-gray-700">
-            By accessing or using MTECH Kids Explore's educational platform, website, and services (collectively, the "Services"), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing our Services.
+            By accessing or using Mtech Academy's educational platform, website, and services (collectively, the "Services"), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing our Services.
           </p>
         </section>
         
@@ -34,7 +34,7 @@ const Terms = () => {
         <section className="mb-6">
           <h2 className="text-xl font-semibold mb-3">Intellectual Property</h2>
           <p className="text-gray-700">
-            The Services and all content, features, and functionality (including but not limited to text, graphics, videos, logos, and software) are owned by MTECH Kids Explore or its licensors and are protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, modify, create derivative works of, publicly display, or use any content from our Services without prior written consent.
+            The Services and all content, features, and functionality (including but not limited to text, graphics, videos, logos, and software) are owned by Mtech Academy or its licensors and are protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, modify, create derivative works of, publicly display, or use any content from our Services without prior written consent.
           </p>
         </section>
         

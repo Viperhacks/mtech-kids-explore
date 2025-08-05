@@ -32,6 +32,7 @@ import {
   GraduationCap,
   Files,
   UserX,
+  UserCheck,
 } from "lucide-react";
 import DefaultLoginInfo from "../DefaultLoginInfo";
 import CourseCreation from "../CourseCreation";
@@ -247,12 +248,6 @@ const AdminDashboard: React.FC = () => {
     { value: "content", label: "Content Management" },
   ];
 
-  const handleViewStudents = (teacherId: string) => {
-    // Navigate to the teacher's student management page
-    setSearchParams({ tab: "teachers", teacherId });
-    handleTabChange("teachers", "force");
-  };
-
   return (
     <div className="container mx-auto py-8 px-4 bg-gradient-to-br from-white via-[#f0f9ff] to-mtech-primary/5 min-h-screen">
       <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
@@ -451,14 +446,22 @@ const AdminDashboard: React.FC = () => {
                               </p>
                             </div>
                             <div className="flex gap-2 items-center">
-                              <Badge variant="outline">Active</Badge>
+                              <Badge
+                                variant="outline"
+                                className="flex items-center gap-1 text-green-600 border-green-600"
+                              >
+                                <UserCheck size={16} />
+                                Active
+                              </Badge>
                               <Button
                                 size="sm"
                                 variant="outline"
+                                className="flex items-center gap-1"
                                 onClick={() =>
                                   setSelectedTeacherId(Number(t.id))
                                 }
                               >
+                                <Users size={16} />
                                 View Students
                               </Button>
                             </div>

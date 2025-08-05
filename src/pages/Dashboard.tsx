@@ -14,7 +14,7 @@ const Dashboard: React.FC = () => {
   // Update document title based on active tab for all dashboard types
  useEffect(() => {
   if (!user) {
-    document.title = 'MTech Kidz Explore'; 
+    document.title = 'Mtech Academy'; 
     return;
   }
 
@@ -29,7 +29,9 @@ const Dashboard: React.FC = () => {
         content: 'Content Management'
       };
       const tabTitle = tabTitles[activeTab as keyof typeof tabTitles] || 'Dashboard';
-      document.title = `Admin Dashboard - ${tabTitle} | MTech Kidz Explore`;
+
+      document.title = `Admin Dashboard - ${tabTitle} | Mtech Academy`;
+
       break;
     }
     case 'TEACHER': {
@@ -40,7 +42,9 @@ const Dashboard: React.FC = () => {
         assignments: 'Assignments'
       };
       const tabTitle = tabTitles[activeTab as keyof typeof tabTitles] || 'Dashboard';
-      document.title = `Teacher Dashboard - ${tabTitle} | MTech Kidz Explore`;
+
+      document.title = `Teacher Dashboard - ${tabTitle} | Mtech Academy`;
+
       break;
     }
     case 'STUDENT': {
@@ -51,11 +55,13 @@ const Dashboard: React.FC = () => {
         achievements: 'Achievements'
       };
       const tabTitle = tabTitles[activeTab as keyof typeof tabTitles] || 'My Progress';
-      document.title = `Student Dashboard - ${tabTitle} | MTech Kidz Explore`;
+
+      document.title = `Student Dashboard - ${tabTitle} | Mtech Academy`;
+
       break;
     }
     default:
-      document.title = 'MTech Kidz Explore';
+      document.title = 'Mtech Academy';
   }
 }, [user, searchParams]);
 

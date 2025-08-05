@@ -30,7 +30,7 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-xl font-bold mb-4 text-mtech-accent drop-shadow-md">
 
-              MTECH Kids Explore
+              Mtech Academy
             </h3>
             <p
               className="text-white/80
@@ -121,15 +121,15 @@ const Footer: React.FC = () => {
 
         <div className="mt-10 pt-6 border-t border-gray-700">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400 text-center md:text-left">
-            <p>© 2017–{currentYear} MTECH Kids Explore. All rights reserved.</p>
+            <p>© 2017–{currentYear} Mtech Academy. All rights reserved.</p>
 
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <span>Powered by</span>
-                <div className="bg-white rounded-md p-1">
+                <div className="rounded-md p-1">
                   <img
                     src={mtechAcademyLogo}
-                    alt="MTECH Logo"
+                    alt="Mtech Logo"
                     className="h-10"
                   />
                 </div>

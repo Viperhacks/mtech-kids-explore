@@ -7,21 +7,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import {
-  getTeachers,
-  createAssignment,
   getTeachersForAssignment,
+  createAssignment,
 } from "@/services/apiService";
-import { getSubjectNameById, subjects } from "@/utils/subjectUtils";
+import { subjects } from "@/utils/subjectUtils";
 import { UserPlus, Loader2 } from "lucide-react";
 
 interface Teacher {
@@ -51,41 +44,52 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
 }) => {
   const { toast } = useToast();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [selectedTeacher, setSelectedTeacher] = useState<string>("");
-  const [selectedSubject, setSelectedSubject] = useState<string>("");
+  const [selectedTeacherIds, setSelectedTeacherIds] = useState<Set<number>>(
+    new Set()
+  );
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<Set<number>>(
+    new Set()
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingTeachers, setIsFetchingTeachers] = useState(false);
 
   useEffect(() => {
-    if (open) {
-      fetchTeachers();
-    }
+    if (open) fetchTeachers();
   }, [open]);
 
-  const fetchTeachers = async () => {
+  async function fetchTeachers() {
     setIsFetchingTeachers(true);
     try {
-      const response = await getTeachersForAssignment();
-      const teachersData = Array.isArray(response)
-        ? response
-        : response.content || [];
-      setTeachers(teachersData);
-    } catch (error) {
-      toast({
-        title: "Failed to load teachers",
-        description: "Could not load teacher data",
-        variant: "destructive",
-      });
+      const resp = await getTeachersForAssignment();
+      const list = Array.isArray(resp) ? resp : resp.content || [];
+      setTeachers(list);
+    } catch {
+      toast({ title: "Failed to load teachers", variant: "destructive" });
     } finally {
       setIsFetchingTeachers(false);
     }
+  }
+
+  const toggleTeacher = (id: number) => {
+    setSelectedTeacherIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+  const toggleSubject = (id: number) => {
+    setSelectedSubjectIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
   };
 
   const handleSubmit = async () => {
-    if (!selectedTeacher || !selectedSubject) {
+    if (!selectedTeacherIds.size || !selectedSubjectIds.size) {
       toast({
         title: "Validation Error",
-        description: "Please select both teacher and subject",
+        description: "Pick at least one teacher and one subject",
         variant: "destructive",
       });
       return;
@@ -93,31 +97,33 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
 
     setIsLoading(true);
 
-    const isAll = selectedSubject === "all";
-    const subjectId = isAll ? undefined : parseInt(selectedSubject);
-    const subjectName = isAll ? "all" : getSubjectNameById(subjectId);
-
     try {
-      await createAssignment(
-        parseInt(selectedTeacher),
-        parseInt(classroom.id),
-        subjectId,
-        subjectName
-      );
+      const isAllSubjects = selectedSubjectIds.has(0);
+      const subjectsToAssign = isAllSubjects
+        ? [0]
+        : Array.from(selectedSubjectIds);
 
-      toast({
-        title: "Assignment Created",
-        description: "Teacher has been assigned to classroom successfully",
-      });
+      for (let teacherId of selectedTeacherIds) {
+        for (let subjectId of subjectsToAssign) {
+          await createAssignment(
+            teacherId,
+            parseInt(classroom.id),
+            subjectId === 0 ? undefined : subjectId, // undefined or null means all subjects on backend
+            subjectId === 0
+              ? "all"
+              : subjects.find((s) => s.id === subjectId)?.name || ""
+          );
+        }
+      }
 
+      toast({ title: "Assignments Created" });
       onAssignmentCreated();
       onOpenChange(false);
-      setSelectedTeacher("");
-      setSelectedSubject("");
-    } catch (error) {
+      setSelectedTeacherIds(new Set());
+      setSelectedSubjectIds(new Set());
+    } catch {
       toast({
-        title: "Failed to create assignment",
-        description: "Could not assign teacher to classroom",
+        title: "Failed to create assignments",
         variant: "destructive",
       });
     } finally {
@@ -127,72 +133,98 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
-            Assign Teacher to {classroom.name}
+            Assign Teachers & Subjects to {classroom.name}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
-            <Label htmlFor="teacher">Select Teacher</Label>
+            <Label>Select Teachers</Label>
             {isFetchingTeachers ? (
               <div className="flex items-center gap-2 p-3 border rounded-md">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm text-muted-foreground">
-                  Loading teachers...
-                </span>
+                <span>Loading…</span>
               </div>
             ) : (
-              <Select
-                value={selectedTeacher}
-                onValueChange={setSelectedTeacher}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a teacher" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teachers.map((teacher) => (
-                    <SelectItem key={teacher.id} value={teacher.id.toString()}>
-                      {teacher.fullName} ({teacher.username})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="grid grid-cols-2 gap-2 max-h-40 overflow-auto p-2 border rounded">
+                {teachers.map((t) => (
+                  <div key={t.id} className="flex items-center">
+                    <Checkbox
+                      checked={selectedTeacherIds.has(t.id)}
+                      onCheckedChange={() => toggleTeacher(t.id)}
+                    />
+                    <span className="ml-2 text-sm">
+                      {t.fullName} ({t.username})
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
           <div>
-            <Label htmlFor="subject">Select Subject</Label>
-            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a subject" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Subjects</SelectItem>
-                {subjects.map((subject) => (
-                  <SelectItem key={subject.id} value={subject.id.toString()}>
-                    {subject.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Select Subjects</Label>
+            <div className="grid grid-cols-3 gap-2 max-h-40 overflow-auto p-2 border rounded">
+              <div className="flex items-center">
+                <Checkbox
+                  checked={selectedSubjectIds.has(0)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      // Select "All" => clear others
+                      setSelectedSubjectIds(new Set([0]));
+                    } else {
+                      // Uncheck "All"
+                      setSelectedSubjectIds((prev) => {
+                        const next = new Set(prev);
+                        next.delete(0);
+                        return next;
+                      });
+                    }
+                  }}
+                />
+                <span className="ml-2 text-sm">All Subjects</span>
+              </div>
+
+              {subjects.map((s) => (
+                <div key={s.id} className="flex items-center">
+                  <Checkbox
+                    checked={selectedSubjectIds.has(s.id)}
+                    onCheckedChange={(checked) => {
+                      setSelectedSubjectIds((prev) => {
+                        const next = new Set(prev);
+                        if (checked) {
+                          next.add(s.id);
+                          // Remove "All" if another subject selected
+                          next.delete(0);
+                        } else {
+                          next.delete(s.id);
+                        }
+                        return next;
+                      });
+                    }}
+                    disabled={selectedSubjectIds.has(0)} // disable if All selected
+                  />
+                  <span className="ml-2 text-sm">{s.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="p-3 bg-muted rounded-md">
-            <p className="text-sm text-muted-foreground">
-              <strong>Classroom:</strong> {classroom.name} (
+          <div className="p-3 bg-muted rounded">
+            <p>
+              <strong>Classroom:</strong> {classroom.name} —{" "}
               {classroom.gradeLevel === "0"
                 ? "ECD"
                 : `Grade ${classroom.gradeLevel}`}
-              )
             </p>
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex justify-end gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -200,10 +232,10 @@ const TeacherAssignmentModal: React.FC<TeacherAssignmentModalProps> = ({
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Assigning...
+                Assigning…
               </>
             ) : (
-              "Assign Teacher"
+              "Assign"
             )}
           </Button>
         </DialogFooter>

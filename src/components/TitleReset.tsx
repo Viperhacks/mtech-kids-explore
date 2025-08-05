@@ -8,7 +8,7 @@ const TitleReset = () => {
     const publicRoutes = ["/", "/about", "/contacts", "/faq", "/terms", "/privacy"];
     const isPublic = publicRoutes.includes(location.pathname);
     if (isPublic) {
-      document.title = "MTech Kidz Explore";
+      document.title = "Mtech Academy";
     }
   }, [location]);
 

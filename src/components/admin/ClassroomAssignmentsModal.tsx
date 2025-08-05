@@ -21,7 +21,6 @@ import {
   getClassroomAssignments,
   deleteAssignment,
 } from "@/services/apiService";
-import { getSubjectById, getSubjectByName } from "@/utils/subjectUtils";
 import { Users, Trash2, AlertTriangle } from "lucide-react";
 
 interface Assignment {
@@ -57,52 +56,32 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (open && classroom.id) {
-      fetchAssignments();
-    }
-  }, [open, classroom.id]);
+    if (open) fetchAssignments();
+  }, [open]);
 
   const fetchAssignments = async () => {
     setIsLoading(true);
     try {
-      const response = await getClassroomAssignments(classroom.id);
-      const assignmentsData = Array.isArray(response)
-        ? response
-        : response.content || [];
-      console.log("asssignment data", assignmentsData);
-      setAssignments(assignmentsData);
-    } catch (error) {
-      toast({
-        title: "Failed to load assignments",
-        description: "Could not load classroom assignments",
-        variant: "destructive",
-      });
+      const resp = await getClassroomAssignments(classroom.id);
+      const list = Array.isArray(resp) ? resp : resp.content || [];
+      setAssignments(list);
+    } catch (err) {
+      toast({ title: "Failed to load", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDeleteAssignment = async (assignmentId: string) => {
-    if (!confirm("Are you sure you want to remove this teacher assignment?")) {
-      return;
-    }
-
-    setDeletingId(assignmentId);
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Remove ${name}?`)) return;
+    setDeletingId(id);
     try {
-      await deleteAssignment(assignmentId);
-      toast({
-        title: "Assignment Removed",
-        description: "Teacher assignment has been removed successfully",
-      });
-
+      await deleteAssignment(id);
+      toast({ title: "Removed" });
       onAssignmentDeleted();
       fetchAssignments();
-    } catch (error) {
-      toast({
-        title: "Failed to remove assignment",
-        description: "Could not remove teacher assignment",
-        variant: "destructive",
-      });
+    } catch {
+      toast({ title: "Delete failed", variant: "destructive" });
     } finally {
       setDeletingId(null);
     }
@@ -110,11 +89,11 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Teacher Assignments - {classroom.name}
+            {`Assignments for ${classroom.name}`}
           </DialogTitle>
         </DialogHeader>
 
@@ -135,41 +114,29 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
-          ) : assignments.length > 0 ? (
+          ) : assignments.length ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Teacher Name</TableHead>
+                  <TableHead>Teacher</TableHead>
                   <TableHead>Subject</TableHead>
                   <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {assignments.map((assignment) => (
-                  <TableRow key={assignment.id}>
-                    <TableCell className="font-medium">
-                      {assignment.teacherName}
-                    </TableCell>
-                    <TableCell>
-                      {assignment.subjectName === "All Subjects"
-                        ? "All Subjects"
-                        : getSubjectByName(assignment.subjectName)?.name ||
-                          assignment.subjectName}
-                    </TableCell>
-
+                {assignments.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell>{a.teacherName}</TableCell>
+                    <TableCell>{a.subjectName}</TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteAssignment(assignment.id)}
-                        disabled={deletingId === assignment.id}
-                        className="text-destructive hover:text-destructive"
+                        disabled={deletingId === a.id}
+                        onClick={() => handleDelete(a.id, a.subjectName)}
+                        className="text-red-600 hover:text-red-800"
                       >
-                        {deletingId === assignment.id ? (
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-destructive border-t-transparent" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -180,8 +147,7 @@ const ClassroomAssignmentsModal: React.FC<ClassroomAssignmentsModalProps> = ({
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                No teachers are currently assigned to this classroom. Use the
-                "Assign Teacher" button to add assignments.
+                No assignments yet. Use “Assign Teacher” to add one.
               </AlertDescription>
             </Alert>
           )}

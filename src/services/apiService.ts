@@ -193,7 +193,10 @@ export const getQuizQuestions = async (quizId: string) => {
 
 export const deleteQuiz = async (quizId: string) => {
   try {
-    await api.delete(`/quiz/${quizId}`);
+
+    const response = await adminService.getAllUsers(page, limit, filters);
+    return response; 
+
   } catch (error) {
     console.error("Failed to delete quiz", error);
     throw error;
@@ -206,10 +209,60 @@ export const submitQuizAttempt = async (
   totalQuestions: number
 ) => {
   try {
-    const response = await api.post(`/quiz/${quizId}/submit`, {
-      correctAnswers,
-      totalQuestions,
-    });
+    const response = await adminService.getStudentsCreatedByTeacher(teacherId, page, limit);
+    return response; 
+  } catch (error) {
+    console.error('Get students created by teacher error:', error);
+    throw error;
+  }
+};
+
+
+// userService.ts (shared by admin and teacher)
+export const updateUserDetails = async (userId: string, updatedData: any) => {
+  try {
+    const response = await api.put(`/users/${userId}`, updatedData);
+    return response.data;
+  } catch (error) {
+    console.error('Update user details error:', error);
+    throw error;
+  }
+};
+
+
+export const getAllStudents = async (): Promise<any> => {
+  try {
+    const response = await api.get('/teacher/students');
+    return response; // Response is already unwrapped by axios interceptor
+  } catch (error) {
+    console.error('Get all students error:', error);
+    throw error;
+  }
+};
+
+export const getTotalStats = async()=>{
+  try {
+    const response = await adminService.getTotalStats();
+    return response.data;
+  } catch (error) {
+     console.error('Get total stats error:', error);
+    throw error;
+  }
+}
+
+export const getTeacherSubjects = async () => {
+  try {
+    const response = await teacherService.getTeacherSubjects();
+    return response;
+  } catch (error) {
+    console.error('Get teacher subjects error:', error);
+    throw error;
+  }
+};
+
+export const getResourceStats = async () => {
+  try {
+    const response = await adminService.getResourceStats();
     return response.data;
   } catch (error) {
     console.error("Failed to submit quiz attempt", error);

@@ -89,7 +89,7 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [completedQuiz, setCompletedQuizIds] = useState("");
-  const { refreshCompletions } = useCompletion();
+  const { refreshCompletions, isResourceCompleted } = useCompletion();
 
   const userGrade = user?.grade || user?.gradeLevel || "1";
 
@@ -158,26 +158,29 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
   };
 
 
-  const filterQuizzes = () => {
-    let filtered = quizzes.filter((quiz) => {
-      const matchesSearch =
-        quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesSubject =
-        subjectFilter === "all" || quiz.subject === subjectFilter;
+ const filterQuizzes = () => {
+  let filtered = quizzes.filter((quiz) => {
+    const matchesSearch =
+      quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-      let matchesStatus = true;
-      if (statusFilter === "completed") {
-        matchesStatus = completedQuizIds.includes(quiz.quizId);
-      } else if (statusFilter === "not-started") {
-        matchesStatus = !completedQuizIds.includes(quiz.quizId);
-      }
 
-      return matchesSearch && matchesSubject && matchesStatus;
-    });
+    const matchesSubject =
+      subjectFilter === "all" || quiz.subject === subjectFilter;
 
-    setFilteredQuizzes(filtered);
-  };
+    let matchesStatus = true;
+    if (statusFilter === "completed") {
+      matchesStatus = isResourceCompleted(quiz.quizId);
+    } else if (statusFilter === "not-started") {
+      matchesStatus = !isResourceCompleted(quiz.quizId);
+    }
+
+    return matchesSearch && matchesSubject && matchesStatus;
+  });
+
+  setFilteredQuizzes(filtered);
+};
+
 
   const getUniqueSubjects = () => {
     return Array.from(new Set(quizzes.map((quiz) => quiz.subject)));
@@ -422,6 +425,9 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
     return <LoadingQuizzes />;
   }
 
+  const completedCount = quizzes.filter((quiz) => isResourceCompleted(quiz.quizId)).length;
+
+
   return (
     <div className="space-y-6 container mb-4">
       <div>
@@ -434,7 +440,7 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
               <Trophy className="h-4 w-4 text-yellow-600" />
-              <span>Completed: {completedQuizIds.length}</span>
+              <span>Completed: {completedCount}</span>
             </div>
             <div className="flex items-center gap-2">
               <BookOpen className="h-4 w-4 text-blue-600" />
@@ -505,11 +511,12 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
             >
               <CardHeader>
                 <div className="flex justify-between items-start">
-                  {completedQuizIds.includes(quiz.quizId) && (
+                  {isResourceCompleted(quiz.quizId) && (
                     <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full z-10">
                       <CheckCircle className="h-4 w-4" />
                     </div>
                   )}
+
                   <CardTitle className="text-lg">
                     {capitalize(quiz.title)}{" "}
                   </CardTitle>
@@ -529,7 +536,7 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
                   </Badge>
                 </div>
 
-                {quiz.questions && quiz.questions.length > 0 ? (
+                {Array.isArray(quiz.questions) && quiz.questions.length > 0 ? (
                   completedQuizIds.includes(quiz.quizId) ? (
                     <Button
                       variant="destructive"

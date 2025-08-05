@@ -13,6 +13,7 @@ import useSubjectQuizStats from "@/hooks/useSubjectQuizStats";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { getAllQuizzes } from "@/services/apiService";
 
 interface ResourceStats {
   total: number;
@@ -49,18 +50,56 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
 
   const getRecommendedGrade = () => user?.grade || user?.gradeLevel || "1";
 
-  const handleClickTab = (tab: "videos" | "documents" | "quizzes") => {
+  const slugify = (str: string) =>
+    str
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+
+  const handleClickTab = async (tab: "videos" | "documents" | "quizzes") => {
     if (tab === "quizzes") {
-      // Navigate with quiz context for automatic selection
-      navigate(
-        `/grade/grade${getRecommendedGrade()}/subject/${subject}?tab=quizzes&quiz=${subject}`
-      );
+      try {
+        const resp = await getAllQuizzes();
+        const allQuizzes = resp.data;
+        const grade = getRecommendedGrade();
+
+        const matchedQuizzes = allQuizzes.filter(
+          (q: any) =>
+            q.grade === grade &&
+            q.subject.toLowerCase() === subject.toLowerCase()
+        );
+
+        const firstQuiz = matchedQuizzes[0];
+        const quizSlug = firstQuiz ? slugify(firstQuiz.title) : "";
+
+        const baseUrl = `/grade/grade${grade}/subject/${subject}?tab=quizzes`;
+        const url = quizSlug ? `${baseUrl}&quiz=${quizSlug}` : baseUrl;
+
+        navigate(url);
+      } catch (e) {
+        console.error("Failed to fetch quizzes for navigation", e);
+        // fallback navigation
+        navigate(
+          `/grade/grade${getRecommendedGrade()}/subject/${subject}?tab=quizzes`
+        );
+      }
+
     } else {
       navigate(
         `/grade/grade${getRecommendedGrade()}/subject/${subject}?tab=${tab}`
       );
     }
   };
+
+
+  const navigateToSubjectQuizzes = () => {
+  const baseUrl = `/grade/grade${getRecommendedGrade()}/subject/${subject}`;
+  
+  
+  const url = `${baseUrl}?tab=quizzes&subjectFilter=${encodeURIComponent(subject)}`;
+  
+  navigate(url);
+};
 
 
 
@@ -74,7 +113,7 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
           {capitalize(subject)}
         </CardTitle>
         <CardDescription>
-           {grade === "0" ? "ECD" : `Grade ${grade}`} {capitalize(subject)}
+          {grade === "0" ? "ECD" : `Grade ${grade}`} {capitalize(subject)}
         </CardDescription>
       </CardHeader>
 
@@ -112,7 +151,7 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
 
             <div
               className="text-center p-2 bg-amber-50 rounded-md cursor-pointer hover:bg-blue-100 transition"
-              onClick={() => handleClickTab("quizzes")}
+              onClick={navigateToSubjectQuizzes}
             >
               <Award className="h-4 w-4 mx-auto mb-1 text-amber-600" />
               <p className="text-xs font-medium">

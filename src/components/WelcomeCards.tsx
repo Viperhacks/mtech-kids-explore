@@ -20,7 +20,7 @@ const WelcomeCards: React.FC = () => {
   const cards = [
     {
       id: 1,
-      title: 'Welcome to MTECH Kids Explore',
+      title: 'Welcome to Mtech Academy',
       description: 'An interactive learning platform designed to make education fun and engaging for primary school students. Discover exciting ways to learn new subjects.',
       icon: BookOpen,
       link: '/about',

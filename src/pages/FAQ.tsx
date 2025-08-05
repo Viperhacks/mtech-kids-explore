@@ -21,13 +21,13 @@ const FAQ = () => {
           {[
             {
               value: 'item-1',
-              question: 'How do I get started with MTECH Kids Explore?',
+              question: 'How do I get started with Mtech Academy?',
               answer:
                 "Create an account, pick your grade, and dive into interactive, fun lessons right away.",
             },
             {
               value: 'item-2',
-              question: 'What subjects does MTECH Kids Explore cover?',
+              question: 'What subjects does Mtech Academy cover?',
               answer:
                 'Core subjects like Maths, English, Science, and Social Studies. All aligned with national standards.',
             },
