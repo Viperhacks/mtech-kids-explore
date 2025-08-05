@@ -232,6 +232,15 @@ const AdminDashboard: React.FC = () => {
     handleTabChange(action, "force");
   };
 
+  const handleEditUser = (user: any) => {
+    setEditingUser(user);
+  };
+
+  const handleUserEditSuccess = () => {
+    fetchUsers();
+    fetchTeachers(currentPage);
+  };
+
   const adminTabs = [
     { value: "users", label: "User Management" },
     { value: "teachers", label: "Teacher Management" },
@@ -280,6 +289,7 @@ const AdminDashboard: React.FC = () => {
                     <TableHead>Username</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Joined</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -301,6 +311,15 @@ const AdminDashboard: React.FC = () => {
                         </span>
                       </TableCell>
                       <TableCell>{user.date}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditUser(user)}
+                        >
+                          Edit
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -492,6 +511,14 @@ const AdminDashboard: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <UserEditModal
+        user={editingUser}
+        open={!!editingUser}
+        onClose={() => setEditingUser(null)}
+        onSuccess={handleUserEditSuccess}
+        canEditRole={true}
+      />
     </div>
   );
 };

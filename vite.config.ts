@@ -1,9 +1,11 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 export default defineConfig(async ({ mode }) => {
   const plugins = [react()];
+
 
   if (mode === "development") {
     // Dynamically import ESM-only module to avoid require errors
@@ -25,6 +27,7 @@ export default defineConfig(async ({ mode }) => {
     },
     optimizeDeps:{
       exclude: ["electron", "fs", "path"],
+
     },
     build: {
       rollupOptions: {

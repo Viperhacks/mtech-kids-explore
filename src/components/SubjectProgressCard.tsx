@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Card,
@@ -82,12 +83,14 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
           `/grade/grade${getRecommendedGrade()}/subject/${subject}?tab=quizzes`
         );
       }
+
     } else {
       navigate(
         `/grade/grade${getRecommendedGrade()}/subject/${subject}?tab=${tab}`
       );
     }
   };
+
 
   const navigateToSubjectQuizzes = () => {
   const baseUrl = `/grade/grade${getRecommendedGrade()}/subject/${subject}`;
@@ -97,6 +100,7 @@ const SubjectProgressCard: React.FC<Props> = ({ subject, stats, grade }) => {
   
   navigate(url);
 };
+
 
 
   return (

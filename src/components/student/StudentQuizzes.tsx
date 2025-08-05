@@ -37,6 +37,7 @@ import {
   submitQuizAttempt,
 } from "@/services/apiService";
 import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 import LoadingQuizzes from "../LoadingQuizzes";
 
@@ -63,13 +64,20 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-  const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
+  const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[]>([]);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+  const [quizResult, setQuizResult] = useState<any>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
   const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
   const [showQuizDialog, setShowQuizDialog] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | number>>({});
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
@@ -91,12 +99,13 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
       .map((item: any) => item.resourceId) || [];
 
   useEffect(() => {
-    fetchAvailableQuizzes();
+    fetchQuizzes();
   }, []);
 
   useEffect(() => {
     const handleAutoOpenQuiz = (event: CustomEvent) => {
       const quiz = event.detail.quiz;
+ 
       if (onQuizOpen) {
         onQuizOpen(quiz);
       }
@@ -120,12 +129,13 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
     }
   }, [autoStartQuiz]);
 
+
   // Add the missing useEffect for filtering
   useEffect(() => {
     filterQuizzes();
   }, [quizzes, searchTerm, subjectFilter, statusFilter]);
 
-  const fetchAvailableQuizzes = async () => {
+  const fetchQuizzes = async () => {
     setIsLoading(true);
     try {
       const response = await getAllQuizzes();
@@ -134,8 +144,6 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
       const studentQuizzes = response.data.filter(
         (quiz: Quiz) => quiz.grade === userGrade
       );
-
-      const shuffle = shuffleArray(studentQuizzes) as Quiz[];
 
       setQuizzes(studentQuizzes);
     } catch (error) {
@@ -149,11 +157,13 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
     }
   };
 
+
  const filterQuizzes = () => {
   let filtered = quizzes.filter((quiz) => {
     const matchesSearch =
       quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
+
 
     const matchesSubject =
       subjectFilter === "all" || quiz.subject === subjectFilter;
@@ -182,17 +192,22 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
       const shuffledQuestions = shuffleQuestions(response.data);
       setQuizQuestions(shuffledQuestions);
 
+
       setSelectedQuiz(quiz);
-      setCurrentQuestionIndex(0);
+      setShowQuizDialog(true);
       setAnswers({});
+      setCurrentQuestionIndex(0);
       setQuizCompleted(false);
+
       setShowQuizDialog(true);
 
       if (!autoStartQuiz && onQuizOpen) {
         onQuizOpen(quiz);
       }
     } catch (error) {
+
       toast({
+
         title: "Failed to start quiz",
         description: "Please try again",
         variant: "destructive",
@@ -310,24 +325,21 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
         title: "Quiz submission failed",
         description: friendlyMsg,
         variant: "destructive",
+
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const closeQuiz = () => {
-    setShowQuizDialog(false);
-    setSelectedQuiz(null);
-    setQuizQuestions([]);
-    setQuizCompleted(false);
-    setScore(0);
-    setAnswers({});
-    setCurrentQuestionIndex(0);
-    setShowReview(false);
-    setAnsweredQues({});
+  const handleGoBack = () => {
+    navigate(-1);
   };
 
+  const handleStartQuiz = (quiz: any) => {
+    setSelectedQuiz(quiz);
+    setShowConfirmation(true);
+  };
   const currentQuestion = quizQuestions[currentQuestionIndex];
   const type = currentQuestion?.type;
 
@@ -407,6 +419,7 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
         return <div className="text-red-500">Unsupported question type</div>;
     }
   };
+
 
   if (isLoading) {
     return <LoadingQuizzes />;
@@ -570,10 +583,12 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
                     </div>
                   </>
                 )}
+
               </CardContent>
             </Card>
           ))}
         </div>
+
       )}
 
       <Dialog
@@ -718,6 +733,7 @@ const StudentQuizzes: React.FC<StudentQuizzesProps> = ({
               )}
             </>
           )}
+
         </DialogContent>
       </Dialog>
     </div>

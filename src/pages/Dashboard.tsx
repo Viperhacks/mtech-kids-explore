@@ -29,7 +29,9 @@ const Dashboard: React.FC = () => {
         content: 'Content Management'
       };
       const tabTitle = tabTitles[activeTab as keyof typeof tabTitles] || 'Dashboard';
+
       document.title = `Admin Dashboard - ${tabTitle} | Mtech Academy`;
+
       break;
     }
     case 'TEACHER': {
@@ -40,7 +42,9 @@ const Dashboard: React.FC = () => {
         assignments: 'Assignments'
       };
       const tabTitle = tabTitles[activeTab as keyof typeof tabTitles] || 'Dashboard';
+
       document.title = `Teacher Dashboard - ${tabTitle} | Mtech Academy`;
+
       break;
     }
     case 'STUDENT': {
@@ -51,7 +55,9 @@ const Dashboard: React.FC = () => {
         achievements: 'Achievements'
       };
       const tabTitle = tabTitles[activeTab as keyof typeof tabTitles] || 'My Progress';
+
       document.title = `Student Dashboard - ${tabTitle} | Mtech Academy`;
+
       break;
     }
     default:
