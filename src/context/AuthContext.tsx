@@ -1,12 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/lib/api";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 import { getCompletedResources } from "@/services/apiService";
 
-// Set base URL for API requests
-axios.defaults.baseURL = "http://localhost:8080";
 
 interface User {
   id?: string;
@@ -61,13 +58,6 @@ interface AuthContextType {
     email: string,
     picture: string
   ) => Promise<void>;
-  updateUserProfile: (userData: any) => Promise<void>;
-  trackActivity: (activity: any) => void;
-  updateUserProgress: (
-    subjectId: string,
-    completed: number,
-    total: number
-  ) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -88,6 +78,37 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const [config, setConfig] = useState<any>(null);
+
+  const fetchConfig = async () => {
+  if (window.electron) {
+    const config = await window.electron.getConfig();
+    setConfig(config);
+  }
+};
+
+React.useEffect(() => {
+  fetchConfig();
+}, []);
+
+
+/*const [apiClient, setApiClient] = React.useState<AxiosInstance | null>(null);
+
+React.useEffect(() => {
+  if (config?.apiBaseUrl) {
+    const instance = axios.create({
+      baseURL: config.apiBaseUrl,
+    });
+    setApiClient(instance);
+  }
+}, [config]);*/
+
+const apiClient = React.useMemo(() => {
+  if (!config?.apiBaseUrl) return null;
+  return axios.create({ baseURL: config.apiBaseUrl });
+}, [config]);
+
+
 
   useEffect(() => {
     const checkAuth = () => {
@@ -121,9 +142,12 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const login = async (username: string, password: string) => {
+     if (!apiClient) {
+    throw new Error("API client not initialized yet");
+  }
     try {
       setIsLoading(true);
-      const response = await axios.post("/api/auth/login", {
+      const response = await apiClient!.post("/auth/login", {
         username,
         password,
       });
@@ -412,100 +436,7 @@ try {
     }
   };
 
-  const updateUserProfile = async (userData: any) => {
-    // Mock implementation - would be connected to a real API
-    try {
-      setIsLoading(true);
-
-      // Update the user state with new data
-      if (user) {
-        const updatedUser = {
-          ...user,
-          ...userData,
-          name: userData.name || user.name,
-          fullName: userData.name || user.fullName,
-          grade: userData.grade || user.grade,
-          gradeLevel: userData.grade || user.gradeLevel,
-          school: userData.school || user.school,
-        };
-
-        setUser(updatedUser);
-        localStorage.setItem("user_data", JSON.stringify(updatedUser));
-
-        toast({
-          title: "Profile Updated",
-          description: "Your profile has been successfully updated",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Update Failed",
-        description: "Could not update your profile",
-        variant: "destructive",
-      });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const trackActivity = (activity: any) => {
-    // Mock implementation - would be connected to a real API
-    console.log("Activity tracked:", activity);
-  };
-
-  const updateUserProgress = (
-    subjectId: string,
-    completed?: number,
-    total?: number,
-    videoId?: string
-  ) => {
-    if (user) {
-      const updatedUser = { ...user };
-
-      if (!updatedUser.progress) {
-        updatedUser.progress = {};
-      }
-
-      if (!updatedUser.progress[subjectId]) {
-        updatedUser.progress[subjectId] = {
-          completed: 0,
-          total: total || 0,
-          watched: 0,
-        };
-      }
-
-      // If marking a specific video as completed
-      if (videoId) {
-        if (!updatedUser.completedVideos) {
-          updatedUser.completedVideos = {};
-        }
-
-        if (!updatedUser.completedVideos[subjectId]) {
-          updatedUser.completedVideos[subjectId] = [];
-        }
-
-        // Only add if not already completed
-        if (!updatedUser.completedVideos[subjectId].includes(videoId)) {
-          updatedUser.completedVideos[subjectId].push(videoId);
-          updatedUser.progress[subjectId].completed =
-            updatedUser.completedVideos[subjectId].length;
-        }
-      }
-      // For direct progress updates
-      else if (completed !== undefined && total !== undefined) {
-        updatedUser.progress[subjectId] = { completed, total, watched: 0 };
-      }
-
-      // Ensure total is up to date
-      if (total !== undefined) {
-        updatedUser.progress[subjectId].total = total;
-      }
-
-      setUser(updatedUser);
-      localStorage.setItem("user_data", JSON.stringify(updatedUser));
-    }
-  };
+  
 
   const logout = () => {
     setUser(null);
@@ -531,10 +462,7 @@ try {
     forgotPassword,
     resetPassword,
     refreshTokens,
-    googleLogin,
-    updateUserProfile,
-    trackActivity,
-    updateUserProgress,
+    googleLogin
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

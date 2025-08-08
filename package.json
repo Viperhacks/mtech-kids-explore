@@ -30,8 +30,9 @@
   },
   "win": {
     "target": [
-      "portable"
+      "nsis"
     ],
+    
     "icon": "mtech.ico"
   },
   "nsis": {

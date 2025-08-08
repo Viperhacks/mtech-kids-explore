@@ -21,15 +21,17 @@ export default defineConfig(async ({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
+        fs: "/@empty",
+        path: "/@empty",
       },
     },
-    optimizeDeps:{
+    optimizeDeps: {
       exclude: ["electron", "fs", "path"],
     },
     build: {
       rollupOptions: {
-        external: ['fs', 'path', 'electron'],  // exclude Node built-ins from bundling
-      }
-    }
+        external: ["fs", "path", "electron"], // exclude Node built-ins from bundling
+      },
+    },
   };
 });
