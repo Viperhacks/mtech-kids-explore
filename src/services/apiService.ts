@@ -1,307 +1,304 @@
-import axios from "axios";
-import { toast } from "sonner";
+import { getToken } from '@/lib/token';
 
-const api = axios.create({
-  baseURL: "http://localhost:8080",
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    console.error("API Error:", error);
-    toast.error(
-      error.response?.data?.message || "An unexpected error occurred."
-    );
-    return Promise.reject(error);
-  }
-);
-
-export const uploadResource = async (
-  file: File,
-  type: string,
-  grade: string,
-  subject: string,
-  title: string,
-  description: string,
-  teacher: string,
-  hasQuiz: boolean,
-  standaAlone: boolean
-) => {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("type", type);
-  formData.append("grade", grade);
-  formData.append("subject", subject);
-  formData.append("title", title);
-  formData.append("description", description);
-  formData.append("teacher", teacher);
-  formData.append("hasQuiz", String(hasQuiz));
-  formData.append("standaAlone", String(standaAlone));
-
-  try {
-    const response = await api.post("/resource/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Upload failed", error);
-    throw error;
-  }
+export const fetchGrades = async () => {
+  const response = await fetch(`${API_BASE_URL}/grades`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const updateResource = async (
-  id: string,
-  type: string,
-  grade: string,
-  subject: string,
-  title: string,
-  description: string,
-  teacher: string,
-  hasQuiz: boolean,
-  standaAlone: boolean
-) => {
-  try {
-    const response = await api.put(`/resource/${id}`, {
-      type,
-      grade,
-      subject,
-      title,
-      description,
-      teacher,
-      hasQuiz,
-      standaAlone,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Update failed", error);
-    throw error;
-  }
+export const fetchSubjectsByGrade = async (gradeId: number) => {
+  const response = await fetch(`${API_BASE_URL}/grades/${gradeId}/subjects`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const getResources = async (grade: string, subject: string) => {
-  try {
-    const response = await api.get(`/resource/${grade}/${subject}`);
-    return response.data;
-  } catch (error) {
-    console.error("Fetch failed", error);
-    throw error;
-  }
-};
-export const getResourcesForAnyOne = async (grade: string, subject: string) => {
-  try {
-    const response = await api.get(`/resource/anyone/${grade}/${subject}`);
-    return response.data;
-  } catch (error) {
-    console.error("Fetch failed", error);
-    throw error;
-  }
+export const fetchResourcesBySubject = async (gradeId: number, subjectId: number) => {
+  const response = await fetch(`${API_BASE_URL}/grades/${gradeId}/subjects/${subjectId}/resources`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const deleteResource = async (id: string) => {
-  try {
-    await api.delete(`/resource/${id}`);
-  } catch (error) {
-    console.error("Delete failed", error);
-    throw error;
-  }
+export const fetchResourceDetails = async (resourceId: number) => {
+  const response = await fetch(`${API_BASE_URL}/resources/${resourceId}`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const createQuiz = async (
-  title: string,
-  description: string,
-  grade: string,
-  subject: string,
-  teacherName: string,
-  questions: any[],
-  resourceId: string | null,
-  standaAlone: boolean
-) => {
-  try {
-    const response = await api.post("/quiz/create", {
-      title,
-      description,
-      grade,
-      subject,
-      teacherName,
-      questions,
-      resourceId,
-      standaAlone,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Quiz creation failed", error);
-    throw error;
-  }
+export const updateResourceCompletion = async (resourceId: number, completionStatus: boolean) => {
+  const response = await fetch(`${API_BASE_URL}/resources/${resourceId}/completion`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getToken()}`
+    },
+    body: JSON.stringify({ completed: completionStatus })
+  });
+  return response.json();
 };
 
-export const updateQuiz = async (
-  quizId: string,
-  title: string,
-  description: string,
-  grade: string,
-  subject: string,
-  teacherName: string,
-  questions: any[],
-  resourceId: string | null,
-  standaAlone: boolean
-) => {
-  try {
-    const response = await api.put(`/quiz/${quizId}`, {
-      title,
-      description,
-      grade,
-      subject,
-      teacherName,
-      questions,
-      resourceId,
-      standaAlone,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Quiz update failed", error);
-    throw error;
-  }
+export const fetchUser = async () => {
+  const response = await fetch(`${API_BASE_URL}/users/me`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const getAllQuizzes = async () => {
-  try {
-    const response = await api.get('/quiz/all');
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch all quizzes:', error);
-    throw error;
-  }
+export const uploadQuestions = async (questions: any[]) => {
+  const response = await fetch(`${API_BASE_URL}/questions/upload`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getToken()}`
+    },
+    body: JSON.stringify({ questions })
+  });
+  return response.json();
 };
 
-export const getQuizQuestions = async (quizId: string) => {
-  try {
-    const response = await api.get(`/quiz/${quizId}`);
-    return response.data;
-  } catch (error) {
-    console.error("Failed to fetch quiz questions", error);
-    throw error;
-  }
+export const getQuizAttempts = async (quizId: number) => {
+  const response = await fetch(`${API_BASE_URL}/quiz/${quizId}/attempts`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const deleteQuiz = async (quizId: string) => {
-  try {
-
-    const response = await adminService.getAllUsers(page, limit, filters);
-    return response; 
-
-  } catch (error) {
-    console.error("Failed to delete quiz", error);
-    throw error;
-  }
+export const getResourcesForQuiz = async () => {
+  const response = await fetch(`${API_BASE_URL}/resources/for-quiz`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const submitQuizAttempt = async (
-  quizId: string,
-  correctAnswers: number,
-  totalQuestions: number
-) => {
-  try {
-    const response = await adminService.getStudentsCreatedByTeacher(teacherId, page, limit);
-    return response; 
-  } catch (error) {
-    console.error('Get students created by teacher error:', error);
-    throw error;
-  }
+export const deleteQuestion = async (questionId: number) => {
+  const response = await fetch(`${API_BASE_URL}/questions/${questionId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-
-// userService.ts (shared by admin and teacher)
-export const updateUserDetails = async (userId: string, updatedData: any) => {
-  try {
-    const response = await api.put(`/users/${userId}`, updatedData);
-    return response.data;
-  } catch (error) {
-    console.error('Update user details error:', error);
-    throw error;
-  }
+export const startQuiz = async (quizId: number) => {
+  const response = await fetch(`${API_BASE_URL}/quiz/${quizId}/start`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-
-export const getAllStudents = async (): Promise<any> => {
-  try {
-    const response = await api.get('/teacher/students');
-    return response; // Response is already unwrapped by axios interceptor
-  } catch (error) {
-    console.error('Get all students error:', error);
-    throw error;
-  }
+export const getStudentAttempts = async (studentId: number) => {
+  const response = await fetch(`${API_BASE_URL}/students/${studentId}/attempts`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const getTotalStats = async()=>{
-  try {
-    const response = await adminService.getTotalStats();
-    return response.data;
-  } catch (error) {
-     console.error('Get total stats error:', error);
-    throw error;
-  }
-}
-
-export const getTeacherSubjects = async () => {
-  try {
-    const response = await teacherService.getTeacherSubjects();
-    return response;
-  } catch (error) {
-    console.error('Get teacher subjects error:', error);
-    throw error;
-  }
+export const getAllQuizzesAdmin = async () => {
+  const response = await fetch(`${API_BASE_URL}/admin/quizzes`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const getResourceStats = async () => {
-  try {
-    const response = await adminService.getResourceStats();
-    return response.data;
-  } catch (error) {
-    console.error("Failed to submit quiz attempt", error);
-    throw error;
-  }
+export const deleteQuizAdmin = async (quizId: number) => {
+  const response = await fetch(`${API_BASE_URL}/admin/quiz/${quizId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const updateUser = async (userId: string, userData: any) => {
-  try {
-    const response = await api.put(`/user/${userId}`, userData);
-    return response.data;
-  } catch (error) {
-    console.error("User update failed", error);
-    throw error;
-  }
+export const getAdminResources = async () => {
+  const response = await fetch(`${API_BASE_URL}/admin/resources`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const getCompletedResources = async () => {
-  try {
-    const response = await api.get(`/completions`);
-    return response.data;
-  } catch (error) {
-    console.error("Failed to fetch completed resources", error);
-    throw error;
-  }
+export const deleteResourceAdmin = async (resourceId: number) => {
+  const response = await fetch(`${API_BASE_URL}/admin/resource/${resourceId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
 
-export const markResourceCompleted = async (
-  resourceId: number,
-  resourceType: string
-) => {
-  try {
-    const response = await api.post(`/completions/markComplete`, {
-      resourceId,
-      resourceType,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Failed to mark resource as complete", error);
-    throw error;
-  }
+export const getAllAttemptsAdmin = async () => {
+  const response = await fetch(`${API_BASE_URL}/admin/attempts`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
+};
+
+export const getClassroomAssignments = async () => {
+  const response = await fetch(`${API_BASE_URL}/classroom/assignments`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
+};
+
+export const deleteAssignment = async (assignmentId: number) => {
+  const response = await fetch(`${API_BASE_URL}/assignments/${assignmentId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
+};
+
+export const getClassrooms = async () => {
+  const response = await fetch(`${API_BASE_URL}/classrooms`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
+};
+
+export const createClassroom = async (classroomData: any) => {
+  const response = await fetch(`${API_BASE_URL}/classrooms`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getToken()}`
+    },
+    body: JSON.stringify(classroomData)
+  });
+  return response.json();
+};
+
+export const updateClassroom = async (classroomId: number, classroomData: any) => {
+  const response = await fetch(`${API_BASE_URL}/classrooms/${classroomId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getToken()}`
+    },
+    body: JSON.stringify(classroomData)
+  });
+  return response.json();
+};
+
+export const deleteClassroom = async (classroomId: number) => {
+  const response = await fetch(`${API_BASE_URL}/classrooms/${classroomId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
+};
+
+export const getTeachersForAssignment = async () => {
+  const response = await fetch(`${API_BASE_URL}/teachers/for-assignment`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
+};
+
+export const createAssignment = async (assignmentData: any) => {
+  const response = await fetch(`${API_BASE_URL}/assignments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getToken()}`
+    },
+    body: JSON.stringify(assignmentData)
+  });
+  return response.json();
+};
+
+export const getStudentsCreatedByTeacher = async (teacherId: number) => {
+  const response = await fetch(`${API_BASE_URL}/teachers/${teacherId}/students`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
+};
+
+export const deleteUser = async (userId: number) => {
+  const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
+};
+
+export const getAllUsers = async () => {
+  const response = await fetch(`${API_BASE_URL}/users`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
+};
+
+export const getTeachers = async () => {
+  const response = await fetch(`${API_BASE_URL}/teachers`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
+};
+
+export const getActiveUsers = async () => {
+  const response = await fetch(`${API_BASE_URL}/users/active`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
+};
+
+export const getUsageMetrics = async () => {
+  const response = await fetch(`${API_BASE_URL}/metrics/usage`, {
+    headers: {
+      'Authorization': `Bearer ${getToken()}`
+    }
+  });
+  return response.json();
 };
