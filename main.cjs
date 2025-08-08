@@ -22,7 +22,6 @@ function loadConfig() {
 
 function createWindow() {
   const config = loadConfig();
-
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
   const win = new BrowserWindow({
@@ -31,20 +30,29 @@ function createWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
-  // Send config to preload
   ipcMain.handle('get-config', () => config);
-
   win.setMenuBarVisibility(false);
 
   if (isDev) {
     win.loadURL('http://localhost:8081');
     win.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, 'dist', 'index.html'));
+    // Construct the absolute path to your index.html in the unpacked folder
+    const indexPath = path.resolve(
+      process.resourcesPath,
+      'app.asar.unpacked',
+      'dist',
+      'index.html'
+    );
+
+    // Load it with loadFile to avoid file URL issues
+    win.loadFile(indexPath).catch(err => {
+      console.error('Failed to load local index.html:', err);
+    });
   }
 
   win.webContents.on('did-fail-load', (event, code, desc, validatedURL) => {
@@ -54,6 +62,7 @@ function createWindow() {
     }
   });
 }
+
 
 app.whenReady().then(() => {
   createWindow();
