@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -10,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import {
   Select,
   SelectContent,
@@ -21,6 +23,7 @@ import { updateUserDetails } from "@/services/apiService";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 
+
 interface User {
   id: string;
   fullName: string;
@@ -30,6 +33,7 @@ interface User {
   grade?: string;
   gradeLevel?: string;
   assignedLevels?: string[];
+
 }
 
 interface UserEditModalProps {
@@ -83,6 +87,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -131,13 +136,13 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
+
         <DialogHeader>
           <DialogTitle>Edit User</DialogTitle>
           <DialogDescription>
             Update user information. Changes will be saved immediately.
           </DialogDescription>
         </DialogHeader>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name</Label>
@@ -148,6 +153,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
               required
             />
           </div>
+
 
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
@@ -254,6 +260,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? "Saving..." : "Save Changes"}
+
             </Button>
           </DialogFooter>
         </form>

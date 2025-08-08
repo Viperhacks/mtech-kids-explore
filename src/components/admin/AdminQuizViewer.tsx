@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { capitalize } from "@/utils/stringUtils";
 import toReadableDate from "@/utils/toReadableDate";
 
+
 interface AdminQuizViewerProps {
   quiz: AdminQuiz;
 }
@@ -17,9 +19,11 @@ interface QuizQuestion {
   id: string;
   question: string;
   options: string[];
+
   correctAnswerPosition: string;
   correctAnswerText: string;
   type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "SHORT_ANSWER";
+
 }
 
 const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
@@ -35,6 +39,7 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
     setIsLoading(true);
     try {
       const response = await getQuizQuestions(quiz.quizId);
+ 
       console.log("Quiz questions response:", response);
       // Handle axios response - response.data should contain the questions
       const questionsData = response.data || response || [];
@@ -58,17 +63,20 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
         title: "Using sample data",
         description: "Could not load quiz questions, showing sample",
         variant: "default",
+
       });
     } finally {
       setIsLoading(false);
     }
   };
 
+
   const getOptionIcon = (
     optionIndex: number,
     correctAnswerPosition: number
   ) => {
     return optionIndex + 1 === correctAnswerPosition ? (
+
       <CheckCircle className="h-4 w-4 text-green-500" />
     ) : (
       <XCircle className="h-4 w-4 text-red-500" />
@@ -93,6 +101,7 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
+ 
               <span className="font-medium"></span> {quiz.grade === "0"
                             ? "ECD"
                             : `Grade:  ${quiz.grade}`}
@@ -110,6 +119,7 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
               {Array.isArray(quiz.createdAt)
                 ? toReadableDate(quiz.createdAt)
                 : "Invalid date"}
+
             </div>
           </div>
           {quiz.description && (
@@ -149,10 +159,12 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
           ) : (
             <div className="space-y-6">
               {questions.map((question, index) => (
+
                 <Card
                   key={question.id}
                   className="border-l-4 border-l-mtech-primary"
                 >
+
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg">
                       Question {index + 1}
@@ -162,6 +174,7 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
                     <p className="font-medium text-mtech-dark">
                       {question.question}
                     </p>
+ 
 
                     {question.type === "SHORT_ANSWER" ? (
                       <div className="p-4 rounded-lg border bg-yellow-50 border-yellow-300">
@@ -208,9 +221,11 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
                       </div>
                     )}
 
+
                     <div className="pt-2 border-t">
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span>
+ 
                           <span className="font-medium">Type:</span>{" "}
                           {question.type === "MULTIPLE_CHOICE"
                             ? "Multiple Choice"
@@ -227,6 +242,7 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
                               ? question.correctAnswerText ||
                                 "Not specified"
                               : question.correctAnswerPosition}
+
                           </span>
                         </span>
                       </div>
@@ -242,4 +258,6 @@ const AdminQuizViewer: React.FC<AdminQuizViewerProps> = ({ quiz }) => {
   );
 };
 
+ 
 export default AdminQuizViewer;
+

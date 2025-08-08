@@ -1,4 +1,6 @@
+
 import type { PluginOption } from "vite";
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -25,7 +27,7 @@ export default defineConfig(async ({ mode }): Promise<{
     base: "./",
     server: {
       host: "::",
-      port: 8081,
+      port: 8080,
     },
     plugins,
     resolve: {
@@ -55,5 +57,6 @@ export default defineConfig(async ({ mode }): Promise<{
         external: ["fs", "path", "electron"],
       },
     },
+
   };
 });
