@@ -28,9 +28,12 @@
   "directories": {
     "buildResources": "assets"
   },
+  "asarUnpack": [
+    "dist/**"
+  ],
   "win": {
     "target": [
-      "portable"
+      "nsis"
     ],
     "icon": "mtech.ico"
   },
@@ -41,7 +44,8 @@
     "createStartMenuShortcut": true,
     "shortcutName": "MtechAcademyApp"
   }
-},
+}
+,
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^3.9.0",
@@ -104,6 +108,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
     "@eslint/js": "^9.9.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^22.5.5",

@@ -1,20 +1,25 @@
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, User, ArrowRight, User2, UserCheck } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import ForgotPasswordForm from './ForgotPasswordForm';
-import ResetPasswordForm from './ResetPasswordForm';
-import OtpConfirmForm from './OtpConfirmForm';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
-import { 
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { Mail, Lock, User, ArrowRight, User2, UserCheck } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import ForgotPasswordForm from "./ForgotPasswordForm";
+import ResetPasswordForm from "./ResetPasswordForm";
+import OtpConfirmForm from "./OtpConfirmForm";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
@@ -37,49 +42,54 @@ interface GoogleUserInfo {
 
 const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formType, setFormType] = useState<'login' | 'register'>('login');
+  const [formType, setFormType] = useState<"login" | "register">("login");
   //const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [gradeLevel, setGradeLevel] = useState('');
-  const [view, setView] = useState<'main' | 'forgot' | 'reset' | 'otp'>('main');
-  const [resetToken, setResetToken] = useState('');
-  const [googleRole, setGoogleRole] = useState<'STUDENT' | 'TEACHER' | 'PARENT' | 'ADMIN'>('STUDENT');
-  const [googleGradeLevel, setGoogleGradeLevel] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [gradeLevel, setGradeLevel] = useState("");
+  const [view, setView] = useState<"main" | "forgot" | "reset" | "otp">("main");
+  const [resetToken, setResetToken] = useState("");
+  const [googleRole, setGoogleRole] = useState<
+    "STUDENT" | "TEACHER" | "PARENT" | "ADMIN"
+  >("STUDENT");
+  const [googleGradeLevel, setGoogleGradeLevel] = useState("");
   const [showGoogleRoleSelect, setShowGoogleRoleSelect] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState("");
   const { toast } = useToast();
   const { login, register: registerUser, googleLogin, confirmOtp } = useAuth();
   const navigate = useNavigate();
-  const [registeredEmail, setRegisteredEmail] = useState('');
-  const [registeredUsername, setRegisteredUsername] = useState('');
+  const [registeredEmail, setRegisteredEmail] = useState("");
+  const [registeredUsername, setRegisteredUsername] = useState("");
   const [showOtpForm, setShowOtpForm] = useState(false);
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState("");
   const [teacherPhrase, setTeacherPhrase] = useState("");
 
   const currYear = new Date().getFullYear();
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      if (formType === 'register') {
+      if (formType === "register") {
         if (password !== confirmPassword) {
           toast({
             title: "Password Mismatch",
             description: "The passwords you entered do not match",
-            variant: "destructive"
+            variant: "destructive",
           });
           setIsSubmitting(false);
           return;
         }
 
-       
-
-        const response = await registerUser(name, username, password, "STUDENT", gradeLevel);
+        const response = await registerUser(
+          name,
+          username,
+          password,
+          "STUDENT",
+          gradeLevel
+        );
         //console.log("registration response",response);
         if (response && response.success) {
           setRegisteredUsername(username);
@@ -88,33 +98,31 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
             title: "Registration Successful",
             description: "You can now log in with your credentials",
           });
-          setFormType('login');
-          setName('');
-  setUsername('');
-  setPassword('');
-  setConfirmPassword('');
-  setGradeLevel('');
+          setFormType("login");
+          setName("");
+          setUsername("");
+          setPassword("");
+          setConfirmPassword("");
+          setGradeLevel("");
         }
       } else {
         await login(username, password);
         onClose();
-        navigate('/dashboard');
+        navigate("/dashboard");
       }
-    } catch (err:any) {
-      console.error('Auth error:', err.response.data.message);
+    } catch (err: any) {
+      console.error("Auth error:", err.response.data.message);
       toast({
-        title: formType === 'login' ? 'Login Failed' : 'Registration Failed',
-        description: 'Please check your credentials and try again.',
-        variant: 'destructive',
+        title: formType === "login" ? "Login Failed" : "Registration Failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  
-
- /* const handleOtpSubmit = async (e: React.FormEvent) => {
+  /* const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await confirmOtp(registeredEmail, otp);
@@ -134,7 +142,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
   };*/
 
   //const handleForgotPassword = () => setView('forgot');
-  const handleBackToMain = () => setView('main');
+  const handleBackToMain = () => setView("main");
   /*const handleResetPassword = (token: string) => {
     setResetToken(token);
     setView('reset');
@@ -295,10 +303,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
 
   return (
     <div className="p-4 sm:p-6">
-      <Tabs value={"login"/*formType*/} onValueChange={v => setFormType(v as 'login' | 'register')} className="w-full">
+      <Tabs
+        value={"login" /*formType*/}
+        onValueChange={(v) => setFormType(v as "login" | "register")}
+        className="w-full"
+      >
         <TabsList className="grid grid-cols-1">
-    <TabsTrigger value="login">Sign In</TabsTrigger>
-  </TabsList>
+          <TabsTrigger value="login">Sign In</TabsTrigger>
+        </TabsList>
 
         <TabsContent value="login">
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -327,7 +339,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   placeholder="Enter your username"
                   className="pl-10"
                   value={username}
-                  onChange={e => setUsername(e.target.value)}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
@@ -348,17 +360,21 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   placeholder="Enter your password"
                   className="pl-10"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
             </div>
 
-            <Button type="submit" className="w-full bg-mtech-primary" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in...' : 'Sign In'}
+            <Button
+              type="submit"
+              className="w-full bg-mtech-primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Signing in..." : "Sign In"}
             </Button>
 
-           {/*Google login } <div className="relative my-4">
+            {/*Google login } <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200" />
               </div>
@@ -394,8 +410,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   placeholder="Enter your full name"
                   className="pl-10"
                   value={name}
-                  onChange={e => setName(e.target.value)}
-                  autoCapitalize='words'
+                  onChange={(e) => setName(e.target.value)}
+                  autoCapitalize="words"
                   required
                 />
               </div>
@@ -411,7 +427,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   placeholder="Enter your username"
                   className="pl-10"
                   value={username}
-                  onChange={e => setUsername(e.target.value)}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
@@ -442,7 +458,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   placeholder="Create a password"
                   className="pl-10"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
@@ -458,41 +474,36 @@ const AuthForm: React.FC<AuthFormProps> = ({ onClose }) => {
                   placeholder="Confirm your password"
                   className="pl-10"
                   value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
               </div>
             </div>
 
-           
+            <div className="space-y-2">
+              <Label htmlFor="grade-level">Grade Level</Label>
+              <Select value={gradeLevel} onValueChange={setGradeLevel} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your grade" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 7 }, (_, i) => (
+                    <SelectItem key={i + 1} value={`${i + 1}`}>
+                      Grade {i + 1}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-           
-              <div className="space-y-2">
-                <Label htmlFor="grade-level">Grade Level</Label>
-                <Select value={gradeLevel} onValueChange={setGradeLevel} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your grade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 7 }, (_, i) => (
-                      <SelectItem key={i + 1} value={`${i + 1}`}>
-                        Grade {i + 1}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            
-
-
-           
-
-            <Button type="submit" className="w-full bg-mtech-primary" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating Account...' : 'Create Account'}
+            <Button
+              type="submit"
+              className="w-full bg-mtech-primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating Account..." : "Create Account"}
               {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
             </Button>
-
-            
 
             {/*<div className="flex justify-center">
               <GoogleLogin
